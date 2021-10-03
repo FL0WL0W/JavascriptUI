@@ -16,8 +16,10 @@ class Table {
     YLabel = "";
     ZLabel = "";
     
-    constructor(){
+    constructor(copyObject){
         this.GUID = getGUID();
+        if(copyObject)
+            Object.assign(this, copyObject);
         this.SetXResolution(this.XResolution);
         this.SetYResolution(this.YResolution);
     }
@@ -525,6 +527,7 @@ class Table {
                         row += "<td><input id=\"" + inputId + "\" data-x=\"" + x + "\" data-y=\"" + y + "\" type=\"number\" value=\"" + this.Value[valuesIndex] + "\""+rowClass+"/></td>";
                     }
                 } else {
+                    console.log(this.YResolutionModifiable);
                     if(this.YResolutionModifiable && x == xstart) {
                         row += "<td class=\"row_expand\" colspan=\"" + (this.XResolution - xstart) + "\"></td>";
                         row += "<td class=\"rowcol_expand\"></td>";
