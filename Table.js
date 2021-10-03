@@ -408,7 +408,6 @@ class Table {
                 return;
 
             pasteData(x,y,val,pastetype);
-            console.log(thisClass.GUID);
 
             selecting = false;
             e.preventDefault();
@@ -531,7 +530,6 @@ class Table {
                         row += "<td><input id=\"" + inputId + "\" data-x=\"" + x + "\" data-y=\"" + y + "\" type=\"number\" value=\"" + this.Value[valuesIndex] + "\""+rowClass+"/></td>";
                     }
                 } else {
-                    console.log(this.YResolutionModifiable);
                     if(this.YResolutionModifiable && x == xstart) {
                         row += "<td class=\"row_expand\" colspan=\"" + (this.XResolution - xstart) + "\"></td>";
                         row += "<td class=\"rowcol_expand\"></td>";
