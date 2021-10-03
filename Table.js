@@ -18,6 +18,8 @@ class Table {
     
     constructor(){
         this.GUID = getGUID();
+        this.SetXResolution(this.XResolution);
+        this.SetYResolution(this.YResolution);
     }
 
     SetXResolution(xRes){
@@ -296,7 +298,8 @@ class Table {
             resetTouchEnd();
         });
         $(document).on("mouseup."+this.GUID, function(e){
-            $("#" + thisClass.GUID + "-table input.origselect").select();
+            if(selecting)
+                $("#" + thisClass.GUID + "-table input.origselect").select();
             up.call(this);
         });
         
@@ -407,8 +410,8 @@ class Table {
     }
 
     GetHtml() {
-        return "<div id=\"" + this.GUID + "\">" + 
-                    "<div style=\"display:block;\">" + GetPasteOptions() + "<div style=\"display:inline-block; position: relative;\"><div style=\"width: 100; position: absolute; top: -10; left: 32px;z-index:1\">Modify</div><div class=\"configContainer\">" + 
+        return "<div id=\"" + this.GUID + "\" class=\"configtable\">" + 
+                    "<div style=\"display:block;\">" + GetPasteOptions() + "<div style=\"display:inline-block; position: relative;\"><div style=\"width: 100; position: absolute; top: -10; left: 32px;z-index:1\">Modify</div><div class=\"container\">" + 
                     "<div id=\""+this.GUID + "-equal\" class=\"w3-padding-tiny w3-bar-item w3-button\"><h3 style=\"padding:0px; margin:0px;\">&nbsp;=&nbsp;</h3></div>" +
                     "<div id=\""+this.GUID + "-add\" class=\"w3-padding-tiny w3-bar-item w3-button\"><h3 style=\"padding:0px; margin:0px;\">&nbsp;+&nbsp;</h3></div>" +
                     "<div id=\""+this.GUID + "-multiply\" class=\"w3-padding-tiny w3-bar-item w3-button\"><h3 style=\"padding:0px; margin:0px;\">&nbsp;x&nbsp;</h3></div>" +
@@ -423,7 +426,7 @@ class Table {
 
     GetTable() {
         var row = "";
-        var table = "<table id=\"" + this.GUID + "-table\" class=\"configtable\">";
+        var table = "<table id=\"" + this.GUID + "-table\">";
 
         var xstart = -1;
         var ystart = -1;
@@ -436,35 +439,38 @@ class Table {
             var row = "<tr>";
             for(var x = xstart; x < this.XResolution + 1; x++) {
                 if(y === -2){
-                    if(x === -2) {
+                    if(x == -2) {
                         // X-X - - -
-                        // X-X - - -
                         // - - - - -
                         // - - - - -
                         // - - - - -
-                        row += "<td colspan=\"2\" rowspan=\"2\" class=\"zlabel\">" + this.ZLabel + "</th>";
+                        // - - - - -
+                        row += "<td></td><td></td><td></td>";
                     } else if(x === 0){
                         // - - X---X
                         // - - - - -
                         // - - - - -
                         // - - - - -
                         // - - - - -
-                        row += "<td colspan=\""+this.XResolution+"\" class=\"xaxislabel\"><div>" + this.XLabel + "</div></th>"
+                        row += "<td colspan=\""+this.XResolution+"\" class=\"xaxislabel\"><div>" + this.XLabel + "</div></td>"
                     } else if (x === this.XResolution) {
                         if(xstart === -2 && this.XResolutionModifiable) 
                             row += "<td class=\"col_expand\" rowspan=\"" + (this.YResolution + 2) + "\"></td>";
                     }
                 } else if(y === -1) {
-                    if(x === -1) {
+                    if(x === -2) {
+                    } else if(x === -1) {
                         // - - - - -
                         // - X - - -
                         // - - - - -
                         // - - - - -
                         // - - - - -
                         if(this.YResolution === 1) {
-                            row += "<td class=\"xylabel\">" + this.XLabel + "</th>";
+                            row += "<td class=\"yaxis\">" + this.XLabel + "</td>";
                         } else if(this.XResolution === 1) {
-                            row += "<td class=\"xylabel\">" + this.YLabel + "</th>";
+                            row += "<td class=\"xaxis\">" + this.YLabel + "</td>";
+                        } else {
+                            row += "<td colspan=\"3\" class=\"zlabel\">" + this.ZLabel + "</td>";
                         }
                     } else if(x === -2) {
                     } else if(x < this.XResolution) {
@@ -474,7 +480,7 @@ class Table {
                         // - - - - -
                         // - - - - -
                         if(this.XResolution === 1) {
-                            row += "<td class=\"xaxis\">" + this.ZLabel + "</th>";
+                            row += "<td class=\"xaxis\">" + this.ZLabel + "</td>";
                         } else {
                             row += "<td class=\"xaxis\"><input id=\"" + this.GUID + "-" + x + "-axis\" data-x=\"" + x + "\" data-y=\"" + y + "\" type=\"number\" " + ((x === 0 && this.MinXModifiable) || (x === this.XResolution - 1 && this.MaxXModifiable)? "" : "disabled") + " value=\"" + (parseFloat(parseFloat(((this.MaxX - this.MinX) * x / (this.XResolution-1) + this.MinX).toFixed(6)).toPrecision(7))) + "\"/></td>";
                         }
@@ -490,7 +496,7 @@ class Table {
                             // X - - - -
                             // | - - - -
                             // X - - - -
-                            row += "<td rowspan=\""+this.YResolution+"\" class=\"yaxislabel\"><div>" + this.YLabel; + "</div></th>";
+                            row += "<td rowspan=\""+this.YResolution+"\" style=\"width: auto;\"></td><td rowspan=\""+this.YResolution+"\" class=\"yaxislabel\"><div>" + this.YLabel; + "</div></td>";
                         }
                     } else if(x === -1) {
                         // - - - - -
@@ -499,7 +505,7 @@ class Table {
                         // - X - - -
                         // - X - - -
                         if(this.YResolution === 1) {
-                            row += "<td class=\"yaxis\">" + this.ZLabel + "</th>";
+                            row += "<td class=\"yaxis\">" + this.ZLabel + "</td>";
                         } else {
                             row += "<td class=\"yaxis\"><input id=\"" + this.GUID + "-axis-" + y + "\"  data-x=\"" + x + "\" data-y=\"" + y + "\" type=\"number\" " + ((y === 0 && this.MinYModifiable) || (y === this.YResolution - 1 && this.MaxYModifiable)? "" : "disabled") + " value=\"" + (parseFloat(parseFloat(((this.MaxY - this.MinY) * y / (this.YResolution-1) + this.MinY).toFixed(6)).toPrecision(7))) + "\"/></td>";
                         }
@@ -539,8 +545,8 @@ function AttachPasteOptions() {
     DetachPasteOptions();
     $(document).on("click.pasteoptions", "#pasteoptions .w3-button", function(){
         pastetype = $(this).data("pastetype");
-        $("#pasteoptions div").removeClass("active");
-        $("#pasteoptions div[data-pastetype=\"" + pastetype + "\"").addClass("active");
+        $("#pasteoptions div").removeClass("selected");
+        $("#pasteoptions div[data-pastetype=\"" + pastetype + "\"").addClass("selected");
     });
 }
 
@@ -549,13 +555,13 @@ function DetachPasteOptions() {
 }
 
 function GetPasteOptions() {
-    var ret = "<div style=\"display:inline-block; position: relative;\"><div style=\"width: 150; position: absolute; top: -10; left: 32px;z-index:1\">Paste Options</div><div id=\"pasteoptions\" class=\"configContainer\">";
-    ret += "<div data-pastetype=\"equal\"       class=\"w3-padding-tiny w3-bar-item w3-button" + (pastetype=="equal"? " active" : "") +         "\" style=\"position: relative;\"><h3 style=\"padding:0px; margin:0px;\">📋</h3><span style=\"padding:0px; margin:0px; color: #d03333; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);\">=</span></div>";
-    ret += "<div data-pastetype=\"add\"         class=\"w3-padding-tiny w3-bar-item w3-button" + (pastetype=="add"? " active" : "") +           "\" style=\"position: relative;\"><h3 style=\"padding:0px; margin:0px;\">📋</h3><span style=\"padding:0px; margin:0px; color: #d03333; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);\">+</span></div>";
-    ret += "<div data-pastetype=\"subtract\"    class=\"w3-padding-tiny w3-bar-item w3-button" + (pastetype=="subtract"? " active" : "") +      "\" style=\"position: relative;\"><h3 style=\"padding:0px; margin:0px;\">📋</h3><span style=\"padding:0px; margin:0px; color: #d03333; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);\">-</span></div>";
-    ret += "<div data-pastetype=\"multiply\"    class=\"w3-padding-tiny w3-bar-item w3-button" + (pastetype=="multiply"? " active" : "") +      "\" style=\"position: relative;\"><h3 style=\"padding:0px; margin:0px;\">📋</h3><span style=\"padding:0px; margin:0px; color: #d03333; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);\">x</span></div>";
-    ret += "<div data-pastetype=\"multiply%\"   class=\"w3-padding-tiny w3-bar-item w3-button" + (pastetype=="multiply%"? " active" : "") +     "\" style=\"position: relative;\"><h3 style=\"padding:0px; margin:0px;\">📋</h3><span style=\"padding:0px; margin:0px; color: #d03333; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);\">%</span></div>";
-    ret += "<div data-pastetype=\"multiply%/2\" class=\"w3-padding-tiny w3-bar-item w3-button" + (pastetype=="multiply%/2"? " active" : "") +   "\" style=\"position: relative;\"><h3 style=\"padding:0px; margin:0px;\">📋</h3><span style=\"padding:0px; margin:0px; color: #d03333; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);\"><sup>%</sup>&frasl;<sub>2</sub></span></div>";
+    var ret = "<div style=\"display:inline-block; position: relative;\"><div style=\"width: 150; position: absolute; top: -10; left: 32px;z-index:1\">Paste Options</div><div id=\"pasteoptions\" class=\"container\">";
+    ret += "<div data-pastetype=\"equal\"       class=\"w3-padding-tiny w3-bar-item w3-button" + (pastetype=="equal"? " selected" : "") +         "\" style=\"position: relative;\"><h3 style=\"padding:0px; margin:0px;\">📋</h3><span style=\"padding:0px; margin:0px; color: #d03333; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);\">=</span></div>";
+    ret += "<div data-pastetype=\"add\"         class=\"w3-padding-tiny w3-bar-item w3-button" + (pastetype=="add"? " selected" : "") +           "\" style=\"position: relative;\"><h3 style=\"padding:0px; margin:0px;\">📋</h3><span style=\"padding:0px; margin:0px; color: #d03333; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);\">+</span></div>";
+    ret += "<div data-pastetype=\"subtract\"    class=\"w3-padding-tiny w3-bar-item w3-button" + (pastetype=="subtract"? " selected" : "") +      "\" style=\"position: relative;\"><h3 style=\"padding:0px; margin:0px;\">📋</h3><span style=\"padding:0px; margin:0px; color: #d03333; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);\">-</span></div>";
+    ret += "<div data-pastetype=\"multiply\"    class=\"w3-padding-tiny w3-bar-item w3-button" + (pastetype=="multiply"? " selected" : "") +      "\" style=\"position: relative;\"><h3 style=\"padding:0px; margin:0px;\">📋</h3><span style=\"padding:0px; margin:0px; color: #d03333; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);\">x</span></div>";
+    ret += "<div data-pastetype=\"multiply%\"   class=\"w3-padding-tiny w3-bar-item w3-button" + (pastetype=="multiply%"? " selected" : "") +     "\" style=\"position: relative;\"><h3 style=\"padding:0px; margin:0px;\">📋</h3><span style=\"padding:0px; margin:0px; color: #d03333; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);\">%</span></div>";
+    ret += "<div data-pastetype=\"multiply%/2\" class=\"w3-padding-tiny w3-bar-item w3-button" + (pastetype=="multiply%/2"? " selected" : "") +   "\" style=\"position: relative;\"><h3 style=\"padding:0px; margin:0px;\">📋</h3><span style=\"padding:0px; margin:0px; color: #d03333; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);\"><sup>%</sup>&frasl;<sub>2</sub></span></div>";
     ret += "</div></div>"
 
     return ret;
