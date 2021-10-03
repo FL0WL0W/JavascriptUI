@@ -11,13 +11,45 @@
     font-size: 20px;
     width: 80px;
 }
+.configtable .paste-button,
+.configtable .modify-button ,
+.configtable input.modify-button {
+    padding: 2px;
+    border-radius: 6px;
+    border: 3px solid #666;
+    cursor: pointer;
+    margin: 2px;
+    display: inline-block;
+}
+.configtable input.modify-button {
+    font-size: 1.5em;
+}
+.configtable .paste-button h3,
+.configtable .modify-button h3{
+    padding: 0px;
+    margin: 0px;
+    font-size: 1.5em;
+}
+.configtable .paste-button span {
+    padding:0px; 
+    margin:0px; 
+    color: #d03333; 
+    position: absolute; 
+    top: 50%; 
+    left: 50%; 
+    transform: translate(-50%, -50%);
+}
+.configtable .paste-button:hover,
+.configtable .modify-button:hover {
+    border-color: #3590d0;
+}
 .configtable input.selected, 
 .configtable input.selected:hover,
 .configtable div.selected,
 .configtable div.selected:hover
 {
-    border-color:#549bce;
-    background-color: #3590d0;
+    border-color:#3590d0;
+    background-color: #3590d088;
 }
 .configtable .container{
     vertical-align:top; 

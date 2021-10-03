@@ -412,10 +412,10 @@ class Table {
     GetHtml() {
         return "<div id=\"" + this.GUID + "\" class=\"configtable\">" + 
                     "<div style=\"display:block;\">" + GetPasteOptions() + "<div style=\"display:inline-block; position: relative;\"><div style=\"width: 100; position: absolute; top: -10; left: 32px;z-index:1\">Modify</div><div class=\"container\">" + 
-                    "<div id=\""+this.GUID + "-equal\" class=\"w3-padding-tiny w3-bar-item w3-button\"><h3 style=\"padding:0px; margin:0px;\">&nbsp;=&nbsp;</h3></div>" +
-                    "<div id=\""+this.GUID + "-add\" class=\"w3-padding-tiny w3-bar-item w3-button\"><h3 style=\"padding:0px; margin:0px;\">&nbsp;+&nbsp;</h3></div>" +
-                    "<div id=\""+this.GUID + "-multiply\" class=\"w3-padding-tiny w3-bar-item w3-button\"><h3 style=\"padding:0px; margin:0px;\">&nbsp;x&nbsp;</h3></div>" +
-                    "<input id=\""+this.GUID + "-modifyvalue\" type=\"number\"></input>" +
+                    "<div id=\""+this.GUID + "-equal\" class=\"modify-button\"><h3>&nbsp;=&nbsp;</h3></div>" +
+                    "<div id=\""+this.GUID + "-add\" class=\"modify-button\"><h3>&nbsp;+&nbsp;</h3></div>" +
+                    "<div id=\""+this.GUID + "-multiply\" class=\"modify-button\"><h3>&nbsp;x&nbsp;</h3></div>" +
+                    "<input id=\""+this.GUID + "-modifyvalue\" class=\"modify-button\" type=\"number\"></input>" +
                     "</div></div></div>" + this.GetTable() + 
                 "</div>";
     }
@@ -543,7 +543,7 @@ var pastetype = "equal";
 
 function AttachPasteOptions() {
     DetachPasteOptions();
-    $(document).on("click.pasteoptions", "#pasteoptions .w3-button", function(){
+    $(document).on("click.pasteoptions", "#pasteoptions .paste-button", function(){
         pastetype = $(this).data("pastetype");
         $("#pasteoptions div").removeClass("selected");
         $("#pasteoptions div[data-pastetype=\"" + pastetype + "\"").addClass("selected");
@@ -556,12 +556,12 @@ function DetachPasteOptions() {
 
 function GetPasteOptions() {
     var ret = "<div style=\"display:inline-block; position: relative;\"><div style=\"width: 150; position: absolute; top: -10; left: 32px;z-index:1\">Paste Options</div><div id=\"pasteoptions\" class=\"container\">";
-    ret += "<div data-pastetype=\"equal\"       class=\"w3-padding-tiny w3-bar-item w3-button" + (pastetype=="equal"? " selected" : "") +         "\" style=\"position: relative;\"><h3 style=\"padding:0px; margin:0px;\">📋</h3><span style=\"padding:0px; margin:0px; color: #d03333; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);\">=</span></div>";
-    ret += "<div data-pastetype=\"add\"         class=\"w3-padding-tiny w3-bar-item w3-button" + (pastetype=="add"? " selected" : "") +           "\" style=\"position: relative;\"><h3 style=\"padding:0px; margin:0px;\">📋</h3><span style=\"padding:0px; margin:0px; color: #d03333; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);\">+</span></div>";
-    ret += "<div data-pastetype=\"subtract\"    class=\"w3-padding-tiny w3-bar-item w3-button" + (pastetype=="subtract"? " selected" : "") +      "\" style=\"position: relative;\"><h3 style=\"padding:0px; margin:0px;\">📋</h3><span style=\"padding:0px; margin:0px; color: #d03333; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);\">-</span></div>";
-    ret += "<div data-pastetype=\"multiply\"    class=\"w3-padding-tiny w3-bar-item w3-button" + (pastetype=="multiply"? " selected" : "") +      "\" style=\"position: relative;\"><h3 style=\"padding:0px; margin:0px;\">📋</h3><span style=\"padding:0px; margin:0px; color: #d03333; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);\">x</span></div>";
-    ret += "<div data-pastetype=\"multiply%\"   class=\"w3-padding-tiny w3-bar-item w3-button" + (pastetype=="multiply%"? " selected" : "") +     "\" style=\"position: relative;\"><h3 style=\"padding:0px; margin:0px;\">📋</h3><span style=\"padding:0px; margin:0px; color: #d03333; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);\">%</span></div>";
-    ret += "<div data-pastetype=\"multiply%/2\" class=\"w3-padding-tiny w3-bar-item w3-button" + (pastetype=="multiply%/2"? " selected" : "") +   "\" style=\"position: relative;\"><h3 style=\"padding:0px; margin:0px;\">📋</h3><span style=\"padding:0px; margin:0px; color: #d03333; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);\"><sup>%</sup>&frasl;<sub>2</sub></span></div>";
+    ret += "<div data-pastetype=\"equal\"       class=\"paste-button" + (pastetype=="equal"? " selected" : "") +         "\" style=\"position: relative;\"><h3>📋</h3><span>=</span></div>";
+    ret += "<div data-pastetype=\"add\"         class=\"paste-button" + (pastetype=="add"? " selected" : "") +           "\" style=\"position: relative;\"><h3>📋</h3><span>+</span></div>";
+    ret += "<div data-pastetype=\"subtract\"    class=\"paste-button" + (pastetype=="subtract"? " selected" : "") +      "\" style=\"position: relative;\"><h3>📋</h3><span>-</span></div>";
+    ret += "<div data-pastetype=\"multiply\"    class=\"paste-button" + (pastetype=="multiply"? " selected" : "") +      "\" style=\"position: relative;\"><h3>📋</h3><span>x</span></div>";
+    ret += "<div data-pastetype=\"multiply%\"   class=\"paste-button" + (pastetype=="multiply%"? " selected" : "") +     "\" style=\"position: relative;\"><h3>📋</h3><span>%</span></div>";
+    ret += "<div data-pastetype=\"multiply%/2\" class=\"paste-button" + (pastetype=="multiply%/2"? " selected" : "") +   "\" style=\"position: relative;\"><h3>📋</h3><span><sup>%</sup>&frasl;<sub>2</sub></span></div>";
     ret += "</div></div>"
 
     return ret;
