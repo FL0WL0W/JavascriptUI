@@ -23,6 +23,7 @@
 }
 .configtable input.modify-button {
     font-size: 1.5em;
+    width: 100px;
 }
 .configtable .paste-button h3,
 .configtable .modify-button h3{

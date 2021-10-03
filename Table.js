@@ -292,7 +292,10 @@ class Table {
             if(e.which !== 1)
                 return;
             
-            down.call(this);
+            if(!$(this).hasClass("origselect"))
+                down.call(this);
+            else
+                selectOnMove = true;
         });
         
         $(document).on("touchend."+this.GUID, function(e){
@@ -300,6 +303,7 @@ class Table {
             resetTouchEnd();
         });
         $(document).on("mouseup."+this.GUID, function(e){
+            selectOnMove = false;
             if(selecting)
                 $("#" + thisClass.GUID + "-table input.origselect").select();
             up.call(this);
