@@ -543,7 +543,7 @@ class Table {
         return table + "</table>";
     }
 
-    Trail(x, y) {
+    Trail(x, y, z) {
         //TODO add trail
     }
 }
