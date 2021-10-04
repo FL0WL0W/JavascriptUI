@@ -542,6 +542,10 @@ class Table {
 
         return table + "</table>";
     }
+
+    Trail(x, y) {
+        //TODO add trail
+    }
 }
 
 var pastetype = "equal";
