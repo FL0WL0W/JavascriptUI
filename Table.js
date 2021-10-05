@@ -7,10 +7,11 @@ class Table {
     MinYModifiable = true;
     MaxY = 0;
     MaxYModifiable = true;
-    XResolution = 1;
+    XResolution = 8;
     XResolutionModifiable = true;
-    YResolution = 1;
+    YResolution = 8;
     YResolutionModifiable = true;
+    Default = true;
     Value = [0];
     XLabel = "";
     YLabel = "";
@@ -22,6 +23,11 @@ class Table {
             Object.assign(this, copyObject);
         this.SetXResolution(this.XResolution);
         this.SetYResolution(this.YResolution);
+        this.Default = true;
+    }
+
+    IsDefault() {
+        return this.Default;
     }
 
     SetXResolution(xRes){
@@ -44,6 +50,7 @@ class Table {
         }
         this.XResolution = xRes;
         this.Value = newValue;
+        this.Default = false;
     }
 
     SetYResolution(yRes){
@@ -65,6 +72,7 @@ class Table {
         }
         this.YResolution = yRes;
         this.Value = newValue;
+        this.Default = false;
     }
 
     Detach() {
@@ -92,6 +100,7 @@ class Table {
                 thisClass.Value[index] = value;
                 $(cell).val(thisClass.Value[index]);
             });
+            thisClass.Default = false;
         });
         $(document).on("click."+this.GUID, "#" + this.GUID + "-add", function(){
             var value = parseFloat($("#" + thisClass.GUID + "-modifyvalue").val());
@@ -100,6 +109,7 @@ class Table {
                 thisClass.Value[index] += value;
                 $(cell).val(thisClass.Value[index]);
             });
+            thisClass.Default = false;
         });
         $(document).on("click."+this.GUID, "#" + this.GUID + "-multiply", function(){
             var value = parseFloat($("#" + thisClass.GUID + "-modifyvalue").val());
@@ -108,6 +118,7 @@ class Table {
                 thisClass.Value[index] *= value;
                 $(cell).val(thisClass.Value[index]);
             });
+            thisClass.Default = false;
         });
 
         $(document).on("change."+this.GUID, "#" + this.GUID + "-table", function(e){
@@ -144,6 +155,7 @@ class Table {
                     $(cell).val(thisClass.Value[index]);
                 });
             }
+            thisClass.Default = false;
         });
 
         var selecting = false;
@@ -387,6 +399,7 @@ class Table {
                     cell.addClass("selected");
                 });
             });
+            thisClass.Default = false;
         }
 
         $(document).on("copy."+this.GUID, "#" + this.GUID + "-table input", function(e){
@@ -460,9 +473,6 @@ class Table {
                         // - - - - -
                         // - - - - -
                         row += "<td colspan=\""+this.XResolution+"\" class=\"xaxislabel\"><div>" + this.XLabel + "</div></td>"
-                    } else if (x === this.XResolution) {
-                        if(xstart === -2 && this.XResolutionModifiable) 
-                            row += "<td class=\"col_expand\" rowspan=\"" + (this.YResolution + 2) + "\"></td>";
                     }
                 } else if(y === -1) {
                     if(x === -2) {
@@ -492,8 +502,8 @@ class Table {
                             row += "<td class=\"xaxis\"><input id=\"" + this.GUID + "-" + x + "-axis\" data-x=\"" + x + "\" data-y=\"" + y + "\" type=\"number\" " + ((x === 0 && this.MinXModifiable) || (x === this.XResolution - 1 && this.MaxXModifiable)? "" : "disabled") + " value=\"" + (parseFloat(parseFloat(((this.MaxX - this.MinX) * x / (this.XResolution-1) + this.MinX).toFixed(6)).toPrecision(7))) + "\"/></td>";
                         }
                     } else {
-                        if(xstart === -1 && this.XResolutionModifiable)
-                            row += "<td class=\"col_expand\" rowspan=\"" + (this.YResolution + 2) + "\"></td>";
+                        if(this.XResolutionModifiable)
+                            row += "<td class=\"col_expand\" rowspan=\"" + (this.YResolution + (xstart === -1? 2 : 1)) + "\"></td>";
                     }
                 } else if(y < this.YResolution) {
                     if(x === -2) {
@@ -533,8 +543,9 @@ class Table {
                     }
                 } else {
                     if(this.YResolutionModifiable && x == xstart) {
-                        row += "<td class=\"row_expand\" colspan=\"" + (this.XResolution - xstart) + "\"></td>";
-                        row += "<td class=\"rowcol_expand\"></td>";
+                        row += "<td></td><td></td><td class=\"row_expand\" colspan=\"" + (this.XResolution - xstart-1) + "\"></td>";
+                        if(this.XResolutionModifiable)
+                            row += "<td class=\"rowcol_expand\"></td>";
                     }
                 }
             }

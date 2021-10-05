@@ -109,6 +109,7 @@
 }
 
 .configtable .row_expand {
+    border: 2px solid #666;
     height:5px; 
     cursor: ns-resize;
     -webkit-touch-callout: none;
@@ -120,6 +121,7 @@
 }
 
 .configtable .col_expand {
+    border: 2px solid #666;
     width:3px; 
     cursor: ew-resize;
     -webkit-touch-callout: none;
@@ -131,6 +133,7 @@
 }
 
 .configtable .rowcol_expand {
+    border: 2px solid #666;
     height:5px; 
     width:3px; 
     cursor: nwse-resize;
