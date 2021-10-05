@@ -16,8 +16,8 @@ class Table {
     YLabel = "";
     ZLabel = "";
     
-    constructor(copyObject){
-        this.GUID = getGUID();
+    constructor(GUID, copyObject){
+        this.GUID = GUID;
         if(copyObject)
             Object.assign(this, copyObject);
         this.SetXResolution(this.XResolution);
