@@ -266,6 +266,7 @@ class Table {
         function resetLeftClick() { clearTimeout(leftClickHandle); leftClick = true; leftClickHandle = setTimeout(leftClickHandler, 100); }
 
         $(document).on("contextmenu."+this.GUID, "#" + this.GUID + "-table input", function(e){
+            $("#overlay").show();
             if(!leftClick) {
                 if(!touchEnd) {
                     if(!$(this).hasClass("origselect"))
@@ -299,6 +300,7 @@ class Table {
         });
         
         $(document).on("touchend."+this.GUID, function(e){
+            $("#overlay").hide();
             up.call(this);
             resetTouchEnd();
         });
