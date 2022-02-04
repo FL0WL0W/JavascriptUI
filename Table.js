@@ -16,6 +16,7 @@ class Table {
     XLabel = "";
     YLabel = "";
     ZLabel = "";
+    Hidden = false;
     
     constructor(GUID, copyObject){
         this.GUID = GUID;
@@ -442,7 +443,7 @@ class Table {
     }
 
     GetHtml() {
-        return "<div id=\"" + this.GUID + "\" class=\"configtable\">" + 
+        return "<div id=\"" + this.GUID + "\"" + (this.Hidden? " style=\"display: none;\"" : "") + " class=\"configtable\">" + 
                     "<div style=\"display:block;\">" + GetPasteOptions() + "<div style=\"display:inline-block; position: relative;\"><div style=\"width: 100; position: absolute; top: -10; left: 32px;z-index:1\">Modify</div><div class=\"container\">" + 
                     "<div id=\""+this.GUID + "-equal\" class=\"modify-button\"><h3>&nbsp;=&nbsp;</h3></div>" +
                     "<div id=\""+this.GUID + "-add\" class=\"modify-button\"><h3>&nbsp;+&nbsp;</h3></div>" +
@@ -450,6 +451,16 @@ class Table {
                     "<input id=\""+this.GUID + "-modifyvalue\" class=\"modify-button\" type=\"number\"></input>" +
                     "</div></div></div>" + this.GetTable() + 
                 "</div>";
+    }
+    
+    Hide() {
+        this.Hidden = true;
+        $("#" + this.GUID).hide();
+    }
+
+    Show() {
+        this.Hidden = false;
+        $("#" + this.GUID).show();
     }
 
     UpdateTable() {
