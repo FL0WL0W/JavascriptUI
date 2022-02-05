@@ -11,7 +11,7 @@ class Table {
     XResolutionModifiable = true;
     YResolution = 8;
     YResolutionModifiable = true;
-    OnChange = undefined;
+    OnChange = [];
     Value = [0];
     XLabel = "";
     YLabel = "";
@@ -23,10 +23,12 @@ class Table {
         if(copyObject)
             Object.assign(this, copyObject);
         var onChange = this.OnChange;
-        this.OnChange = undefined;
+        this.OnChange = [];
         this.SetXResolution(this.XResolution);
         this.SetYResolution(this.YResolution);
         this.OnChange = onChange;
+        if(!Array.isArray(this.OnChange))
+            this.OnChange = [ this.OnChange ];
     }
 
     SetXResolution(xRes){
@@ -49,9 +51,7 @@ class Table {
         }
         this.XResolution = xRes;
         this.Value = newValue;
-        if(this.OnChange) {
-            this.OnChange(this.Value);
-        }
+        this.OnChange.forEach(function(OnChange) { OnChange(); });
     }
 
     SetYResolution(yRes){
@@ -73,9 +73,7 @@ class Table {
         }
         this.YResolution = yRes;
         this.Value = newValue;
-        if(this.OnChange) {
-            this.OnChange(this.Value);
-        }
+        this.OnChange.forEach(function(OnChange) { OnChange(); });
     }
 
     Detach() {
@@ -103,9 +101,7 @@ class Table {
                 thisClass.Value[index] = value;
                 $(cell).val(thisClass.Value[index]);
             });
-            if(thisClass.OnChange) {
-                thisClass.OnChange(this.Value);
-            }
+            thisClass.OnChange.forEach(function(OnChange) { OnChange(); });
         });
         $(document).on("click."+this.GUID, "#" + this.GUID + "-add", function(){
             var value = parseFloat($("#" + thisClass.GUID + "-modifyvalue").val());
@@ -114,9 +110,7 @@ class Table {
                 thisClass.Value[index] += value;
                 $(cell).val(thisClass.Value[index]);
             });
-            if(thisClass.OnChange) {
-                thisClass.OnChange(this.Value);
-            }
+            thisClass.OnChange.forEach(function(OnChange) { OnChange(); });
         });
         $(document).on("click."+this.GUID, "#" + this.GUID + "-multiply", function(){
             var value = parseFloat($("#" + thisClass.GUID + "-modifyvalue").val());
@@ -125,9 +119,7 @@ class Table {
                 thisClass.Value[index] *= value;
                 $(cell).val(thisClass.Value[index]);
             });
-            if(thisClass.OnChange) {
-                thisClass.OnChange(this.Value);
-            }
+            thisClass.OnChange.forEach(function(OnChange) { OnChange(); });
         });
 
         $(document).on("change."+this.GUID, "#" + this.GUID + "-table", function(e){
@@ -164,9 +156,7 @@ class Table {
                     $(cell).val(thisClass.Value[index]);
                 });
             }
-            if(thisClass.OnChange) {
-                thisClass.OnChange(this.Value);
-            }
+            thisClass.OnChange.forEach(function(OnChange) { OnChange(); });
         });
 
         var selecting = false;
@@ -410,9 +400,7 @@ class Table {
                     cell.addClass("selected");
                 });
             });
-            if(thisClass.OnChange) {
-                thisClass.OnChange(this.Value);
-            }
+            thisClass.OnChange.forEach(function(OnChange) { OnChange(); });
         }
 
         $(document).on("copy."+this.GUID, "#" + this.GUID + "-table input", function(e){
