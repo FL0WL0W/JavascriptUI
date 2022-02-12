@@ -4,12 +4,13 @@
     border-color: #666;
     border-style: none;
 }
-.configtable input[type="number"] {
+.configtable .number {
     margin: 0px;
     border-radius: 0px;
     border: 2px solid #666;
     font-size: 20px;
     width: 80px;
+    padding: 3px 2px;
 }
 .configtable .paste-button,
 .configtable .modify-button ,
@@ -44,8 +45,8 @@
 .configtable .modify-button:hover {
     border-color: #3590d0;
 }
-.configtable input.selected, 
-.configtable input.selected:hover,
+.configtable .number.selected, 
+.configtable .number.selected:hover,
 .configtable div.selected,
 .configtable div.selected:hover
 {
@@ -84,7 +85,7 @@
     border-style: solid;
     border-color: inherit;
 }
-.configtable td.yaxis input {
+.configtable td.yaxis .number {
     float: right;
 }
 .configtable td.xaxislabel {

@@ -510,7 +510,10 @@ class Table {
                         if(this.XResolution === 1) {
                             row += `<td class="xaxis">${this.ZLabel}</td>`;
                         } else {
-                            row += `<td class="xaxis"><input id="${this.GUID}-${x}-axis" data-x="${x}" data-y="${y}" type="number" ${(x === 0 && this.MinXModifiable) || (x === this.XResolution - 1 && this.MaxXModifiable)? `` : `disabled`} value="${parseFloat(parseFloat(((this.MaxX - this.MinX) * x / (this.XResolution-1) + this.MinX).toFixed(6)).toPrecision(7))}"/></td>`;
+                            if((x === 0 && this.MinXModifiable) || (x === this.XResolution - 1 && this.MaxXModifiable))
+                                row += `<td class="xaxis"><input class="number" id="${this.GUID}-${x}-axis" data-x="${x}" data-y="${y}" type="number" value="${parseFloat(parseFloat(((this.MaxX - this.MinX) * x / (this.XResolution-1) + this.MinX).toFixed(6)).toPrecision(7))}"/></td>`;
+                            else
+                                row += `<td class="xaxis"><div class="number">${parseFloat(parseFloat(((this.MaxX - this.MinX) * x / (this.XResolution-1) + this.MinX).toFixed(6)).toPrecision(7))}</div></td>`;
                         }
                     } else {
                         if(this.XResolutionModifiable)
@@ -535,7 +538,10 @@ class Table {
                         if(this.YResolution === 1) {
                             row += `<td class="yaxis">${this.ZLabel}</td>`;
                         } else {
-                            row += `<td class="yaxis"><input id="${this.GUID}-axis-${y}"  data-x="${x}" data-y="${y}" type="number" ${(y === 0 && this.MinYModifiable) || (y === this.YResolution - 1 && this.MaxYModifiable)? `` : `disabled`} value="${parseFloat(parseFloat(((this.MaxY - this.MinY) * y / (this.YResolution-1) + this.MinY).toFixed(6)).toPrecision(7))}"/></td>`;
+                            if((y === 0 && this.MinYModifiable) || (y === this.YResolution - 1 && this.MaxYModifiable))
+                                row += `<td class="yaxis"><input class="number" id="${this.GUID}-axis-${y}"  data-x="${x}" data-y="${y}" type="number" value="${parseFloat(parseFloat(((this.MaxY - this.MinY) * y / (this.YResolution-1) + this.MinY).toFixed(6)).toPrecision(7))}"/></td>`;
+                            else 
+                            row += `<td class="yaxis"><div class="number">${parseFloat(parseFloat(((this.MaxY - this.MinY) * y / (this.YResolution-1) + this.MinY).toFixed(6)).toPrecision(7))}</div></td>`;
                         }
                     } else if(x < this.XResolution) {
                         // - - - - -
@@ -550,7 +556,7 @@ class Table {
                             rowClass = ` class ="${rowClass}"`;
                         else
                             rowClass = ``;
-                        row += `<td><input id="${inputId}" data-x="${x}" data-y="${y}" type="number" value="${this.Value[valuesIndex]}"${rowClass}/></td>`;
+                        row += `<td><input class="number" id="${inputId}" data-x="${x}" data-y="${y}" type="number" value="${this.Value[valuesIndex]}"${rowClass}/></td>`;
                     }
                 } else {
                     if(this.YResolutionModifiable && x == xstart) {
