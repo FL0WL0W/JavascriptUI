@@ -96,7 +96,7 @@ class Table {
 
         $(document).on(`click.${this.GUID}`, `#${this.GUID}-equal`, function(){
             var value = parseFloat($(`#${thisClass.GUID}-modifyvalue`).val());
-            $.each($(`#${thisClass.GUID}-table input.selected`), function(index, cell) {
+            $.each($(`#${thisClass.GUID}-table .number.selected`), function(index, cell) {
                 var index = parseInt($(cell).data(`x`)) + parseInt($(cell).data(`y`)) * thisClass.XResolution;
                 thisClass.Value[index] = value;
                 $(cell).val(thisClass.Value[index]);
@@ -105,7 +105,7 @@ class Table {
         });
         $(document).on(`click.${this.GUID}`, `#${this.GUID}-add`, function(){
             var value = parseFloat($(`#${thisClass.GUID}-modifyvalue`).val());
-            $.each($(`#${thisClass.GUID}-table input.selected`), function(index, cell) {
+            $.each($(`#${thisClass.GUID}-table .number.selected`), function(index, cell) {
                 var index = parseInt($(cell).data(`x`)) + parseInt($(cell).data(`y`)) * thisClass.XResolution;
                 thisClass.Value[index] += value;
                 $(cell).val(thisClass.Value[index]);
@@ -114,7 +114,7 @@ class Table {
         });
         $(document).on(`click.${this.GUID}`, `#${this.GUID}-multiply`, function(){
             var value = parseFloat($(`#${thisClass.GUID}-modifyvalue`).val());
-            $.each($(`#${thisClass.GUID}-table input.selected`), function(index, cell) {
+            $.each($(`#${thisClass.GUID}-table .number.selected`), function(index, cell) {
                 var index = parseInt($(cell).data(`x`)) + parseInt($(cell).data(`y`)) * thisClass.XResolution;
                 thisClass.Value[index] *= value;
                 $(cell).val(thisClass.Value[index]);
@@ -136,7 +136,7 @@ class Table {
                     thisClass.MaxY = value;
                 }
                 for(var i = 1; i < thisClass.YResolution - 1; i++) {
-                    $(`#${thisClass.GUID}-table input[data-x='-1'][data-y='${i}']`).val(parseFloat(parseFloat(((thisClass.MaxY - thisClass.MinY) * i / (thisClass.YResolution-1) + thisClass.MinY).toFixed(6)).toPrecision(7)));
+                    $(`#${thisClass.GUID}-table .number[data-x='-1'][data-y='${i}']`).val(parseFloat(parseFloat(((thisClass.MaxY - thisClass.MinY) * i / (thisClass.YResolution-1) + thisClass.MinY).toFixed(6)).toPrecision(7)));
                 }
             } else if(y === -1) {
                 if(x === 0){
@@ -147,10 +147,10 @@ class Table {
                     thisClass.MaxX = value;
                 }
                 for(var i = 1; i < thisClass.XResolution - 1; i++) {
-                    $(`#${thisClass.GUID}-table input[data-x='${i}'][data-y='-1']`).val(parseFloat(parseFloat(((thisClass.MaxX - thisClass.MinX) * i / (thisClass.XResolution-1) + thisClass.MinX).toFixed(6)).toPrecision(7)));
+                    $(`#${thisClass.GUID}-table .number[data-x='${i}'][data-y='-1']`).val(parseFloat(parseFloat(((thisClass.MaxX - thisClass.MinX) * i / (thisClass.XResolution-1) + thisClass.MinX).toFixed(6)).toPrecision(7)));
                 }
             } else {
-                $.each($(`#${thisClass.GUID}-table input.selected`), function(index, cell) {
+                $.each($(`#${thisClass.GUID}-table .number.selected`), function(index, cell) {
                     var index = parseInt($(cell).data(`x`)) + parseInt($(cell).data(`y`)) * thisClass.XResolution;
                     thisClass.Value[index] = value;
                     $(cell).val(thisClass.Value[index]);
@@ -186,8 +186,8 @@ class Table {
 
         function down() {
             $(this).focus();
-            $(`#${thisClass.GUID}-table input`).removeClass(`selected`);
-            $(`#${thisClass.GUID}-table input`).removeClass(`origselect`);
+            $(`#${thisClass.GUID}-table .number`).removeClass(`selected`);
+            $(`#${thisClass.GUID}-table .number`).removeClass(`origselect`);
 
             if($(this).data(`x`) === undefined || parseInt($(this).data(`x`)) < 0 || $(this).data(`y`) === undefined || parseInt($(this).data(`y`)) < 0)
                 return;
@@ -242,7 +242,7 @@ class Table {
                 }
             }
             if(selecting || selectOnMove){
-                $.each($(`#${thisClass.GUID}-table input`), function(index, cell) {
+                $.each($(`#${thisClass.GUID}-table .number`), function(index, cell) {
                     var cellElement = $(cell);
                     if(cellElement.data(`x`) === undefined || parseInt(cellElement.data(`x`)) < 0 || cellElement.data(`y`) === undefined || parseInt(cellElement.data(`y`)) < 0)
                         return;
@@ -278,7 +278,7 @@ class Table {
         function leftClickHandler() { leftClick=false; }
         function resetLeftClick() { clearTimeout(leftClickHandle); leftClick = true; leftClickHandle = setTimeout(leftClickHandler, 100); }
 
-        $(document).on(`contextmenu.${this.GUID}`, `#${this.GUID}-table input`, function(e){
+        $(document).on(`contextmenu.${this.GUID}`, `#${this.GUID}-table .number`, function(e){
             $(`#overlay`).show();
             if(!leftClick) {
                 if(!touchEnd) {
@@ -295,12 +295,12 @@ class Table {
                 e.preventDefault();
             }
         });
-        $(document).on(`touchend.${this.GUID}`, `#${this.GUID}-table input`, function(e){
+        $(document).on(`touchend.${this.GUID}`, `#${this.GUID}-table .number`, function(e){
             selectOnMove = false;
             if($(this).hasClass(`origselect`))
                 e.preventDefault();
         });
-        $(document).on(`mousedown.${this.GUID}`, `#${this.GUID}-table input`, function(e){
+        $(document).on(`mousedown.${this.GUID}`, `#${this.GUID}-table .number`, function(e){
             if(e.which === 3)
                 resetLeftClick();
             if(e.which !== 1)
@@ -320,7 +320,7 @@ class Table {
         $(document).on(`mouseup.${this.GUID}`, function(e){
             selectOnMove = false;
             if(selecting)
-                $(`#${thisClass.GUID}-table input.origselect`).select();
+                $(`#${thisClass.GUID}-table .number.origselect`).select();
             up.call(this);
         });
         
@@ -338,7 +338,7 @@ class Table {
             for(var y = 0; y < thisClass.YResolution; y++){
                 var rowSelected = false
                     for(var x = 0; x < thisClass.XResolution; x++){
-                    if($(`#${thisClass.GUID}-table input[data-x='${x}'][data-y='${y}']`).hasClass(`selected`)){
+                    if($(`#${thisClass.GUID}-table .number[data-x='${x}'][data-y='${y}']`).hasClass(`selected`)){
                         if(rowSelected){
                             copyData += `\t`;
                         }
@@ -395,7 +395,7 @@ class Table {
                             thisClass.Value[xPos + yPos * thisClass.XResolution] = v;
                             break;
                     }
-                    var cell = $(`#${thisClass.GUID}-table input[data-x='${xPos}'][data-y='${yPos}']`);
+                    var cell = $(`#${thisClass.GUID}-table .number[data-x='${xPos}'][data-y='${yPos}']`);
                     cell.val(thisClass.Value[xPos + yPos * thisClass.XResolution]);
                     cell.addClass(`selected`);
                 });
@@ -403,7 +403,7 @@ class Table {
             thisClass.OnChange.forEach(function(OnChange) { OnChange(); });
         }
 
-        $(document).on(`copy.${this.GUID}`, `#${this.GUID}-table input`, function(e){
+        $(document).on(`copy.${this.GUID}`, `#${this.GUID}-table .number`, function(e){
             if($(this).data(`x`) === undefined || parseInt($(this).data(`x`)) < 0 || $(this).data(`y`) === undefined || parseInt($(this).data(`y`)) < 0)
                 return;
 
@@ -412,12 +412,12 @@ class Table {
             e.preventDefault();
         });
 
-        $(document).on(`paste.${this.GUID}`, `#${this.GUID}-table input`, function(e){
+        $(document).on(`paste.${this.GUID}`, `#${this.GUID}-table .number`, function(e){
             if($(this).data(`x`) === undefined || parseInt($(this).data(`x`)) < 0 || $(this).data(`y`) === undefined || parseInt($(this).data(`y`)) < 0)
                 return;
             var val = e.originalEvent.clipboardData.getData(`text/plain`);
 
-            var selectedCell = $(`#${thisClass.GUID}-table input.origselect`)
+            var selectedCell = $(`#${thisClass.GUID}-table .number.origselect`)
             var x = selectedCell.data(`x`);
             var y = selectedCell.data(`y`);
             if(x < 0 || y < 0)
@@ -513,7 +513,7 @@ class Table {
                             if((x === 0 && this.MinXModifiable) || (x === this.XResolution - 1 && this.MaxXModifiable))
                                 row += `<td class="xaxis"><input class="number" id="${this.GUID}-${x}-axis" data-x="${x}" data-y="${y}" type="number" value="${parseFloat(parseFloat(((this.MaxX - this.MinX) * x / (this.XResolution-1) + this.MinX).toFixed(6)).toPrecision(7))}"/></td>`;
                             else
-                                row += `<td class="xaxis"><div class="number">${parseFloat(parseFloat(((this.MaxX - this.MinX) * x / (this.XResolution-1) + this.MinX).toFixed(6)).toPrecision(7))}</div></td>`;
+                                row += `<td class="xaxis"><div class="number" id="${this.GUID}-${x}-axis" data-x="${x}" data-y="${y}">${parseFloat(parseFloat(((this.MaxX - this.MinX) * x / (this.XResolution-1) + this.MinX).toFixed(6)).toPrecision(7))}</div></td>`;
                         }
                     } else {
                         if(this.XResolutionModifiable)
@@ -541,7 +541,7 @@ class Table {
                             if((y === 0 && this.MinYModifiable) || (y === this.YResolution - 1 && this.MaxYModifiable))
                                 row += `<td class="yaxis"><input class="number" id="${this.GUID}-axis-${y}"  data-x="${x}" data-y="${y}" type="number" value="${parseFloat(parseFloat(((this.MaxY - this.MinY) * y / (this.YResolution-1) + this.MinY).toFixed(6)).toPrecision(7))}"/></td>`;
                             else 
-                            row += `<td class="yaxis"><div class="number">${parseFloat(parseFloat(((this.MaxY - this.MinY) * y / (this.YResolution-1) + this.MinY).toFixed(6)).toPrecision(7))}</div></td>`;
+                            row += `<td class="yaxis"><div class="number" id="${this.GUID}-axis-${y}"  data-x="${x}" data-y="${y}">${parseFloat(parseFloat(((this.MaxY - this.MinY) * y / (this.YResolution-1) + this.MinY).toFixed(6)).toPrecision(7))}</div></td>`;
                         }
                     } else if(x < this.XResolution) {
                         // - - - - -
