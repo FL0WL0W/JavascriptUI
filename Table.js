@@ -96,35 +96,50 @@ class Table {
 
         $(document).on(`click.${this.GUID}`, `#${this.GUID}-equal`, function(){
             var value = parseFloat($(`#${thisClass.GUID}-modifyvalue`).val());
+            if(isNaN(value))
+                return;
             $.each($(`#${thisClass.GUID}-table .number.selected`), function(index, cell) {
-                var index = parseInt($(cell).data(`x`)) + parseInt($(cell).data(`y`)) * thisClass.XResolution;
+                const id = $(cell).attr(`id`);
+                const cellx = parseInt($(cell).data(`x`));
+                const celly = parseInt($(cell).data(`y`));
+                index = cellx + celly * thisClass.XResolution;
                 thisClass.Value[index] = value;
-                $(cell).val(thisClass.Value[index]);
+                $(cell).replaceWith(Table.FormatCellForDisplay(id, cellx, celly, thisClass.Value[index]));
             });
             thisClass.OnChange.forEach(function(OnChange) { OnChange(); });
         });
         $(document).on(`click.${this.GUID}`, `#${this.GUID}-add`, function(){
             var value = parseFloat($(`#${thisClass.GUID}-modifyvalue`).val());
+            if(isNaN(value))
+                return;
             $.each($(`#${thisClass.GUID}-table .number.selected`), function(index, cell) {
-                var index = parseInt($(cell).data(`x`)) + parseInt($(cell).data(`y`)) * thisClass.XResolution;
+                const id = $(cell).attr(`id`);
+                const cellx = parseInt($(cell).data(`x`));
+                const celly = parseInt($(cell).data(`y`));
+                index = cellx + celly * thisClass.XResolution;
                 thisClass.Value[index] += value;
-                $(cell).val(thisClass.Value[index]);
+                $(cell).replaceWith(Table.FormatCellForDisplay(id, cellx, celly, thisClass.Value[index]));
             });
             thisClass.OnChange.forEach(function(OnChange) { OnChange(); });
         });
         $(document).on(`click.${this.GUID}`, `#${this.GUID}-multiply`, function(){
             var value = parseFloat($(`#${thisClass.GUID}-modifyvalue`).val());
+            if(isNaN(value))
+                return;
             $.each($(`#${thisClass.GUID}-table .number.selected`), function(index, cell) {
-                var index = parseInt($(cell).data(`x`)) + parseInt($(cell).data(`y`)) * thisClass.XResolution;
+                const id = $(cell).attr(`id`);
+                const cellx = parseInt($(cell).data(`x`));
+                const celly = parseInt($(cell).data(`y`));
+                index = cellx + celly * thisClass.XResolution;
                 thisClass.Value[index] *= value;
-                $(cell).val(thisClass.Value[index]);
+                $(cell).replaceWith(Table.FormatCellForDisplay(id, cellx, celly, thisClass.Value[index]));
             });
             thisClass.OnChange.forEach(function(OnChange) { OnChange(); });
         });
 
         $(document).on(`change.${this.GUID}`, `#${this.GUID}-table`, function(e){
-            var x = $(e.target).data(`x`);
-            var y = $(e.target).data(`y`);
+            var x = parseInt($(e.target).data(`x`));
+            var y = parseInt($(e.target).data(`y`));
             var value = parseFloat($(e.target).val());
             
             if(x === -1) {
@@ -136,7 +151,7 @@ class Table {
                     thisClass.MaxY = value;
                 }
                 for(var i = 1; i < thisClass.YResolution - 1; i++) {
-                    $(`#${thisClass.GUID}-table .number[data-x='-1'][data-y='${i}']`).val(parseFloat(parseFloat(((thisClass.MaxY - thisClass.MinY) * i / (thisClass.YResolution-1) + thisClass.MinY).toFixed(6)).toPrecision(7)));
+                    $(`#${thisClass.GUID}-table .number[data-x='-1'][data-y='${i}']`).html(FormatNumberForDisplay((thisClass.MaxY - thisClass.MinY) * i / (thisClass.YResolution-1) + thisClass.MinY));
                 }
             } else if(y === -1) {
                 if(x === 0){
@@ -147,13 +162,16 @@ class Table {
                     thisClass.MaxX = value;
                 }
                 for(var i = 1; i < thisClass.XResolution - 1; i++) {
-                    $(`#${thisClass.GUID}-table .number[data-x='${i}'][data-y='-1']`).val(parseFloat(parseFloat(((thisClass.MaxX - thisClass.MinX) * i / (thisClass.XResolution-1) + thisClass.MinX).toFixed(6)).toPrecision(7)));
+                    $(`#${thisClass.GUID}-table .number[data-x='${i}'][data-y='-1']`).html(FormatNumberForDisplay((thisClass.MaxX - thisClass.MinX) * i / (thisClass.XResolution-1) + thisClass.MinX));
                 }
             } else {
                 $.each($(`#${thisClass.GUID}-table .number.selected`), function(index, cell) {
-                    var index = parseInt($(cell).data(`x`)) + parseInt($(cell).data(`y`)) * thisClass.XResolution;
+                    const cellx = parseInt($(cell).data(`x`));
+                    const celly = parseInt($(cell).data(`y`));
+                    index = cellx + celly * thisClass.XResolution;
                     thisClass.Value[index] = value;
-                    $(cell).val(thisClass.Value[index]);
+                    if(cellx !== x || celly !== y)
+                        $(cell).html(thisClass.Value[index]);
                 });
             }
             thisClass.OnChange.forEach(function(OnChange) { OnChange(); });
@@ -186,12 +204,14 @@ class Table {
 
         function down() {
             $(this).focus();
+            var previousOrigSelect = $(`#${thisClass.GUID}-table .origselect`);
             $(`#${thisClass.GUID}-table .number`).removeClass(`selected`);
             $(`#${thisClass.GUID}-table .number`).removeClass(`origselect`);
+            previousOrigSelect.replaceWith(Table.FormatCellForDisplay(previousOrigSelect.attr(`id`)));
 
             if($(this).data(`x`) === undefined || parseInt($(this).data(`x`)) < 0 || $(this).data(`y`) === undefined || parseInt($(this).data(`y`)) < 0)
                 return;
-                
+
             pointX =  $(this).offset().left - $(this).closest(`table`).offset().left;
             pointY =  $(this).offset().top - $(this).closest(`table`).offset().top;
 
@@ -201,6 +221,10 @@ class Table {
         }
 
         function up() {
+            if(selecting) {
+                $(`#${thisClass.GUID}-table .origselect`).replaceWith(Table.FormatCellForDisplay($(`#${thisClass.GUID}-table .origselect`).attr(`id`)));
+                $(`#${thisClass.GUID}-table .origselect`).select();
+            }
             selecting = false;
             dragX = false;
             dragY = false;
@@ -266,61 +290,25 @@ class Table {
             }
         }
 
-        //lame stuff we have to do so the touchend call to contextmenu doesn't invalidate the select
-        var touchEnd = false;
-        var touchEndHandle;
-        function touchEndHandler() { touchEnd=false; }
-        function resetTouchEnd() { clearTimeout(touchEndHandle); touchEnd = true; touchEndHandle = setTimeout(touchEndHandler, 100); }
-
-        //lame stuff we have to do to fix context menu when using mouse
-        var leftClick = false;
-        var leftClickHandle;
-        function leftClickHandler() { leftClick=false; }
-        function resetLeftClick() { clearTimeout(leftClickHandle); leftClick = true; leftClickHandle = setTimeout(leftClickHandler, 100); }
-
         $(document).on(`contextmenu.${this.GUID}`, `#${this.GUID}-table .number`, function(e){
-            $(`#overlay`).show();
-            if(!leftClick) {
-                if(!touchEnd) {
-                    if(!$(this).hasClass(`origselect`))
-                        down.call(this);
-                    else
-                        selectOnMove = true;
-                }
-            } else if (!$(this).hasClass(`selected`)) {
-                $(this).select();
+            down.call(this);
+            e.preventDefault();
+        });
+        $(document).on(`mousedown.${this.GUID}`, `#${this.GUID}-table div.number`, function(e){
+            if(e.which === 3) {
                 down.call(this);
-                selecting = false;
-            } else if (!$(this).hasClass(`origselect`)) {
+                $(`#${$(this).attr(`id`)}`).select();
+                up.call(this);
                 e.preventDefault();
+            } else if(e.which == 1) {
+                down.call(this);
             }
-        });
-        $(document).on(`touchend.${this.GUID}`, `#${this.GUID}-table .number`, function(e){
-            selectOnMove = false;
-            if($(this).hasClass(`origselect`))
-                e.preventDefault();
-        });
-        $(document).on(`mousedown.${this.GUID}`, `#${this.GUID}-table .number`, function(e){
-            if(e.which === 3)
-                resetLeftClick();
-            if(e.which !== 1)
-                return;
-            
-            if(!$(this).hasClass(`origselect`))
-                down.call(this);
-            else
-                selectOnMove = true;
         });
         
         $(document).on(`touchend.${this.GUID}`, function(e){
-            $(`#overlay`).hide();
             up.call(this);
-            resetTouchEnd();
         });
         $(document).on(`mouseup.${this.GUID}`, function(e){
-            selectOnMove = false;
-            if(selecting)
-                $(`#${thisClass.GUID}-table .number.origselect`).select();
             up.call(this);
         });
         
@@ -396,8 +384,10 @@ class Table {
                             break;
                     }
                     var cell = $(`#${thisClass.GUID}-table .number[data-x='${xPos}'][data-y='${yPos}']`);
-                    cell.val(thisClass.Value[xPos + yPos * thisClass.XResolution]);
                     cell.addClass(`selected`);
+                    const id = cell.attr(`id`);
+                    cell.replaceWith(Table.FormatCellForDisplay(id, xPos, yPos, thisClass.Value[xPos + yPos * thisClass.XResolution]));
+                    $(`#${id}`).select();
                 });
             });
             thisClass.OnChange.forEach(function(OnChange) { OnChange(); });
@@ -466,6 +456,16 @@ class Table {
             ystart = -2;
         }
 
+        var xLabel = $(`#${this.GUID}-xlabel`).html();
+        if(xLabel === undefined || xLabel === ``)
+            xLabel = this.XLabel;
+        var yLabel = $(`#${this.GUID}-ylabel`).html();
+        if(yLabel === undefined || yLabel === ``)
+            yLabel = this.YLabel;
+        var zLabel = $(`#${this.GUID}-zlabel`).html();
+        if(zLabel === undefined || zLabel === ``)
+            zLabel = this.ZLabel;
+
         for(var y = ystart; y < this.YResolution + 1; y++) {
             var row = `<tr>`;
             for(var x = xstart; x < this.XResolution + 1; x++) {
@@ -483,7 +483,7 @@ class Table {
                         // - - - - -
                         // - - - - -
                         // - - - - -
-                        row += `<td colspan="${this.XResolution}" class="xaxislabel"><div>${this.XLabel}</div></td>`;
+                        row += `<td colspan="${this.XResolution}" class="xaxislabel" id="${this.GUID}-xlabel">${xLabel}</td>`;
                     }
                 } else if(y === -1) {
                     if(x === -2) {
@@ -494,11 +494,11 @@ class Table {
                         // - - - - -
                         // - - - - -
                         if(this.YResolution === 1) {
-                            row += `<td class="yaxis">${this.XLabel}</td>`;
+                            row += `<td class="yaxis" id="${this.GUID}-xlabel">${xLabel}</td>`;
                         } else if(this.XResolution === 1) {
-                            row += `<td class="xaxis">${this.YLabel}</td>`;
+                            row += `<td class="xaxis" id="${this.GUID}-ylabel">${yLabel}</td>`;
                         } else {
-                            row += `<td colspan="3" class="zlabel">${this.ZLabel}</td>`;
+                            row += `<td colspan="3" class="zlabel" id="${this.GUID}-zlabel">${zLabel}</td>`;
                         }
                     } else if(x === -2) {
                     } else if(x < this.XResolution) {
@@ -508,12 +508,12 @@ class Table {
                         // - - - - -
                         // - - - - -
                         if(this.XResolution === 1) {
-                            row += `<td class="xaxis">${this.ZLabel}</td>`;
+                            row += `<td class="xaxis" id="${this.GUID}-zlabel">${zLabel}</td>`;
                         } else {
                             if((x === 0 && this.MinXModifiable) || (x === this.XResolution - 1 && this.MaxXModifiable))
                                 row += `<td class="xaxis"><input class="number" id="${this.GUID}-${x}-axis" data-x="${x}" data-y="${y}" type="number" value="${parseFloat(parseFloat(((this.MaxX - this.MinX) * x / (this.XResolution-1) + this.MinX).toFixed(6)).toPrecision(7))}"/></td>`;
                             else
-                                row += `<td class="xaxis"><div class="number" id="${this.GUID}-${x}-axis" data-x="${x}" data-y="${y}">${parseFloat(parseFloat(((this.MaxX - this.MinX) * x / (this.XResolution-1) + this.MinX).toFixed(6)).toPrecision(7))}</div></td>`;
+                                row += `<td class="xaxis"><div class="number" id="${this.GUID}-${x}-axis" data-x="${x}" data-y="${y}">${Table.FormatNumberForDisplay((this.MaxX - this.MinX) * x / (this.XResolution-1) + this.MinX)}</div></td>`;
                         }
                     } else {
                         if(this.XResolutionModifiable)
@@ -527,7 +527,7 @@ class Table {
                             // X - - - -
                             // | - - - -
                             // X - - - -
-                            row += `<td rowspan="${this.YResolution}" style="width: auto;"></td><td rowspan="${this.YResolution}" class="yaxislabel"><div>${this.YLabel}</div></td>`;
+                            row += `<td rowspan="${this.YResolution}" style="width: auto;"></td><td rowspan="${this.YResolution}" class="yaxislabel"><div id="${this.GUID}-ylabel">${yLabel}</div></td>`;
                         }
                     } else if(x === -1) {
                         // - - - - -
@@ -536,12 +536,12 @@ class Table {
                         // - X - - -
                         // - X - - -
                         if(this.YResolution === 1) {
-                            row += `<td class="yaxis">${this.ZLabel}</td>`;
+                            row += `<td class="yaxis" id="${this.GUID}-zlabel">${zLabel}</td>`;
                         } else {
                             if((y === 0 && this.MinYModifiable) || (y === this.YResolution - 1 && this.MaxYModifiable))
                                 row += `<td class="yaxis"><input class="number" id="${this.GUID}-axis-${y}"  data-x="${x}" data-y="${y}" type="number" value="${parseFloat(parseFloat(((this.MaxY - this.MinY) * y / (this.YResolution-1) + this.MinY).toFixed(6)).toPrecision(7))}"/></td>`;
                             else 
-                            row += `<td class="yaxis"><div class="number" id="${this.GUID}-axis-${y}"  data-x="${x}" data-y="${y}">${parseFloat(parseFloat(((this.MaxY - this.MinY) * y / (this.YResolution-1) + this.MinY).toFixed(6)).toPrecision(7))}</div></td>`;
+                                row += `<td class="yaxis"><div class="number" id="${this.GUID}-axis-${y}"  data-x="${x}" data-y="${y}">${Table.FormatNumberForDisplay((this.MaxY - this.MinY) * y / (this.YResolution-1) + this.MinY)}</div></td>`;
                         }
                     } else if(x < this.XResolution) {
                         // - - - - -
@@ -551,12 +551,7 @@ class Table {
                         // - - X X X
                         var valuesIndex = x + this.XResolution * y;
                         var inputId =  `${this.GUID}-${x}-${y}`;
-                        var rowClass = $(`#${inputId}`).attr(`class`)
-                        if(rowClass)
-                            rowClass = ` class ="${rowClass}"`;
-                        else
-                            rowClass = ``;
-                        row += `<td><input class="number" id="${inputId}" data-x="${x}" data-y="${y}" type="number" value="${this.Value[valuesIndex]}"${rowClass}/></td>`;
+                        row += `<td>${Table.FormatCellForDisplay(inputId, x, y, this.Value[valuesIndex])}</td>`;
                     }
                 } else {
                     if(this.YResolutionModifiable && x == xstart) {
@@ -571,6 +566,31 @@ class Table {
         }
 
         return table + `</table>`;
+    }
+
+    static FormatNumberForDisplay(number, precision = 6) {
+        var ret = parseFloat(parseFloat(parseFloat(number).toFixed(precision -1)).toPrecision(precision));
+        if(isNaN(ret))
+            return `&nbsp;`;
+        return ret;
+    }
+    
+    static FormatCellForDisplay(id, x, y, value) {
+        var rowClass = $(`#${id}`).attr(`class`)
+        if(rowClass)
+            rowClass = `class="${rowClass}"`;
+        else
+            rowClass = `class="number"`;
+        
+        x ??= $(`#${id}`).data(`x`);
+        y ??= $(`#${id}`).data(`y`);
+        value ??= $(`#${id}`).val();
+        if(value === ``)
+            value = $(`#${id}`).html();
+
+        if(rowClass.indexOf("origselect") === -1)
+            return `<div ${rowClass} id="${id}" data-x="${x}" data-y="${y}">${Table.FormatNumberForDisplay(value)}</div>`;
+        return `<input ${rowClass} id="${id}" data-x="${x}" data-y="${y}" value="${Table.FormatNumberForDisplay(value)}" type="number"/>`;
     }
 
     Trail(x, y, z) {
