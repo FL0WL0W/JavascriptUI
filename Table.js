@@ -203,6 +203,14 @@ class Table {
         });
 
         function down() {
+            $(document).on(`touchmove.${this.GUID}`, function(e){
+                var touch = e.touches[e.touches.length - 1];
+                move(touch.pageX, touch.pageY);
+            });
+            $(document).on(`mousemove.${this.GUID}`, function(e){
+                move(e.pageX, e.pageY);
+            });
+
             $(this).focus();
             var previousOrigSelect = $(`#${thisClass.GUID}-table .origselect`);
             $(`#${thisClass.GUID}-table .number`).removeClass(`selected`);
@@ -221,6 +229,9 @@ class Table {
         }
 
         function up() {
+            $(document).off(`touchmove.${this.GUID}`);
+            $(document).off(`mousemove.${this.GUID}`);
+
             if(selecting) {
                 $(`#${thisClass.GUID}-table .origselect`).replaceWith(Table.FormatCellForDisplay($(`#${thisClass.GUID}-table .origselect`).attr(`id`)));
                 $(`#${thisClass.GUID}-table .origselect`).select();
@@ -310,14 +321,6 @@ class Table {
         });
         $(document).on(`mouseup.${this.GUID}`, function(e){
             up.call(this);
-        });
-        
-        $(document).on(`touchmove.${this.GUID}`, function(e){
-            var touch = e.touches[e.touches.length - 1];
-            move(touch.pageX, touch.pageY);
-        });
-        $(document).on(`mousemove.${this.GUID}`, function(e){
-            move(e.pageX, e.pageY);
         });
 
         function getCopyData() {
