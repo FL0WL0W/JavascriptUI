@@ -151,7 +151,7 @@ class Table {
                     thisClass.MaxY = value;
                 }
                 for(var i = 1; i < thisClass.YResolution - 1; i++) {
-                    $(`#${thisClass.GUID}-table .number[data-x='-1'][data-y='${i}']`).html(FormatNumberForDisplay((thisClass.MaxY - thisClass.MinY) * i / (thisClass.YResolution-1) + thisClass.MinY));
+                    $(`#${thisClass.GUID}-table .number[data-x='-1'][data-y='${i}']`).html(Table.FormatNumberForDisplay((thisClass.MaxY - thisClass.MinY) * i / (thisClass.YResolution-1) + thisClass.MinY));
                 }
             } else if(y === -1) {
                 if(x === 0){
@@ -162,7 +162,7 @@ class Table {
                     thisClass.MaxX = value;
                 }
                 for(var i = 1; i < thisClass.XResolution - 1; i++) {
-                    $(`#${thisClass.GUID}-table .number[data-x='${i}'][data-y='-1']`).html(FormatNumberForDisplay((thisClass.MaxX - thisClass.MinX) * i / (thisClass.XResolution-1) + thisClass.MinX));
+                    $(`#${thisClass.GUID}-table .number[data-x='${i}'][data-y='-1']`).html(Table.FormatNumberForDisplay((thisClass.MaxX - thisClass.MinX) * i / (thisClass.XResolution-1) + thisClass.MinX));
                 }
             } else {
                 $.each($(`#${thisClass.GUID}-table .number.selected`), function(index, cell) {
@@ -188,18 +188,27 @@ class Table {
             dragX = true;
             $(`#overlay`).addClass(`rowcol_expand`);
             $(`#overlay`).show();
+            $(document).on(`mousemove.${this.GUID}`, function(e){
+                move(e.pageX, e.pageY);
+            });
         });
 
         $(document).on(`mousedown.${this.GUID}`, `#${this.GUID}-table .col_expand`, function(e){
             dragX = true;
             $(`#overlay`).addClass(`col_expand`);
             $(`#overlay`).show();
+            $(document).on(`mousemove.${this.GUID}`, function(e){
+                move(e.pageX, e.pageY);
+            });
         });
 
         $(document).on(`mousedown.${this.GUID}`, `#${this.GUID}-table .row_expand`, function(e){
             dragY = true;
             $(`#overlay`).addClass(`row_expand`);
             $(`#overlay`).show();
+            $(document).on(`mousemove.${this.GUID}`, function(e){
+                move(e.pageX, e.pageY);
+            });
         });
 
         function down() {
@@ -215,7 +224,11 @@ class Table {
             var previousOrigSelect = $(`#${thisClass.GUID}-table .origselect`);
             $(`#${thisClass.GUID}-table .number`).removeClass(`selected`);
             $(`#${thisClass.GUID}-table .number`).removeClass(`origselect`);
-            previousOrigSelect.replaceWith(Table.FormatCellForDisplay(previousOrigSelect.attr(`id`)));
+            if(previousOrigSelect) {
+                index = previousOrigSelect.data(`x`) + previousOrigSelect.data(`y`) * thisClass.XResolution;
+                thisClass.Value[index] = previousOrigSelect.val();
+                previousOrigSelect.replaceWith(Table.FormatCellForDisplay(previousOrigSelect.attr(`id`)));
+            }
 
             if($(this).data(`x`) === undefined || parseInt($(this).data(`x`)) < 0 || $(this).data(`y`) === undefined || parseInt($(this).data(`y`)) < 0)
                 return;
