@@ -555,7 +555,7 @@ class Table {
                                 row += `<td class="xaxis"><div class="number" id="${this.GUID}-${x}-axis" data-x="${x}" data-y="${y}">${Table.FormatNumberForDisplay((this.MaxX - this.MinX) * x / (this._xResolution-1) + this.MinX)}</div></td>`;
                         }
                     } else {
-                        if(this._xResolutionModifiable)
+                        if(this.XResolutionModifiable)
                             row += `<td class="col_expand" rowspan="${this._yResolution + (xstart === -1? 2 : 1)}"></td>`;
                     }
                 } else if(y < this._yResolution) {
