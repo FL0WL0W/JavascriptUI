@@ -35,6 +35,7 @@ class Table {
         }
         this._xResolution = xRes;
         this._value = newValue;
+        $(`#${this.GUID}-table`).replaceWith(this.GetTable());
         this.OnChange.forEach(function(OnChange) { OnChange(); });
     }
 
@@ -61,6 +62,7 @@ class Table {
         }
         this._yResolution = yRes;
         this._value = newValue;
+        $(`#${this.GUID}-table`).replaceWith(this.GetTable());
         this.OnChange.forEach(function(OnChange) { OnChange(); });
     }
 
@@ -309,28 +311,20 @@ class Table {
                 var relX = pageX - tableElement.offset().left;
                 var elX = cellElement.offset().left - tableElement.offset().left;
                 var comp = relX - elX;
-                if(comp > (cellElement.width() * 3/2)){
+                if(comp > (cellElement.width() * 3/2))
                     thisClass.XResolution += 1;
-                    thisClass.UpdateTable();
-                }
-                if(comp < 0 && thisClass._xResolution > 2){
+                if(comp < 0 && thisClass._xResolution > 2)
                     thisClass.XResolution -= 1;
-                    thisClass.UpdateTable();
-                }
             }
             if(dragY) {
                 var cellElement = $(`#${thisClass.GUID}-axis-${thisClass._yResolution - 1}`);
                 var relY = pageY - tableElement.offset().top;
                 var elY = cellElement.offset().top - tableElement.offset().top;
                 var comp = relY - elY;
-                if(comp > (cellElement.height() * 3/2)){
+                if(comp > (cellElement.height() * 3/2))
                     thisClass.YResolution += 1;
-                    thisClass.UpdateTable();
-                }
-                if(comp < 0 && thisClass._yResolution > 2){
+                if(comp < 0 && thisClass._yResolution > 2)
                     thisClass.YResolution-= 1;
-                    thisClass.UpdateTable();
-                }
             }
             if(selecting || selectOnMove){
                 $.each($(`#${thisClass.GUID}-table .number`), function(index, cell) {
@@ -488,10 +482,6 @@ class Table {
     <input id="${this.GUID}-modifyvalue" class="modify-button" type="number"></input>
     </div></div></div>` + this.GetTable() + 
 `</div>`;
-    }
-    
-    UpdateTable() {
-        $(`#${this.GUID}-table`).replaceWith(this.GetTable());
     }
 
     GetTable() {
