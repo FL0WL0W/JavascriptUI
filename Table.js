@@ -196,12 +196,13 @@ class Table {
                 return;
             $.each($(`#${thisClass.GUID}-table .number.selected`), function(index, cell) {
                 const id = $(cell).attr(`id`);
-                const cellx = parseInt($(cell).data(`x`));
-                const celly = parseInt($(cell).data(`y`));
+                const cellx = parseInt($(cell).attr(`data-x`));
+                const celly = parseInt($(cell).attr(`data-y`));
                 index = cellx + celly * thisClass._xResolution;
                 thisClass._value[index] = value;
-                $(cell).replaceWith(thisClass.FormatCellForDisplay(id, cellx, celly, thisClass._value[index]));
+                $(cell).parent().replaceWith(thisClass.FormatCellForDisplay(id, cellx, celly, thisClass._value[index]));
             });
+            thisClass._tableHueUpdate();
             thisClass.UpdateTable3D();
             thisClass.OnChange.forEach(function(OnChange) { OnChange(); });
         });
@@ -211,12 +212,13 @@ class Table {
                 return;
             $.each($(`#${thisClass.GUID}-table .number.selected`), function(index, cell) {
                 const id = $(cell).attr(`id`);
-                const cellx = parseInt($(cell).data(`x`));
-                const celly = parseInt($(cell).data(`y`));
+                const cellx = parseInt($(cell).attr(`data-x`));
+                const celly = parseInt($(cell).attr(`data-y`));
                 index = cellx + celly * thisClass._xResolution;
                 thisClass._value[index] += value;
-                $(cell).replaceWith(thisClass.FormatCellForDisplay(id, cellx, celly, thisClass._value[index]));
+                $(cell).parent().replaceWith(thisClass.FormatCellForDisplay(id, cellx, celly, thisClass._value[index]));
             });
+            thisClass._tableHueUpdate();
             thisClass.UpdateTable3D();
             thisClass.OnChange.forEach(function(OnChange) { OnChange(); });
         });
@@ -226,19 +228,20 @@ class Table {
                 return;
             $.each($(`#${thisClass.GUID}-table .number.selected`), function(index, cell) {
                 const id = $(cell).attr(`id`);
-                const cellx = parseInt($(cell).data(`x`));
-                const celly = parseInt($(cell).data(`y`));
+                const cellx = parseInt($(cell).attr(`data-x`));
+                const celly = parseInt($(cell).attr(`data-y`));
                 index = cellx + celly * thisClass._xResolution;
                 thisClass._value[index] *= value;
-                $(cell).replaceWith(thisClass.FormatCellForDisplay(id, cellx, celly, thisClass._value[index]));
+                $(cell).parent().replaceWith(thisClass.FormatCellForDisplay(id, cellx, celly, thisClass._value[index]));
             });
+            thisClass._tableHueUpdate();
             thisClass.UpdateTable3D();
             thisClass.OnChange.forEach(function(OnChange) { OnChange(); });
         });
 
         $(document).on(`change.${this.GUID}`, `#${this.GUID}-table`, function(e){
-            var x = parseInt($(e.target).data(`x`));
-            var y = parseInt($(e.target).data(`y`));
+            var x = parseInt($(e.target).attr(`data-x`));
+            var y = parseInt($(e.target).attr(`data-y`));
             var value = parseFloat($(e.target).val());
             if(isNaN(value))
                 return;
@@ -267,14 +270,16 @@ class Table {
                 }
             } else {
                 $.each($(`#${thisClass.GUID}-table .number.selected`), function(index, cell) {
-                    const cellx = parseInt($(cell).data(`x`));
-                    const celly = parseInt($(cell).data(`y`));
+                    const cellx = parseInt($(cell).attr(`data-x`));
+                    const celly = parseInt($(cell).attr(`data-y`));
                     index = cellx + celly * thisClass._xResolution;
                     thisClass._value[index] = value;
-                    if(cellx !== x || celly !== y)
+                    if(cellx !== x || celly !== y) {
                         $(cell).html(thisClass._value[index]);
+                    }
                 });
             }
+            thisClass._tableHueUpdate();
             thisClass.UpdateTable3D();
             thisClass.OnChange.forEach(function(OnChange) { OnChange(); });
         });
@@ -325,7 +330,7 @@ class Table {
             var previousOrigSelect = $(`#${thisClass.GUID}-table .origselect`);
             previousOrigSelect.removeClass(`selected`);
             previousOrigSelect.removeClass(`origselect`);
-            previousOrigSelect.replaceWith(thisClass.FormatCellForDisplay(previousOrigSelect.attr(`id`)));
+            previousOrigSelect.parent().replaceWith(thisClass.FormatCellForDisplay(previousOrigSelect.attr(`id`)));
             $(`#${thisClass.GUID}-table3d g path`).removeClass(`selected`);
             $(`#${thisClass.GUID}-table3d g circle`).removeClass(`selected`);
             $(`#${thisClass.GUID}-table .number`).removeClass(`selected`);
@@ -334,8 +339,8 @@ class Table {
             $(this).addClass(`selected`);
             $(this).addClass(`origselect`);
 
-            let x = $(this).data(`x`);
-            let y = $(this).data(`y`);
+            let x = $(this).attr(`data-x`);
+            let y = $(this).attr(`data-y`);
 
             if(x === undefined || parseInt(x) < 0 || y === undefined || parseInt(y) < 0)
                 return;
@@ -348,17 +353,18 @@ class Table {
             thisClass._minSelectY = y;
             thisClass._maxSelectX = x;
             thisClass._maxSelectY = y;
-            $(`#${thisClass.GUID}-table3d g circle[data-x='${x}'][data-y='${y}']`).addClass(`selected`);
+            let circleSelector = $(`#${thisClass.GUID}-table3d g circle[data-x='${x}'][data-y='${y}']`);
+            circleSelector.addClass(`selected`);
 
-            pointX =  $(this).offset().left - $(this).closest(`table`).offset().left;
-            pointY =  $(this).offset().top - $(this).closest(`table`).offset().top;
+            pointX =  $(this).offset().left - $(this).closest(`table`).offset()?.left;
+            pointY =  $(this).offset().top - $(this).closest(`table`).offset()?.top;
         }
 
         function up() {
             $(document).off(`touchmove.${this.GUID}`);
             $(document).off(`mousemove.${this.GUID}`);
 
-            $(`#${thisClass.GUID}-table .origselect`).replaceWith(thisClass.FormatCellForDisplay($(`#${thisClass.GUID}-table .origselect`).attr(`id`)));
+            $(`#${thisClass.GUID}-table .origselect`).parent().replaceWith(thisClass.FormatCellForDisplay($(`#${thisClass.GUID}-table .origselect`).attr(`id`)));
             $(`#${thisClass.GUID}-table .origselect`).select();
             dragX = false;
             dragY = false;
@@ -398,9 +404,9 @@ class Table {
                 thisClass._maxSelectY = 0;
                 $.each($(`#${thisClass.GUID}-table .number`), function(index, cell) {
                     var cellElement = $(cell);
-                    let x = cellElement.data(`x`);
-                    let y = cellElement.data(`y`);
-                    if(cellElement.data(`x`) === undefined || parseInt(x) < 0 || y === undefined || parseInt(y) < 0)
+                    let x = cellElement.attr(`data-x`);
+                    let y = cellElement.attr(`data-y`);
+                    if(cellElement.attr(`data-x`) === undefined || parseInt(x) < 0 || y === undefined || parseInt(y) < 0)
                         return;
 
                     x = parseInt(x);
@@ -433,8 +439,8 @@ class Table {
                 });
                 $.each($(`#${thisClass.GUID}-table3d g path`), function(index, cell) {
                     var cellElement = $(cell);
-                    let x = cellElement.data(`x`);
-                    let y = cellElement.data(`y`);
+                    let x = cellElement.attr(`data-x`);
+                    let y = cellElement.attr(`data-y`);
 
                     if(x >= thisClass._minSelectX && x < thisClass._maxSelectX && y >= thisClass._minSelectY && y < thisClass._maxSelectY)
                         cellElement.addClass(`selected`);
@@ -443,8 +449,8 @@ class Table {
                 });
                 $.each($(`#${thisClass.GUID}-table3d g circle`), function(index, cell) {
                     var cellElement = $(cell);
-                    let x = cellElement.data(`x`);
-                    let y = cellElement.data(`y`);
+                    let x = cellElement.attr(`data-x`);
+                    let y = cellElement.attr(`data-y`);
 
                     if(x >= thisClass._minSelectX && x <= thisClass._maxSelectX && y >= thisClass._minSelectY && y <= thisClass._maxSelectY)
                         cellElement.addClass(`selected`);
@@ -546,16 +552,17 @@ class Table {
                     var cell = $(`#${thisClass.GUID}-table .number[data-x='${xPos}'][data-y='${yPos}']`);
                     cell.addClass(`selected`);
                     const id = cell.attr(`id`);
-                    cell.replaceWith(thisClass.FormatCellForDisplay(id, xPos, yPos, thisClass._value[xPos + yPos * thisClass._xResolution]));
+                    cell.parent().replaceWith(thisClass.FormatCellForDisplay(id, xPos, yPos, thisClass._value[xPos + yPos * thisClass._xResolution]));
                     $(`#${id}`).select();
                 });
             });
+            thisClass._tableHueUpdate();
             thisClass.UpdateTable3D();
             thisClass.OnChange.forEach(function(OnChange) { OnChange(); });
         }
 
         $(document).on(`copy.${this.GUID}`, `#${this.GUID}-table .number`, function(e){
-            if($(this).data(`x`) === undefined || parseInt($(this).data(`x`)) < 0 || $(this).data(`y`) === undefined || parseInt($(this).data(`y`)) < 0)
+            if($(this).attr(`data-x`) === undefined || parseInt($(this).attr(`data-x`)) < 0 || $(this).attr(`data-y`) === undefined || parseInt($(this).attr(`data-y`)) < 0)
                 return;
 
             thisClass._selecting = false;
@@ -564,13 +571,13 @@ class Table {
         });
 
         $(document).on(`paste.${this.GUID}`, `#${this.GUID}-table .number`, function(e){
-            if($(this).data(`x`) === undefined || parseInt($(this).data(`x`)) < 0 || $(this).data(`y`) === undefined || parseInt($(this).data(`y`)) < 0)
+            if($(this).attr(`data-x`) === undefined || parseInt($(this).attr(`data-x`)) < 0 || $(this).attr(`data-y`) === undefined || parseInt($(this).attr(`data-y`)) < 0)
                 return;
             var val = e.originalEvent.clipboardData.getData(`text/plain`);
 
             var selectedCell = $(`#${thisClass.GUID}-table .number.origselect`)
-            var x = selectedCell.data(`x`);
-            var y = selectedCell.data(`y`);
+            var x = selectedCell.attr(`data-x`);
+            var y = selectedCell.attr(`data-y`);
             if(x < 0 || y < 0)
                 return;
 
@@ -609,7 +616,7 @@ class Table {
                 $(`#${thisClass.GUID}-table .number`).removeClass(`selected`).removeClass(`origselect`);
                 var cell = $(`#${thisClass.GUID}-table .number[data-x='${x}'][data-y='${y}']`);
                 cell.addClass(`selected`).addClass(`origselect`);
-                cell.replaceWith(thisClass.FormatCellForDisplay(cell.attr(`id`), x, y, thisClass._value[index]));
+                cell.parent().replaceWith(thisClass.FormatCellForDisplay(cell.attr(`id`), x, y, thisClass._value[index]));
                 let closestCircleSelector = $(dragValue[5]);
                 if(closestCircleSelector.length === 0) {
                     function makeSVG(tag, attrs) {
@@ -647,6 +654,7 @@ class Table {
             }
             drag=false;
             if(dragValue) {
+                thisClass._tableHueUpdate();
                 thisClass.UpdateTable3D();
             }
             dragValue = false;
@@ -678,10 +686,11 @@ class Table {
                 cell.val(Table.FormatNumberForDisplay(thisClass._value[index]));
             }
         });
-        $(document).on(`change.${this.GUID}`, `#${this.GUID}-pointcloud`, function(){
-            thisClass._table3DPointCloud = $(this).prop(`checked`);
-            $(`#${thisClass.GUID}-table3d`).replaceWith(thisClass.GetTable3DHtml());
-        });
+        this._table3DPointCloud = true;
+        // $(document).on(`change.${this.GUID}`, `#${this.GUID}-pointcloud`, function(){
+        //     thisClass._table3DPointCloud = $(this).prop(`checked`);
+        //     $(`#${thisClass.GUID}-table3d`).replaceWith(thisClass.GetTable3DHtml());
+        // });
     }
 
     TableValueUpdate() {
@@ -724,6 +733,20 @@ class Table {
     _getHueFromValue(value) {
         return 120 - (120 * (value - this._valueMin) / (this._valueMax - this._valueMin));
     }
+
+    _tableHueUpdate() {
+        this._calculateValueMinMax();
+        const thisClass = this;
+        $(`#${this.GUID}-table .number`).each(function() {
+            const cellx = parseInt($(this).attr(`data-x`));
+            const celly = parseInt($(this).attr(`data-y`));
+            const index = cellx + celly * thisClass._xResolution;
+            if(!isNaN(index) && cellx > -1 && celly > -1) {
+                $(this).parent().attr(`style`, `background-color: hsl(${thisClass._getHueFromValue(thisClass._value[index])},60%,50%);`);
+            }
+        });
+    }
+
     _transformPoint(point){
         let x=this._table3DtransformPrecalc[0]*point[0]+this._table3DtransformPrecalc[1]*point[1]+this._table3DtransformPrecalc[2]*point[2];
         let y=this._table3DtransformPrecalc[3]*point[0]+this._table3DtransformPrecalc[4]*point[1]+this._table3DtransformPrecalc[5]*point[2];
@@ -814,9 +837,7 @@ class Table {
                 .attr(`cx`, circles[index].circle.cx)
                 .attr(`cy`, circles[index].circle.cy)
                 .attr(`r`, circles[index].circle.r)
-                .attr(`fill`, `hsl(${circles[index].hue},60%,50%)`)
-                .attr(`class`, pointSelected? `selected` : ``);
-
+                .attr(`fill`, `hsl(${circles[index].hue},60%,50%)`);
             if(pointSelected) {
                 t.attr(`class`, `selected`)
             } else {
@@ -850,8 +871,8 @@ class Table {
             }
         }
 
-        return `<div><div style="position: absolute;"><input${this._table3DPointCloud? ` checked` : ``} id="${this.GUID}-pointcloud" type="checkbox"/><label for="${this.GUID}-pointcloud">Show Points</label></div>
-                <svg oncontextmenu="return false;" id="${this.GUID}-table3d" height="${this._table3DDisplayHeight}" width="${this._table3DDisplayWidth}"><g>${html}</g></svg></div>`
+        //return `<div><div style="position: absolute;"><input${this._table3DPointCloud? ` checked` : ``} id="${this.GUID}-pointcloud" type="checkbox"/><label for="${this.GUID}-pointcloud">Show Points</label></div>
+        return `<svg oncontextmenu="return false;" id="${this.GUID}-table3d" height="${this._table3DDisplayHeight}" width="${this._table3DDisplayWidth}"><g>${html}</g></svg>`;
     };
 
     GetTableHtml() {
@@ -993,8 +1014,8 @@ class Table {
         else
             rowClass = `class="number"`;
         
-        x ??= $(`#${id}`).data(`x`);
-        y ??= $(`#${id}`).data(`y`);
+        x ??= $(`#${id}`).attr(`data-x`);
+        y ??= $(`#${id}`).attr(`data-y`);
         value ??= $(`#${id}`).val();
         if(value === ``)
             value = $(`#${id}`).html();
@@ -1022,7 +1043,7 @@ var pastetype = `equal`;
 function AttachPasteOptions() {
     DetachPasteOptions();
     $(document).on(`click.pasteoptions`, `#pasteoptions .paste-button`, function(){
-        pastetype = $(this).data(`pastetype`);
+        pastetype = $(this).attr(`data-pastetype`);
         $(`#pasteoptions div`).removeClass(`selected`);
         $(`#pasteoptions div[data-pastetype="${pastetype}"`).addClass(`selected`);
     });

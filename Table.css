@@ -48,9 +48,13 @@
 .configtable .modify-button:hover {
     border-color: #3590d0 ;
 }
+.configtable circle {
+    display: none !important;
+}
 .configtable path.selected,
 .configtable circle.selected {
     fill: #3590d0 !important;
+    display: block !important;;
 }
 .configtable .number.selected, 
 .configtable .number.selected:hover,
