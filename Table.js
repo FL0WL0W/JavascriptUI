@@ -326,8 +326,8 @@ class Table {
             previousOrigSelect.removeClass(`selected`);
             previousOrigSelect.removeClass(`origselect`);
             previousOrigSelect.replaceWith(thisClass.FormatCellForDisplay(previousOrigSelect.attr(`id`)));
-            $(`#${thisClass.GUID}-table3d path`).removeClass(`selected`);
-            $(`#${thisClass.GUID}-table3d circle`).removeClass(`selected`);
+            $(`#${thisClass.GUID}-table3d g path`).removeClass(`selected`);
+            $(`#${thisClass.GUID}-table3d g circle`).removeClass(`selected`);
             $(`#${thisClass.GUID}-table .number`).removeClass(`selected`);
             $(`#${thisClass.GUID}-table .number`).removeClass(`origselect`);
 
@@ -348,7 +348,7 @@ class Table {
             thisClass._minSelectY = y;
             thisClass._maxSelectX = x;
             thisClass._maxSelectY = y;
-            $(`#${thisClass.GUID}-table3d circle[data-x='${x}'][data-y='${y}']`).addClass(`selected`);
+            $(`#${thisClass.GUID}-table3d g circle[data-x='${x}'][data-y='${y}']`).addClass(`selected`);
 
             pointX =  $(this).offset().left - $(this).closest(`table`).offset().left;
             pointY =  $(this).offset().top - $(this).closest(`table`).offset().top;
@@ -431,7 +431,7 @@ class Table {
                         cellElement.removeClass(`selected`);
                     }
                 });
-                $.each($(`#${thisClass.GUID}-table3d path`), function(index, cell) {
+                $.each($(`#${thisClass.GUID}-table3d g path`), function(index, cell) {
                     var cellElement = $(cell);
                     let x = cellElement.data(`x`);
                     let y = cellElement.data(`y`);
@@ -441,7 +441,7 @@ class Table {
                     else
                         cellElement.removeClass(`selected`);
                 });
-                $.each($(`#${thisClass.GUID}-table3d circle`), function(index, cell) {
+                $.each($(`#${thisClass.GUID}-table3d g circle`), function(index, cell) {
                     var cellElement = $(cell);
                     let x = cellElement.data(`x`);
                     let y = cellElement.data(`y`);
@@ -583,38 +583,77 @@ class Table {
 
         let drag = false;
         let dragValue = false;
-        $(document).on(`mousedown`, `#${this.GUID}-table3d circle`, function(e){
-            if(e.which === 1) {
-                let x = parseInt($(this).data(`x`));
-                let y = parseInt($(this).data(`y`));
+        $(document).on(`mousedown`, `#${this.GUID}-table3d`, function(e){
+            var relX = e.pageX - $(this).offset().left;
+            var relY = e.pageY - $(this).offset().top;
+            let circles = thisClass.svg.filter(x => x.circle).reverse();
+            let closestCircle = undefined;
+            circles.forEach(function(element, index) {
+                let l = element.circle.cx - relX;
+                let w = element.circle.cy - relY;
+                element.dist = Math.sqrt(l*l+w*w);
+                if(closestCircle === undefined || element.dist < closestCircle.dist)
+                    closestCircle = element;
+            });
+            if(closestCircle && e.which === 1) {
+                let x = closestCircle.x;
+                let y = closestCircle.y;
                 thisClass._minSelectX = x;
                 thisClass._minSelectY = y;
                 thisClass._maxSelectX = x;
                 thisClass._maxSelectY = y;
                 index = x + thisClass._xResolution * y;
-                dragValue=[e.pageY,x,y,thisClass.Value[index],(thisClass._valueMax - thisClass._valueMin) * 2 / thisClass._table3DDisplayHeight];
-                $(`#${thisClass.GUID}-table3d path`).removeClass(`selected`);
-                $(`#${thisClass.GUID}-table3d circle`).removeClass(`selected`);
-                $(`#${thisClass.GUID}-table .number`).removeClass(`selected`);
-                $(`#${thisClass.GUID}-table .number`).removeClass(`origselect`);
-                var cell = $(`#${thisClass.GUID}-table .number[data-x='${dragValue[1]}'][data-y='${dragValue[2]}']`);
-                cell.addClass(`selected`);
-                cell.addClass(`origselect`);
-                $(this).addClass(`selected`);
-            }
-        });
-        $(document).on(`mousedown`, `#${this.GUID}-table3d`, function(e){
-            if(e.which === 3) {
-                drag=[e.pageX,e.pageY,thisClass.Table3DYaw,thisClass.Table3DPitch];
+                dragValue=[e.pageY,x,y,thisClass.Value[index],(thisClass._valueMax - thisClass._valueMin) * 2 / thisClass._table3DDisplayHeight, `#${thisClass.GUID}-table3d g circle[data-x='${x}'][data-y='${y}']`, parseFloat(closestCircle.circle.cy)];
+                $(`#${thisClass.GUID}-table3d g path`).removeClass(`selected`);
+                $(`#${thisClass.GUID}-table3d g circle`).removeClass(`selected`);
+                $(`#${thisClass.GUID}-table .number`).removeClass(`selected`).removeClass(`origselect`);
+                var cell = $(`#${thisClass.GUID}-table .number[data-x='${x}'][data-y='${y}']`);
+                cell.addClass(`selected`).addClass(`origselect`);
+                let closestCircleSelector = $(dragValue[5]);
+                if(closestCircleSelector.length === 0) {
+                    function makeSVG(tag, attrs) {
+                        var el= document.createElementNS('http://www.w3.org/2000/svg', tag);
+                        for (var k in attrs)
+                            el.setAttribute(k, attrs[k]);
+                        return el;
+                    }
+        
+                var circle= makeSVG(`circle`, {cx: closestCircle.circle.cx, cy: closestCircle.circle.cy, r: closestCircle.circle.r, fill: `hsl(${circles[index].hue},60%,50%)`});
+                circle.setAttribute(`data-x`, closestCircle.x);
+                circle.setAttribute(`data-y`, closestCircle.y);
+                circle.setAttribute(`class`, `selected`);
+                $(`#${thisClass.GUID}-table3d g`)[0].appendChild(circle);
+                } else {
+                    closestCircleSelector.addClass(`selected`);
+                    closestCircleSelector.show();
+                }
+            } else if(e.which === 3) {
+                drag=[e.pageX,e.pageY,thisClass.Table3DYaw,thisClass.Table3DPitch,thisClass._table3DPointCloud];
                 e.preventDefault();
             }
         });
         $(document).on(`mouseup`,function(){
+            if(drag) {
+                if(thisClass._table3DPointCloud !== drag[4]){
+                    thisClass._table3DPointCloud = drag[4];
+                    thisClass.UpdateTable3D();
+                }
+            }
+            if(thisClass._table3DPointCloud) {
+                $(`#${thisClass.GUID}-table3d g circle`).show();
+            } else {
+                $(`#${thisClass.GUID}-table3d g circle`).remove();
+            }
             drag=false;
+            if(dragValue) {
+                thisClass.UpdateTable3D();
+            }
             dragValue = false;
         });
         $(document).on(`mousemove`, function(e){
-            if(drag){            
+            if(drag){          
+                thisClass._table3DPointCloud = false;  
+                $(`#${thisClass.GUID}-table3d g circle:not(.selected)`).hide();
                 let yaw=drag[2]-(e.pageX-drag[0])/50;
                 let pitch=drag[3]+(e.pageY-drag[1])/50;
                 pitch=Math.max(-Math.PI/2,Math.min(Math.PI/2,pitch));
@@ -632,7 +671,12 @@ class Table {
                 const id = cell.attr(`id`);
                 cell.replaceWith(thisClass.FormatCellForDisplay(id, dragValue[1], dragValue[2], thisClass._value[index]));
                 $(`#${id}`).select();
-                thisClass.UpdateTable3D();
+                let positionY = thisClass.ReverseY? dragValue[2] : (thisClass.YResolution - dragValue[2] - 1);
+                let value = thisClass._value[dragValue[1] + thisClass._xResolution * dragValue[2]];
+                mag = thisClass._table3DDisplayHeight / 2;
+                value = mag * (0.5 - (value - thisClass._valueMin) / (thisClass._valueMax - thisClass._valueMin));
+                let point = thisClass._transformPoint([(dragValue[1]-thisClass._xResolution/2)/(thisClass._xResolution*1.41)*thisClass._table3DDisplayWidth*thisClass._table3DZoom, value*thisClass._table3DZoom, (positionY-thisClass._yResolution/2)/(thisClass._yResolution*1.41)*thisClass._table3DDisplayWidth*thisClass._table3DZoom]);
+                $(dragValue[5]).attr(`cy`, point[1]+thisClass._table3DDisplayHeight/2);
             }
         });
         $(document).on(`change.${this.GUID}`, `#${this.GUID}-pointcloud`, function(){
@@ -681,16 +725,14 @@ class Table {
     _getHueFromValue(value) {
         return 120 - (120 * (value - this._valueMin) / (this._valueMax - this._valueMin));
     }
+    _transformPoint(point){
+        let x=this._table3DtransformPrecalc[0]*point[0]+this._table3DtransformPrecalc[1]*point[1]+this._table3DtransformPrecalc[2]*point[2];
+        let y=this._table3DtransformPrecalc[3]*point[0]+this._table3DtransformPrecalc[4]*point[1]+this._table3DtransformPrecalc[5]*point[2];
+        let z=this._table3DtransformPrecalc[6]*point[0]+this._table3DtransformPrecalc[7]*point[1]+this._table3DtransformPrecalc[8]*point[2];
+        return [x,y,z];
+    };
 
-    GetTable3DSvg() {
-        const thisClass = this;
-        function transformPoint(point){
-            let x=thisClass._table3DtransformPrecalc[0]*point[0]+thisClass._table3DtransformPrecalc[1]*point[1]+thisClass._table3DtransformPrecalc[2]*point[2];
-            let y=thisClass._table3DtransformPrecalc[3]*point[0]+thisClass._table3DtransformPrecalc[4]*point[1]+thisClass._table3DtransformPrecalc[5]*point[2];
-            let z=thisClass._table3DtransformPrecalc[6]*point[0]+thisClass._table3DtransformPrecalc[7]*point[1]+thisClass._table3DtransformPrecalc[8]*point[2];
-            return [x,y,z];
-        };
-
+    UpdateTable3DSvg() {
         this._calculateValueMinMax();
 
         let data3d=[]
@@ -702,17 +744,17 @@ class Table {
                 let value = this._value[x + this._xResolution * valueY];
                 let mag = this._table3DDisplayHeight / 2;
                 value = mag * (0.5 - (value - this._valueMin) / (this._valueMax - this._valueMin));
-                t.push(transformPoint([(x-this._xResolution/2)/(this._xResolution*1.41)*this._table3DDisplayWidth*this._table3DZoom, value*this._table3DZoom, (y-this._yResolution/2)/(this._yResolution*1.41)*this._table3DDisplayWidth*this._table3DZoom]));
+                t.push(this._transformPoint([(x-this._xResolution/2)/(this._xResolution*1.41)*this._table3DDisplayWidth*this._table3DZoom, value*this._table3DZoom, (y-this._yResolution/2)/(this._yResolution*1.41)*this._table3DDisplayWidth*this._table3DZoom]));
             }
         }
-        let svg=[];
+        this.svg=[];
         for(let x=0;x<this._xResolution;x++){
             for(let y=0;y<this._yResolution;y++){
                 let valueY = this.ReverseY? y : (this.YResolution - y - 1);
                 
                 let depth=data3d[x][y][2];
                 let midPointValue = this._value[x + this._xResolution * valueY];
-                svg.push({
+                this.svg.push({
                     circle: {cx:(data3d[x][y][0]+this._table3DDisplayWidth/2).toFixed(10), cy: (data3d[x][y][1]+this._table3DDisplayHeight/2), r:1/(this._xResolution*1.41)*this._table3DDisplayWidth*this._table3DZoom/10 },
                     depth: depth, 
                     x: x,
@@ -726,7 +768,7 @@ class Table {
                         valueY -= 1;
                     depth=(data3d[x][y][2]+data3d[x+1][y][2]+data3d[x+1][y+1][2]+data3d[x][y+1][2])/4;
                     midPointValue = (this._value[x + this._xResolution * valueY] + this._value[x + this._xResolution * valueY + this._xResolution] + this._value[x + 1 + this._xResolution * valueY] + this._value[x + 1 + this._xResolution * valueY + this._xResolution])/4;
-                    svg.push({
+                    this.svg.push({
                         path:
                             `M${(data3d[x][y][0]+this._table3DDisplayWidth/2).toFixed(10)},${(data3d[x][y][1]+this._table3DDisplayHeight/2).toFixed(10)}`+
                             `L${(data3d[x+1][y][0]+this._table3DDisplayWidth/2).toFixed(10)},${(data3d[x+1][y][1]+this._table3DDisplayHeight/2).toFixed(10)}`+
@@ -741,55 +783,71 @@ class Table {
                 }
             }
         }
-        svg.sort(function(a, b){return b.depth-a.depth});
-        return svg;
+        this.svg.sort(function(a, b){return b.depth-a.depth});
     }
 
     UpdateTable3D(){
         if(this._xResolution < 2 || this._yResolution < 2)
             return;
-        let svg = this.GetTable3DSvg();
-        let paths = svg.filter(x => x.path);
-        let circles = svg.filter(x => x.circle);
+        this.UpdateTable3DSvg();
+        let paths = this.svg.filter(x => x.path);
+        let circles = this.svg.filter(x => x.circle);
         const thisClass = this;
-        $(`#${this.GUID}-table3d path`).each(function(index) { 
-            let pathSelected = thisClass._minSelectX !== undefined && paths[index].x >= thisClass._minSelectX && paths[index].x < thisClass._maxSelectX && paths[index].y >= thisClass._minSelectY && paths[index].y < thisClass._maxSelectY;
-            $(this).attr(`data-x`, paths[index].x)
+        $(`#${this.GUID}-table3d g path`).each(function(index) { 
+            const pathSelected = thisClass._minSelectX !== undefined && paths[index].x >= thisClass._minSelectX && paths[index].x < thisClass._maxSelectX && paths[index].y >= thisClass._minSelectY && paths[index].y < thisClass._maxSelectY;
+            const t = $(this);
+            t.attr(`data-x`, paths[index].x)
                 .attr(`data-y`, paths[index].y)
                 .attr(`d`, paths[index].path)
-                .attr(`fill`, `hsl(${paths[index].hue},60%,50%)`)
-                .attr(`class`, pathSelected? `selected` : ``);
+                .attr(`fill`, `hsl(${paths[index].hue},60%,50%)`);
+
+            if(pathSelected) {
+                t.attr(`class`, `selected`)
+            } else {
+                t.removeAttr(`class`);
+            }
         });
-        if(this._table3DPointCloud) {
-            $(`#${this.GUID}-table3d circle`).each(function(index) { 
-                let pointSelected = thisClass._minSelectX !== undefined && circles[index].x >= thisClass._minSelectX && circles[index].x <= thisClass._maxSelectX && circles[index].y >= thisClass._minSelectY && circles[index].y <= thisClass._maxSelectY;
-                $(this).attr(`data-x`, circles[index].x)
-                    .attr(`data-y`, circles[index].y)
-                    .attr(`cx`, circles[index].circle.cx)
-                    .attr(`cy`, circles[index].circle.cy)
-                    .attr(`r`, circles[index].circle.r)
-                    .attr(`fill`, `hsl(${circles[index].hue},60%,50%)`)
-                    .attr(`class`, pointSelected? `selected` : ``);
-            });
-        }
+        $(`#${this.GUID}-table3d g circle`).each(function(index) { 
+            const pointSelected = thisClass._minSelectX !== undefined && circles[index].x >= thisClass._minSelectX && circles[index].x <= thisClass._maxSelectX && circles[index].y >= thisClass._minSelectY && circles[index].y <= thisClass._maxSelectY;
+            const t = $(this);
+            t.attr(`data-x`, circles[index].x)
+                .attr(`data-y`, circles[index].y)
+                .attr(`cx`, circles[index].circle.cx)
+                .attr(`cy`, circles[index].circle.cy)
+                .attr(`r`, circles[index].circle.r)
+                .attr(`fill`, `hsl(${circles[index].hue},60%,50%)`)
+                .attr(`class`, pointSelected? `selected` : ``);
+
+            if(pointSelected) {
+                t.attr(`class`, `selected`)
+            } else {
+                t.removeAttr(`class`);
+            }
+        });
+    }
+
+    _getCircleHtml(svg, pointSelected) {
+        return `<circle${pointSelected? ` class="selected"` : ``} data-x="${svg.x}" data-y="${svg.y}" cx="${svg.circle.cx}" cy="${svg.circle.cy}" r="${svg.circle.r}" fill="hsl(${svg.hue},60%,50%)"></circle>`;
     }
   
     GetTable3DHtml(){
-        let svg = this.GetTable3DSvg();
+        this.UpdateTable3DSvg();
 
         let html = ``;
 
-        for(let i = 0; i < svg.length; i++) {
-            let pathSelected = this._minSelectX !== undefined && svg[i].x >= this._minSelectX && svg[i].x < this._maxSelectX && svg[i].y >= this._minSelectY && svg[i].y < this._maxSelectY;
-            if(svg[i].path)
-                html += `<path${pathSelected? ` class="selected"` : ``} data-x="${svg[i].x}" data-y="${svg[i].y}" d="${svg[i].path}" fill="hsl(${svg[i].hue},60%,50%)"></path>`;
+        for(let i = 0; i < this.svg.length; i++) {
+            if(this.svg[i].path) {
+                let pathSelected = this._minSelectX !== undefined && this.svg[i].x >= this._minSelectX && this.svg[i].x < this._maxSelectX && this.svg[i].y >= this._minSelectY && this.svg[i].y < this._maxSelectY;
+                html += `<path${pathSelected? ` class="selected"` : ``} data-x="${this.svg[i].x}" data-y="${this.svg[i].y}" d="${this.svg[i].path}" fill="hsl(${this.svg[i].hue},60%,50%)"></path>`;
+            }
         }
 
         if(this._table3DPointCloud) {
-            for(let i = 0; i < svg.length; i++) {
-                let pointSelected = this._minSelectX !== undefined && svg[i].x >= this._minSelectX && svg[i].x <= this._maxSelectX && svg[i].y >= this._minSelectY && svg[i].y <= this._maxSelectY;
-                if(svg[i].circle)
-                    html += `<circle${pointSelected? ` class="selected"` : ``} data-x="${svg[i].x}" data-y="${svg[i].y}" cx="${svg[i].circle.cx}" cy="${svg[i].circle.cy}" r="${svg[i].circle.r}" fill="hsl(${svg[i].hue},60%,50%)"></circle>`;
+            for(let i = 0; i < this.svg.length; i++) {
+                if(this.svg[i].circle) {
+                    let pointSelected = this._minSelectX !== undefined && this.svg[i].x >= this._minSelectX && this.svg[i].x <= this._maxSelectX && this.svg[i].y >= this._minSelectY && this.svg[i].y <= this._maxSelectY;
+                    html += this._getCircleHtml(this.svg[i], pointSelected);
+                }
             }
         }
 
