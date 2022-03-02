@@ -12,7 +12,7 @@
     width: 80px;
     padding: 3px 2px;
     user-select: none;
-    background-color: #505962;
+    background-color: #50596288;
     font: bold 16px Arial;
 }
 .configtable .paste-button,
@@ -46,7 +46,11 @@
 }
 .configtable .paste-button:hover,
 .configtable .modify-button:hover {
-    border-color: #3590d0;
+    border-color: #3590d0 ;
+}
+.configtable path.selected,
+.configtable circle.selected {
+    fill: #3590d0 !important;
 }
 .configtable .number.selected, 
 .configtable .number.selected:hover,
@@ -54,7 +58,7 @@
 .configtable div.selected:hover
 {
     border-color:#3590d0;
-    background-color: #3590d088;
+    background-color: #3590d0aa !important;
 }
 .configtable .container{
     vertical-align:top; 
