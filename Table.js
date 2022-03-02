@@ -609,6 +609,7 @@ class Table {
                 $(`#${thisClass.GUID}-table .number`).removeClass(`selected`).removeClass(`origselect`);
                 var cell = $(`#${thisClass.GUID}-table .number[data-x='${x}'][data-y='${y}']`);
                 cell.addClass(`selected`).addClass(`origselect`);
+                cell.replaceWith(thisClass.FormatCellForDisplay(cell.attr(`id`), x, y, thisClass._value[index]));
                 let closestCircleSelector = $(dragValue[5]);
                 if(closestCircleSelector.length === 0) {
                     function makeSVG(tag, attrs) {
@@ -667,16 +668,14 @@ class Table {
                 let mag = dragValue[4]
                 let index = dragValue[1] + thisClass._xResolution * dragValue[2];
                 thisClass._value[index] = dragValue[3] + diff * mag;
-                var cell = $(`#${thisClass.GUID}-table .number[data-x='${dragValue[1]}'][data-y='${dragValue[2]}']`);
-                const id = cell.attr(`id`);
-                cell.replaceWith(thisClass.FormatCellForDisplay(id, dragValue[1], dragValue[2], thisClass._value[index]));
-                $(`#${id}`).select();
                 let positionY = thisClass.ReverseY? dragValue[2] : (thisClass.YResolution - dragValue[2] - 1);
                 let value = thisClass._value[dragValue[1] + thisClass._xResolution * dragValue[2]];
                 mag = thisClass._table3DDisplayHeight / 2;
                 value = mag * (0.5 - (value - thisClass._valueMin) / (thisClass._valueMax - thisClass._valueMin));
                 let point = thisClass._transformPoint([(dragValue[1]-thisClass._xResolution/2)/(thisClass._xResolution*1.41)*thisClass._table3DDisplayWidth*thisClass._table3DZoom, value*thisClass._table3DZoom, (positionY-thisClass._yResolution/2)/(thisClass._yResolution*1.41)*thisClass._table3DDisplayWidth*thisClass._table3DZoom]);
                 $(dragValue[5]).attr(`cy`, point[1]+thisClass._table3DDisplayHeight/2);
+                var cell = $(`#${thisClass.GUID}-table .number[data-x='${dragValue[1]}'][data-y='${dragValue[2]}']`);
+                cell.val(Table.FormatNumberForDisplay(thisClass._value[index]));
             }
         });
         $(document).on(`change.${this.GUID}`, `#${this.GUID}-pointcloud`, function(){
