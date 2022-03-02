@@ -642,9 +642,6 @@ class Table {
     }
 
     TableValueUpdate() {
-        let width = $(`#${this.GUID}-table`).width();
-        if(width)
-            this._table3DDisplayWidth = width;
         $(`#${this.GUID}-table`).replaceWith(this.GetTableHtml());
         if(this._xResolution > 1 && this._yResolution > 1)
             $(`#${this.GUID}-table3d`).replaceWith(this.GetTable3DHtml());
