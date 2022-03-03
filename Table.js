@@ -109,6 +109,8 @@ class Table {
     _table3DZoom=1;
   
     _table3DtransformPrecalc=[];
+    _table3DOffsetX = 0;
+    _table3DOffsetY = 0
     _table3DPitch = 0;
     get Table3DPitch() {
       return this._table3DPitch
@@ -187,6 +189,7 @@ class Table {
         $(document).off(`mousedown.${this.GUID}-drag3d`);
         $(document).off(`mouseup.${this.GUID}-drag3d`);
         $(document).off(`mousemove.${this.GUID}-drag3d`);
+        $(document).off(`mousewheel.${this.GUID}-drag3d`);
     }
 
     Attach() {
@@ -596,6 +599,7 @@ class Table {
         });
 
 
+        let move3d = false;
         let drag = false;
         let dragValue = false;
         $(document).on(`mousedown.${this.GUID}-drag3d`, `#${this.GUID}-table3d`, function(e){
@@ -627,12 +631,15 @@ class Table {
                 cell.parent().replaceWith(thisClass.FormatCellForDisplay(cell.attr(`id`), x, y, thisClass._value[index]));
                 let closestCircleSelector = $(dragValue[5]);
                 closestCircleSelector.addClass(`selected`);
+            } else if(e.which === 2) {
+                move3d=[e.pageX,e.pageY,thisClass._table3DOffsetX,thisClass._table3DOffsetY];
+                e.preventDefault();
             } else if(e.which === 3) {
                 drag=[e.pageX,e.pageY,thisClass.Table3DYaw,thisClass.Table3DPitch];
                 e.preventDefault();
             }
 
-            if((closestCircle && e.which === 1) || e.which === 3) {
+            if((closestCircle && e.which === 1) || e.which === 2 || e.which === 3) {
                 $(document).on(`mousemove.${thisClass.GUID}-drag3d`, function(e){
                     if(drag){          
                         let yaw=drag[2]-(e.pageX-drag[0])/50;
@@ -643,7 +650,13 @@ class Table {
                         thisClass.Table3DYaw = yaw;
                         thisClass.Table3DPitch = pitch;
                         thisClass.UpdateTable3D(true);
-                    } else if(dragValue) {
+                    } else if(move3d) {
+                        let xdiff=e.pageX-move3d[0];
+                        let ydiff=e.pageY-move3d[1];
+                        thisClass._table3DOffsetX = move3d[2] + xdiff;
+                        thisClass._table3DOffsetY = move3d[3] + ydiff;
+                        thisClass.UpdateTable3D(true);
+                    }else if(dragValue) {
                         let diff = dragValue[0] - e.pageY;
                         let mag = dragValue[4]
                         let index = dragValue[1] + thisClass._xResolution * dragValue[2];
@@ -653,7 +666,7 @@ class Table {
                         mag = thisClass._table3DDisplayHeight / 2;
                         value = mag * (0.5 - (value - thisClass._valueMin) / (thisClass._valueMax - thisClass._valueMin));
                         let point = thisClass._transformPoint([(dragValue[1]-thisClass._xResolution/2)/(thisClass._xResolution*1.41)*thisClass._table3DDisplayWidth*thisClass._table3DZoom, value*thisClass._table3DZoom, (positionY-thisClass._yResolution/2)/(thisClass._yResolution*1.41)*thisClass._table3DDisplayWidth*thisClass._table3DZoom]);
-                        $(dragValue[5]).attr(`cy`, point[1]+thisClass._table3DDisplayHeight/2);
+                        $(dragValue[5]).attr(`cy`, point[1]+thisClass._table3DDisplayHeight/2+thisClass._table3DOffsetY);
                         var cell = $(`#${thisClass.GUID}-table .number[data-x='${dragValue[1]}'][data-y='${dragValue[2]}']`);
                         cell.val(Table.FormatNumberForDisplay(thisClass._value[index]));
                     }
@@ -670,6 +683,16 @@ class Table {
                     $(document).off(`mousemove.${thisClass.GUID}-drag3d`);
                 });
             }
+        });
+        $(document).on(`mousewheel.${this.GUID}-drag3d`, `#${this.GUID}-table3d`, function(e){
+            if(e.originalEvent.wheelDelta /120 > 0) {
+                thisClass._table3DZoom *= 1.05;
+            }
+            else{
+                thisClass._table3DZoom *= 0.95;
+            }
+            thisClass.UpdateData3D();
+            thisClass.UpdateTable3D();
         });
     }
 
@@ -766,7 +789,7 @@ class Table {
                 let depth=this._data3d[x][y][2];
                 let midPointValue = this._value[x + this._xResolution * valueY];
                 this.svg.push({
-                    circle: {cx:(this._data3d[x][y][0]+this._table3DDisplayWidth/2).toFixed(10), cy: (this._data3d[x][y][1]+this._table3DDisplayHeight/2), r:1/(this._xResolution*1.41)*this._table3DDisplayWidth*this._table3DZoom/10 },
+                    circle: {cx:(this._data3d[x][y][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10), cy: (this._data3d[x][y][1]+this._table3DDisplayHeight/2+this._table3DOffsetY), r:1/(this._xResolution*1.41)*this._table3DDisplayWidth*this._table3DZoom/10 },
                     depth: depth, 
                     x: x,
                     y: valueY,
@@ -781,10 +804,10 @@ class Table {
                     midPointValue = (this._value[x + this._xResolution * valueY] + this._value[x + this._xResolution * valueY + this._xResolution] + this._value[x + 1 + this._xResolution * valueY] + this._value[x + 1 + this._xResolution * valueY + this._xResolution])/4;
                     this.svg.push({
                         path:
-                            `M${(this._data3d[x][y][0]+this._table3DDisplayWidth/2).toFixed(10)},${(this._data3d[x][y][1]+this._table3DDisplayHeight/2).toFixed(10)}`+
-                            `L${(this._data3d[x+1][y][0]+this._table3DDisplayWidth/2).toFixed(10)},${(this._data3d[x+1][y][1]+this._table3DDisplayHeight/2).toFixed(10)}`+
-                            `L${(this._data3d[x+1][y+1][0]+this._table3DDisplayWidth/2).toFixed(10)},${(this._data3d[x+1][y+1][1]+this._table3DDisplayHeight/2).toFixed(10)}`+
-                            `L${(this._data3d[x][y+1][0]+this._table3DDisplayWidth/2).toFixed(10)},${(this._data3d[x][y+1][1]+this._table3DDisplayHeight/2).toFixed(10)}Z`,
+                            `M${(this._data3d[x][y][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)},${(this._data3d[x][y][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10)}`+
+                            `L${(this._data3d[x+1][y][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)},${(this._data3d[x+1][y][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10)}`+
+                            `L${(this._data3d[x+1][y+1][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)},${(this._data3d[x+1][y+1][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10)}`+
+                            `L${(this._data3d[x][y+1][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)},${(this._data3d[x][y+1][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10)}Z`,
                         depth: depth, 
                         x: x,
                         y: valueY,
