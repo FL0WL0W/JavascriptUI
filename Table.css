@@ -1,4 +1,10 @@
 
+.configtable svg {
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    align-items: center
+}
 .configtable table {
     border-spacing: 0px;
     border-color: #666;
