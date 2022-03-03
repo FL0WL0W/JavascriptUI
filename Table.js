@@ -1,12 +1,8 @@
 class Table {
-    MinX = 0;
-    MinXModifiable = true;
-    MaxX = 0;
-    MaxXModifiable = true;
-    MinY = 0;
-    MinYModifiable = true;
-    MaxY = 0;
-    MaxYModifiable = true;
+    XAxis = [];
+    YAxis = [];
+    XAxisModifiable = true;
+    YAxisModifiable = true;
     XResolutionModifiable = true;
     YResolutionModifiable = true;
     OnChange = [];
@@ -17,15 +13,22 @@ class Table {
         return this._xResolution;
     }
     set XResolution(xRes) {
-        this.MaxX = parseFloat((this.MaxX - this.MinX) * (xRes-1) / (this._xResolution-1) + this.MinX);
-        var newValue = new Array(Math.max(1, xRes) * Math.max(1, this.YResolution));
-        for(var x=0; x<xRes; x++){
-            for(var y=0; y<this.YResolution; y++){
-                var oldValuesIndex = x + this._xResolution * y;
-                var newValuesIndex = x + xRes * y;
+        this.XAxis.splice(xRes);
+        const oldXAxisLength = this.XAxis.length;
+        if(oldXAxisLength > 2) {
+            let xAxisAdd = this.XAxis[oldXAxisLength-1] - this.XAxis[oldXAxisLength-2]
+            for(let x=oldXAxisLength; x<xRes; x++){
+                this.XAxis[x] = this.XAxis[x-1] + xAxisAdd;
+            }
+        }
+        let newValue = new Array(Math.max(1, xRes) * Math.max(1, this.YResolution));
+        for(let x=0; x<xRes; x++){
+            for(let y=0; y<this.YResolution; y++){
+                let oldValuesIndex = x + this._xResolution * y;
+                let newValuesIndex = x + xRes * y;
                 if(x >= this._xResolution){
-                    var newValuesIndexMinus1 = (x-1) + xRes * y;
-                    var newValuesIndexMinus2 = (x-2) + xRes * y;
+                    let newValuesIndexMinus1 = (x-1) + xRes * y;
+                    let newValuesIndexMinus2 = (x-2) + xRes * y;
                     if(x>1){
                         newValue[newValuesIndex] = newValue[newValuesIndexMinus1] + (newValue[newValuesIndexMinus1] - newValue[newValuesIndexMinus2]);
                     }
@@ -44,14 +47,21 @@ class Table {
         return this._yResolution;
     }
     set YResolution(yRes) {
-        this.MaxY = parseFloat((this.MaxY - this.MinY) * (yRes-1) / (this._yResolution-1) + this.MinY);
-        var newValue = new Array(Math.max(1, this._xResolution) * Math.max(1, yRes));
-        for(var x=0; x<this._xResolution; x++){
-            for(var y=0; y<yRes; y++){
-                var valuesIndex = x + this._xResolution * y;
+        this.YAxis.splice(yRes);
+        const oldYAxisLength = this.YAxis.length;
+        if(oldYAxisLength > 2) {
+            let yAxisAdd = this.YAxis[oldYAxisLength-1] - this.YAxis[oldYAxisLength-2]
+            for(let y=oldYAxisLength; y<yRes; y++){
+                this.YAxis[y] = this.YAxis[y-1] + yAxisAdd;
+            }
+        }
+        let newValue = new Array(Math.max(1, this._xResolution) * Math.max(1, yRes));
+        for(let x=0; x<this._xResolution; x++){
+            for(let y=0; y<yRes; y++){
+                let valuesIndex = x + this._xResolution * y;
                 if(y >= this._yResolution){
-                    var valuesIndexMinus1 = x + this._xResolution * (y-1);
-                    var valuesIndexMinus2 = x + this._xResolution * (y-2);
+                    let valuesIndexMinus1 = x + this._xResolution * (y-1);
+                    let valuesIndexMinus2 = x + this._xResolution * (y-2);
                     if(y>1){
                         newValue[valuesIndex] = newValue[valuesIndexMinus1] + (newValue[valuesIndexMinus1] - newValue[valuesIndexMinus2]);
                     }
@@ -256,26 +266,20 @@ class Table {
                 return;
             
             if(x === -1) {
-                if(y === 0){
-                    //TODO interpolate
-                    thisClass.MinY = value;
-                } else if (y === thisClass._yResolution - 1){
-                    //TODO interpolate
-                    thisClass.MaxY = value;
-                }
-                for(var i = 1; i < thisClass._yResolution - 1; i++) {
-                    $(`#${thisClass.GUID}-table .number[data-x='-1'][data-y='${i}']`).html(Table.FormatNumberForDisplay((thisClass.MaxY - thisClass.MinY) * i / (thisClass._yResolution-1) + thisClass.MinY));
+                thisClass.YAxis[y] = value;
+                for(let ya=y; ya<thisClass._yResolution; ya++) {
+                    if(thisClass.YAxis[ya] < value) {
+                        thisClass.YAxis[ya] = value;
+                        $(`#${thisClass.GUID}-table .number[data-y='${ya}'][data-x='-1']`).html(value);
+                    }
                 }
             } else if(y === -1) {
-                if(x === 0){
-                    //TODO interpolate
-                    thisClass.MinX = value;
-                } else if (x === thisClass._xResolution - 1){
-                    //TODO interpolate
-                    thisClass.MaxX = value;
-                }
-                for(var i = 1; i < thisClass._xResolution - 1; i++) {
-                    $(`#${thisClass.GUID}-table .number[data-x='${i}'][data-y='-1']`).html(Table.FormatNumberForDisplay((thisClass.MaxX - thisClass.MinX) * i / (thisClass._xResolution-1) + thisClass.MinX));
+                thisClass.XAxis[x] = value;
+                for(let xa=x; xa<thisClass._xResolution; xa++) {
+                    if(thisClass.XAxis[xa] < value) {
+                        thisClass.XAxis[xa] = value;
+                        $(`#${thisClass.GUID}-table .number[data-x='${xa}'][data-y='-1']`).html(value);
+                    }
                 }
             } else {
                 $.each($(`#${thisClass.GUID}-table .number.selected`), function(index, cell) {
@@ -665,7 +669,15 @@ class Table {
                         let value = thisClass._value[dragValue[1] + thisClass._xResolution * dragValue[2]];
                         mag = thisClass._table3DDisplayHeight / 2;
                         value = mag * (0.5 - (value - thisClass._valueMin) / (thisClass._valueMax - thisClass._valueMin));
-                        let point = thisClass._transformPoint([(dragValue[1]-thisClass._xResolution/2)/(thisClass._xResolution*1.41)*thisClass._table3DDisplayWidth*thisClass._table3DZoom, value*thisClass._table3DZoom, (positionY-thisClass._yResolution/2)/(thisClass._yResolution*1.41)*thisClass._table3DDisplayWidth*thisClass._table3DZoom]);
+                        const xMin = thisClass.XAxis[0];
+                        const xMag = thisClass.XAxis[thisClass._xResolution-1] - xMin;
+                        const yMin = thisClass.YAxis[0];
+                        const yMag = thisClass.YAxis[thisClass._yResolution-1] - yMin;
+                        let point = thisClass._transformPoint([
+                            (thisClass.XAxis[dragValue[1]]-xMin-xMag/2)/(xMag*1.41)*thisClass._table3DDisplayWidth*thisClass._table3DZoom, 
+                            value*thisClass._table3DZoom, 
+                            (thisClass.YAxis[positionY]-yMin-yMag/2)/(yMag*1.41)*thisClass._table3DDisplayWidth*thisClass._table3DZoom
+                        ]);
                         $(dragValue[5]).attr(`cy`, point[1]+thisClass._table3DDisplayHeight/2+thisClass._table3DOffsetY);
                         var cell = $(`#${thisClass.GUID}-table .number[data-x='${dragValue[1]}'][data-y='${dragValue[2]}']`);
                         cell.val(Table.FormatNumberForDisplay(thisClass._value[index]));
@@ -734,7 +746,7 @@ class Table {
     }
 
     _getHueFromValue(value) {
-        return 120 - (120 * (value - this._valueMin) / (this._valueMax - this._valueMin));
+        return 180 - (180 * (value - this._valueMin) / (this._valueMax - this._valueMin));
     }
 
     _tableHueUpdate() {
@@ -773,7 +785,15 @@ class Table {
                 let value = this._value[x + this._xResolution * valueY];
                 let mag = this._table3DDisplayHeight / 2;
                 value = mag * (0.5 - (value - this._valueMin) / (this._valueMax - this._valueMin));
-                t[y] = this._transformPoint([(x-this._xResolution/2)/(this._xResolution*1.41)*this._table3DDisplayWidth*this._table3DZoom, value*this._table3DZoom, (y-this._yResolution/2)/(this._yResolution*1.41)*this._table3DDisplayWidth*this._table3DZoom]);
+                const xMin = this.XAxis[0];
+                const xMag = this.XAxis[this._xResolution-1] - xMin;
+                const yMin = this.YAxis[0];
+                const yMag = this.YAxis[this._yResolution-1] - yMin;
+                t[y] = this._transformPoint([
+                    ((this.XAxis[x]-xMin-xMag/2)/(xMag*1.41))*this._table3DDisplayWidth*this._table3DZoom, 
+                    value*this._table3DZoom, 
+                    ((this.YAxis[y]-yMin-yMag/2)/(yMag*1.41))*this._table3DDisplayWidth*this._table3DZoom
+                ]);
             }
         }
     }
@@ -947,10 +967,10 @@ class Table {
                         if(this._xResolution === 1) {
                             row += `<td class="xaxis" id="${this.GUID}-zlabel">${this._zLabel}</td>`;
                         } else {
-                            if((x === 0 && this.MinXModifiable) || (x === this._xResolution - 1 && this.MaxXModifiable))
-                                row += `<td class="xaxis">${this.FormatCellForDisplay(`${this.GUID}-${x}-axis`, x, y, ((this.MaxX - this.MinX) * x / (this._xResolution-1) + this.MinX))}</td>`;
+                            if(this.XAxisModifiable)
+                                row += `<td class="xaxis">${this.FormatCellForDisplay(`${this.GUID}-${x}-axis`, x, y, this.XAxis[x])}</td>`;
                             else
-                                row += `<td class="xaxis"><div class="number" id="${this.GUID}-${x}-axis" data-x="${x}" data-y="${y}">${Table.FormatNumberForDisplay((this.MaxX - this.MinX) * x / (this._xResolution-1) + this.MinX)}</div></td>`;
+                                row += `<td class="xaxis"><div class="number" id="${this.GUID}-${x}-axis" data-x="${x}" data-y="${y}">${Table.FormatNumberForDisplay(this.XAxis[x])}</div></td>`;
                         }
                     } else {
                         if(this.XResolutionModifiable)
@@ -975,10 +995,10 @@ class Table {
                         if(this._yResolution === 1) {
                             row += `<td class="yaxis" id="${this.GUID}-zlabel">${this._zLabel}</td>`;
                         } else {
-                            if((y === 0 && this.MinYModifiable) || (y === this._yResolution - 1 && this.MaxYModifiable))
-                                row += `<td class="yaxis">${this.FormatCellForDisplay(`${this.GUID}-axis-${y}`, x, y, ((this.MaxY - this.MinY) * y / (this._yResolution-1) + this.MinY))}</td>`;
+                            if(this.YAxisModifiable)
+                                row += `<td class="yaxis">${this.FormatCellForDisplay(`${this.GUID}-axis-${y}`, x, y, this.YAxis[y])}</td>`;
                             else 
-                                row += `<td class="yaxis"><div class="number" id="${this.GUID}-axis-${y}"  data-x="${x}" data-y="${y}">${Table.FormatNumberForDisplay((this.MaxY - this.MinY) * y / (this._yResolution-1) + this.MinY)}</div></td>`;
+                                row += `<td class="yaxis"><div class="number" id="${this.GUID}-axis-${y}"  data-x="${x}" data-y="${y}">${Table.FormatNumberForDisplay(this.YAxis[y])}</div></td>`;
                         }
                     } else if(x < this._xResolution) {
                         // - - - - -
