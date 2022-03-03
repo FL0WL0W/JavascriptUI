@@ -114,7 +114,7 @@ class Table {
         this._zLabel = value;
     }
 
-    _table3DDisplayWidth=800; 
+    _table3DDisplayWidth=810; 
     _table3DDisplayHeight=400;
     _table3DZoom=1;
   
@@ -779,7 +779,7 @@ class Table {
                         let point = thisClass._transformPoint([
                             (thisClass.XAxis[dragValue[1]]-xMin-xMag/2)/(xMag*1.41)*thisClass._table3DDisplayWidth*thisClass._table3DZoom, 
                             value*thisClass._table3DZoom, 
-                            (thisClass.YAxis[positionY]-yMin-yMag/2)/(yMag*1.41)*thisClass._table3DDisplayWidth*thisClass._table3DZoom
+                            (thisClass.ReverseY? 1 : -1) * (thisClass.YAxis[dragValue[2]]-yMin-yMag/2)/(yMag*1.41)*thisClass._table3DDisplayWidth*thisClass._table3DZoom
                         ]);
                         $(dragValue[5]).attr(`cy`, point[1]+thisClass._table3DDisplayHeight/2+thisClass._table3DOffsetY);
                         var cell = $(`#${thisClass.GUID}-table .number[data-x='${dragValue[1]}'][data-y='${dragValue[2]}']`);
@@ -884,9 +884,16 @@ class Table {
     };
 
     _data3d=[];
+    _xAxis3d=[];
+    _yAxis3d=[];
     UpdateData3D() {
         this._calculateValueMinMax();
         this._data3d.splice(this._xResolution);
+        const xMin = this.XAxis[0];
+        const xMag = this.XAxis[this._xResolution-1] - xMin;
+        const yMin = this.YAxis[0];
+        const yMag = this.YAxis[this._yResolution-1] - yMin;
+        const mag = this._table3DDisplayHeight / 2;
         for(let x=0;x<this._xResolution;x++){
             let t = this._data3d[x];
             if(!t) {
@@ -897,7 +904,31 @@ class Table {
             for(let y=0;y<this._yResolution;y++){
                 let valueY = this.ReverseY? y : (this.YResolution - y - 1);
                 let value = this._value[x + this._xResolution * valueY];
-                let mag = this._table3DDisplayHeight / 2;
+                value = mag * (0.5 - (value - this._valueMin) / (this._valueMax - this._valueMin));
+                t[y] = this._transformPoint([
+                    ((this.XAxis[x]-xMin-xMag/2)/(xMag*1.41))*this._table3DDisplayWidth*this._table3DZoom, 
+                    value*this._table3DZoom, 
+                    (this.ReverseY? 1 : -1) * ((this.YAxis[valueY]-yMin-yMag/2)/(yMag*1.41))*this._table3DDisplayWidth*this._table3DZoom
+                ]);
+            }
+        }
+        this._xAxis3d.splice(this._xResolution);
+        for(let x=0;x<this._xResolution;x++){
+            let t = this._xAxis3d[x];
+            if(!t) {
+                t = [];
+                this._xAxis3d.push(t);
+            }
+            for(let y=0;y<4;y++){
+                let vy = 0;
+                if(y > 0 && y < 3)
+                    vy = this._yResolution - 1;
+
+                let value = this._valueMin;
+                if(y > 1)
+                    value = this._valueMax;
+
+                let valueY = this.ReverseY? vy : (this.YResolution - vy - 1);
                 value = mag * (0.5 - (value - this._valueMin) / (this._valueMax - this._valueMin));
                 const xMin = this.XAxis[0];
                 const xMag = this.XAxis[this._xResolution-1] - xMin;
@@ -906,7 +937,34 @@ class Table {
                 t[y] = this._transformPoint([
                     ((this.XAxis[x]-xMin-xMag/2)/(xMag*1.41))*this._table3DDisplayWidth*this._table3DZoom, 
                     value*this._table3DZoom, 
-                    ((this.YAxis[y]-yMin-yMag/2)/(yMag*1.41))*this._table3DDisplayWidth*this._table3DZoom
+                    (this.ReverseY? 1 : -1) * ((this.YAxis[valueY]-yMin-yMag/2)/(yMag*1.41))*this._table3DDisplayWidth*this._table3DZoom
+                ]);
+            }
+        }
+        this._yAxis3d.splice(this._yResolution);
+        for(let x=0;x<4;x++){
+            let t = this._yAxis3d[x];
+            if(!t) {
+                t = [];
+                this._yAxis3d.push(t);
+            }
+            let vx = 0;
+            if(x > 0 && x < 3)
+                vx = this._xResolution - 1;
+            let value = this._valueMin;
+            if(x > 1)
+                value = this._valueMax;
+            value = mag * (0.5 - (value - this._valueMin) / (this._valueMax - this._valueMin));
+            for(let y=0;y<this._yResolution;y++){
+                let valueY = this.ReverseY? y : (this.YResolution - y - 1);
+                const xMin = this.XAxis[0];
+                const xMag = this.XAxis[this._xResolution-1] - xMin;
+                const yMin = this.YAxis[0];
+                const yMag = this.YAxis[this._yResolution-1] - yMin;
+                t[y] = this._transformPoint([
+                    ((this.XAxis[vx]-xMin-xMag/2)/(xMag*1.41))*this._table3DDisplayWidth*this._table3DZoom, 
+                    value*this._table3DZoom, 
+                    (this.ReverseY? 1 : -1) * ((this.YAxis[valueY]-yMin-yMag/2)/(yMag*1.41))*this._table3DDisplayWidth*this._table3DZoom
                 ]);
             }
         }
@@ -952,6 +1010,25 @@ class Table {
             }
         }
         this.svg.sort(function(a, b){return b.depth-a.depth});
+        let xaxisval = this.svg[0].x;
+        let yaxisval = this.ReverseY? this.svg[0].y : (this.YResolution - this.svg[0].y - 1);
+        this.svg.unshift({
+            path:
+                `M${(this._xAxis3d[xaxisval][0][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)},${(this._xAxis3d[xaxisval][0][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10)}`+
+                `L${(this._xAxis3d[xaxisval][1][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)},${(this._xAxis3d[xaxisval][1][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10)}`+
+                `L${(this._xAxis3d[xaxisval][2][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)},${(this._xAxis3d[xaxisval][2][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10)}`+
+                `L${(this._xAxis3d[xaxisval][3][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)},${(this._xAxis3d[xaxisval][3][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10)}Z`,
+            hue: 250
+        });
+        this.svg.unshift({
+            path:
+                `M${(this._yAxis3d[0][yaxisval][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)},${(this._yAxis3d[0][yaxisval][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10)}`+
+                `L${(this._yAxis3d[1][yaxisval][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)},${(this._yAxis3d[1][yaxisval][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10)}`+
+                `L${(this._yAxis3d[2][yaxisval][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)},${(this._yAxis3d[2][yaxisval][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10)}`+
+                `L${(this._yAxis3d[3][yaxisval][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)},${(this._yAxis3d[3][yaxisval][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10)}Z`,
+            hue: 250
+        });
+        console.log(this.svg[0])
     }
 
     UpdateTable3D(skipPoints){
@@ -1022,7 +1099,7 @@ class Table {
             }
         }
 
-        return `<svg oncontextmenu="return false;" id="${this.GUID}-table3d" height="${this._table3DDisplayHeight}" width="${this._table3DDisplayWidth}"><g>${html}</g></svg>`;
+        return `<svg overflow="visible" oncontextmenu="return false;" id="${this.GUID}-table3d" height="${this._table3DDisplayHeight}" width="${this._table3DDisplayWidth}"><g>${html}</g></svg>`;
     };
 
     GetTableHtml() {
