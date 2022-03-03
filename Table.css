@@ -49,7 +49,7 @@
     border-color: #3590d0 ;
 }
 .configtable circle {
-    display: none !important;
+    display: none;
 }
 .configtable path.selected,
 .configtable circle.selected {
