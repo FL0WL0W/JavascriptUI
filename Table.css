@@ -58,11 +58,12 @@
 .configtable .interpolate-y-button {
     transform: rotate(90deg);
 }
-.configtable .interpolate-xy-button {
+.configtable .interpolate-xy-button h3 {
     background: linear-gradient(45deg, #ff0000 35%, #ffff00 45%, #00ff00 55%, #00ffff 65%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     font-weight: bold;
+    transform: scale(2);
 }
 .configtable circle {
     display: none;
