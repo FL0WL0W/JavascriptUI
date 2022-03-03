@@ -48,6 +48,22 @@
 .configtable .modify-button:hover {
     border-color: #3590d0 ;
 }
+.configtable .interpolate-x-button,
+.configtable .interpolate-y-button {
+    background: linear-gradient(90deg, #ff0000 35%, #ffff00 45%, #00ff00 55%, #00ffff 65%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: bold;
+}
+.configtable .interpolate-y-button {
+    transform: rotate(90deg);
+}
+.configtable .interpolate-xy-button {
+    background: linear-gradient(45deg, #ff0000 35%, #ffff00 45%, #00ff00 55%, #00ffff 65%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: bold;
+}
 .configtable circle {
     display: none;
 }

@@ -257,6 +257,109 @@ class Table {
             thisClass.UpdateTable3D();
             thisClass.OnChange.forEach(function(OnChange) { OnChange(); });
         });
+        $(document).on(`click.${this.GUID}`, `#${this.GUID}-interpolatexy`, function(){
+            const selected = $(`#${thisClass.GUID}-table .number.selected`);
+            if(selected.length === 0)
+                return
+            let xMin = 10000000000;
+            let xMax = -10000000000;
+            let yMin = 10000000000;
+            let yMax = -10000000000;
+            $.each(selected, function(index, cell) {
+                const cellx = parseInt($(cell).attr(`data-x`));
+                const celly = parseInt($(cell).attr(`data-y`));
+                if(cellx < xMin)
+                    xMin = cellx;
+                if(cellx > xMax)
+                    xMax = cellx;
+                if(celly < yMin)
+                    yMin = celly;
+                if(celly > yMax)
+                    yMax = celly;
+            });
+            $.each(selected, function(index, cell) {
+                const id = $(cell).attr(`id`);
+                const cellx = parseInt($(cell).attr(`data-x`));
+                const celly = parseInt($(cell).attr(`data-y`));
+                if(cellx === xMin || cellx === xMax || celly === yMin || celly === yMax)
+                    return;
+                const xMinVal = thisClass._value[xMin + celly * thisClass._xResolution];
+                const yMinVal = thisClass._value[cellx + yMin * thisClass._xResolution];
+                const xMag = (thisClass._value[xMax + celly * thisClass._xResolution] - xMinVal) / (thisClass.XAxis[xMax] - thisClass.XAxis[xMin]);
+                const yMag = (thisClass._value[cellx + yMax * thisClass._xResolution] - yMinVal) / (thisClass.YAxis[yMax] - thisClass.YAxis[yMin]);
+                let value = xMinVal + xMag * (thisClass.XAxis[cellx]-thisClass.XAxis[xMin]) + yMinVal + yMag * (thisClass.YAxis[celly]-thisClass.YAxis[yMin])
+                value /= 2;
+                index = cellx + celly * thisClass._xResolution;
+                thisClass._value[index] = value;
+                $(cell).parent().replaceWith(thisClass.FormatCellForDisplay(id, cellx, celly, thisClass._value[index]));
+            });
+            thisClass._tableHueUpdate();
+            thisClass.UpdateData3D();
+            thisClass.UpdateTable3D();
+            thisClass.OnChange.forEach(function(OnChange) { OnChange(); });
+        });
+        $(document).on(`click.${this.GUID}`, `#${this.GUID}-interpolatex`, function(){
+            const selected = $(`#${thisClass.GUID}-table .number.selected`);
+            if(selected.length === 0)
+                return
+            let xMin = 10000000000;
+            let xMax = -10000000000;
+            $.each(selected, function(index, cell) {
+                const cellx = parseInt($(cell).attr(`data-x`));
+                if(cellx < xMin)
+                    xMin = cellx;
+                if(cellx > xMax)
+                    xMax = cellx;
+            });
+            $.each(selected, function(index, cell) {
+                const id = $(cell).attr(`id`);
+                const cellx = parseInt($(cell).attr(`data-x`));
+                const celly = parseInt($(cell).attr(`data-y`));
+                if(cellx === xMin || cellx === xMax)
+                    return;
+                const xMinVal = thisClass._value[xMin + celly * thisClass._xResolution];
+                const xMag = (thisClass._value[xMax + celly * thisClass._xResolution] - xMinVal) / (thisClass.XAxis[xMax] - thisClass.XAxis[xMin]);
+                let value = xMinVal + xMag * (thisClass.XAxis[cellx]-thisClass.XAxis[xMin]);
+                index = cellx + celly * thisClass._xResolution;
+                thisClass._value[index] = value;
+                $(cell).parent().replaceWith(thisClass.FormatCellForDisplay(id, cellx, celly, thisClass._value[index]));
+            });
+            thisClass._tableHueUpdate();
+            thisClass.UpdateData3D();
+            thisClass.UpdateTable3D();
+            thisClass.OnChange.forEach(function(OnChange) { OnChange(); });
+        });
+        $(document).on(`click.${this.GUID}`, `#${this.GUID}-interpolatey`, function(){
+            const selected = $(`#${thisClass.GUID}-table .number.selected`);
+            if(selected.length === 0)
+                return
+            let yMin = 10000000000;
+            let yMax = -10000000000;
+            $.each(selected, function(index, cell) {
+                const celly = parseInt($(cell).attr(`data-y`));
+                if(celly < yMin)
+                    yMin = celly;
+                if(celly > yMax)
+                    yMax = celly;
+            });
+            $.each(selected, function(index, cell) {
+                const id = $(cell).attr(`id`);
+                const cellx = parseInt($(cell).attr(`data-x`));
+                const celly = parseInt($(cell).attr(`data-y`));
+                if(celly === yMin || celly === yMax)
+                    return;
+                const yMinVal = thisClass._value[cellx + yMin * thisClass._xResolution];
+                const yMag = (thisClass._value[cellx + yMax * thisClass._xResolution] - yMinVal) / (thisClass.YAxis[yMax] - thisClass.YAxis[yMin]);
+                let value = yMinVal + yMag * (thisClass.YAxis[celly]-thisClass.YAxis[yMin])
+                index = cellx + celly * thisClass._xResolution;
+                thisClass._value[index] = value;
+                $(cell).parent().replaceWith(thisClass.FormatCellForDisplay(id, cellx, celly, thisClass._value[index]));
+            });
+            thisClass._tableHueUpdate();
+            thisClass.UpdateData3D();
+            thisClass.UpdateTable3D();
+            thisClass.OnChange.forEach(function(OnChange) { OnChange(); });
+        });
 
         $(document).on(`change.${this.GUID}`, `#${this.GUID}-table`, function(e){
             var x = parseInt($(e.target).attr(`data-x`));
@@ -724,6 +827,9 @@ class Table {
             <div id="${this.GUID}-add" class="modify-button"><h3>&nbsp;+&nbsp;</h3></div>
             <div id="${this.GUID}-multiply" class="modify-button"><h3>&nbsp;x&nbsp;</h3></div>
             <input id="${this.GUID}-modifyvalue" class="modify-button" type="number"></input>
+            <div id="${this.GUID}-interpolatex" class="modify-button interpolate-x-button"><h3>&nbsp;☰&nbsp;</h3></div>
+            <div id="${this.GUID}-interpolatey" class="modify-button interpolate-y-button"><h3>&nbsp;☰&nbsp;</h3></div>
+            <div id="${this.GUID}-interpolatexy" class="modify-button interpolate-xy-button"><h3>&nbsp;&#9632;&nbsp;</h3></div>
             </div>
         </div>
     </div>
