@@ -709,9 +709,9 @@ class Table {
         let move3d = false;
         let drag = false;
         let dragValue = false;
-        $(document).on(`mousedown.${this.GUID}-drag3d`, `#${this.GUID}-table3d`, function(e){
-            var relX = e.pageX - $(this).offset().left;
-            var relY = e.pageY - $(this).offset().top;
+        $(document).on(`mousedown.${this.GUID}-drag3d`, `#${this.GUID}-table3d g`, function(e){
+            var relX = e.pageX - $(this).closest(`svg`).offset().left;
+            var relY = e.pageY - $(this).closest(`svg`).offset().top;
             let circles = thisClass.svg.filter(x => x.circle).reverse();
             let closestCircle = undefined;
             circles.forEach(function(element, index) {
@@ -794,6 +794,7 @@ class Table {
                     }
                     thisClass.UpdateTable3D();
                     dragValue = false;
+                    move3d = false
                     $(document).off(`mouseup.${thisClass.GUID}-drag3d`);
                     $(document).off(`mousemove.${thisClass.GUID}-drag3d`);
                 });
@@ -1099,7 +1100,7 @@ class Table {
             }
         }
 
-        return `<svg overflow="visible" oncontextmenu="return false;" id="${this.GUID}-table3d" height="${this._table3DDisplayHeight}" width="${this._table3DDisplayWidth}"><g>${html}</g></svg>`;
+        return `<svg overflow="visible" id="${this.GUID}-table3d" height="${this._table3DDisplayHeight}" width="${this._table3DDisplayWidth}"><g oncontextmenu="return false;">${html}</g></svg>`;
     };
 
     GetTableHtml() {
