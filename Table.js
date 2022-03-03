@@ -1018,10 +1018,14 @@ class Table {
             }
         }
         this.svg.sort(function(a, b){return b.depth-a.depth});
-        const xaxisY = this.svg[0].y < this._yResolution / 2? (this.ReverseY? 0 : 1) : (this.ReverseY? 1 : 0);
-        const yaxisX = this.svg[0].x < this._xResolution / 2? 0 : 1;
+        const xaxisRearY = this.svg[0].y < this._yResolution / 2? (this.ReverseY? 0 : 1) : (this.ReverseY? 1 : 0);
+        const xaxisFrontY = xaxisRearY === 1? 0 : 1; 
+        const yaxisRearX = this.svg[0].x < this._xResolution / 2? 0 : 1;
+        const yaxisFrontX = yaxisRearX === 1? 0 : 1; 
+        const xyaxisRearZ = this.Table3DPitch > 0? 0 : 1
+        const xyaxisFrontZ = xyaxisRearZ === 1? 0 : 1; 
         for(let x=0; x<this._xResolution; x++) {
-            const coord = this._xAxis3d[x][xaxisY];
+            const coord = this._xAxis3d[x][xaxisRearY];
             this.svg.unshift({
                 line: {
                     x1: coord[0][0]+this._table3DDisplayWidth/2+this._table3DOffsetX, 
@@ -1033,22 +1037,30 @@ class Table {
         }
         this.svg.unshift({
             line: {
-                x1: this._xAxis3d[0][xaxisY][0][0]+this._table3DDisplayWidth/2+this._table3DOffsetX, 
-                y1: this._xAxis3d[0][xaxisY][0][1]+this._table3DDisplayHeight/2+this._table3DOffsetY, 
-                x2: this._xAxis3d[this._xResolution-1][xaxisY][0][0]+this._table3DDisplayWidth/2+this._table3DOffsetX, 
-                y2: this._xAxis3d[this._xResolution-1][xaxisY][0][1]+this._table3DDisplayHeight/2+this._table3DOffsetY
+                x1: this._xAxis3d[0][xaxisRearY][xyaxisFrontZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX, 
+                y1: this._xAxis3d[0][xaxisRearY][xyaxisFrontZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY, 
+                x2: this._xAxis3d[this._xResolution-1][xaxisRearY][xyaxisFrontZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX, 
+                y2: this._xAxis3d[this._xResolution-1][xaxisRearY][xyaxisFrontZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY
             }
         });
         this.svg.unshift({
             line: {
-                x1: this._xAxis3d[0][xaxisY][1][0]+this._table3DDisplayWidth/2+this._table3DOffsetX, 
-                y1: this._xAxis3d[0][xaxisY][1][1]+this._table3DDisplayHeight/2+this._table3DOffsetY, 
-                x2: this._xAxis3d[this._xResolution-1][xaxisY][1][0]+this._table3DDisplayWidth/2+this._table3DOffsetX, 
-                y2: this._xAxis3d[this._xResolution-1][xaxisY][1][1]+this._table3DDisplayHeight/2+this._table3DOffsetY
+                x1: this._xAxis3d[0][xaxisRearY][xyaxisRearZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX, 
+                y1: this._xAxis3d[0][xaxisRearY][xyaxisRearZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY, 
+                x2: this._xAxis3d[this._xResolution-1][xaxisRearY][xyaxisRearZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX, 
+                y2: this._xAxis3d[this._xResolution-1][xaxisRearY][xyaxisRearZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY
+            }
+        });
+        this.svg.unshift({
+            line: {
+                x1: this._xAxis3d[0][xaxisFrontY][xyaxisRearZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX, 
+                y1: this._xAxis3d[0][xaxisFrontY][xyaxisRearZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY, 
+                x2: this._xAxis3d[this._xResolution-1][xaxisFrontY][xyaxisRearZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX, 
+                y2: this._xAxis3d[this._xResolution-1][xaxisFrontY][xyaxisRearZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY
             }
         });
         for(let y=0; y<this._yResolution; y++) {
-            const coord = this._yAxis3d[yaxisX][y];
+            const coord = this._yAxis3d[yaxisRearX][y];
             this.svg.unshift({
                 line: {
                     x1: coord[0][0]+this._table3DDisplayWidth/2+this._table3DOffsetX, 
@@ -1060,18 +1072,26 @@ class Table {
         }
         this.svg.unshift({
             line: {
-                x1: this._yAxis3d[yaxisX][0][0][0]+this._table3DDisplayWidth/2+this._table3DOffsetX, 
-                y1: this._yAxis3d[yaxisX][0][0][1]+this._table3DDisplayHeight/2+this._table3DOffsetY, 
-                x2: this._yAxis3d[yaxisX][this._yResolution-1][0][0]+this._table3DDisplayWidth/2+this._table3DOffsetX, 
-                y2: this._yAxis3d[yaxisX][this._yResolution-1][0][1]+this._table3DDisplayHeight/2+this._table3DOffsetY
+                x1: this._yAxis3d[yaxisRearX][0][xyaxisFrontZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX, 
+                y1: this._yAxis3d[yaxisRearX][0][xyaxisFrontZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY, 
+                x2: this._yAxis3d[yaxisRearX][this._yResolution-1][xyaxisFrontZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX, 
+                y2: this._yAxis3d[yaxisRearX][this._yResolution-1][xyaxisFrontZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY
             }
         });
         this.svg.unshift({
             line: {
-                x1: this._yAxis3d[yaxisX][0][1][0]+this._table3DDisplayWidth/2+this._table3DOffsetX, 
-                y1: this._yAxis3d[yaxisX][0][1][1]+this._table3DDisplayHeight/2+this._table3DOffsetY, 
-                x2: this._yAxis3d[yaxisX][this._yResolution-1][1][0]+this._table3DDisplayWidth/2+this._table3DOffsetX, 
-                y2: this._yAxis3d[yaxisX][this._yResolution-1][1][1]+this._table3DDisplayHeight/2+this._table3DOffsetY
+                x1: this._yAxis3d[yaxisRearX][0][xyaxisRearZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX, 
+                y1: this._yAxis3d[yaxisRearX][0][xyaxisRearZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY, 
+                x2: this._yAxis3d[yaxisRearX][this._yResolution-1][xyaxisRearZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX, 
+                y2: this._yAxis3d[yaxisRearX][this._yResolution-1][xyaxisRearZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY
+            }
+        });
+        this.svg.unshift({
+            line: {
+                x1: this._yAxis3d[yaxisFrontX][0][xyaxisRearZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX, 
+                y1: this._yAxis3d[yaxisFrontX][0][xyaxisRearZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY, 
+                x2: this._yAxis3d[yaxisFrontX][this._yResolution-1][xyaxisRearZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX, 
+                y2: this._yAxis3d[yaxisFrontX][this._yResolution-1][xyaxisRearZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY
             }
         });
 
