@@ -826,18 +826,18 @@ class Table {
         <div style="display:inline-block; position: relative;">
             <div style="width: 100; position: absolute; top: -10; left: 32px;z-index:1">Modify</div>
             <div class="container">
+                <input id="${this.GUID}-modifyvalue" class="modify-value" type="number"></input>
                 <div id="${this.GUID}-equal" class="modify-button"><h3>&nbsp;=&nbsp;</h3></div>
                 <div id="${this.GUID}-add" class="modify-button"><h3>&nbsp;+&nbsp;</h3></div>
                 <div id="${this.GUID}-multiply" class="modify-button"><h3>&nbsp;x&nbsp;</h3></div>
-                <input id="${this.GUID}-modifyvalue" class="modify-button" type="number"></input>
             </div>
         </div>
         <div style="display:inline-block; position: relative;">
-            <div style="width: 100; position: absolute; top: -10; left: 32px;z-index:1">Interpolate</div>
+            ${this._xResolution > 1 && this._yResolution > 1? `<div style="width: 100; position: absolute; top: -10; left: 32px;z-index:1">Interpolate</div>` : ``}
             <div class="container">
-                <div id="${this.GUID}-interpolatex" class="modify-button interpolate-x-button"><h3>&nbsp;☰&nbsp;</h3></div>
-                <div id="${this.GUID}-interpolatey" class="modify-button interpolate-y-button"><h3>&nbsp;☰&nbsp;</h3></div>
-                <div id="${this.GUID}-interpolatexy" class="modify-button interpolate-xy-button"><h3>&nbsp;&#9632;&nbsp;</h3></div>
+                ${this._xResolution > 1? `<div id="${this.GUID}-interpolatex" class="modify-button interpolate-x-button"><h3>&nbsp;☰&nbsp;</h3></div>` : ``}
+                ${this._yResolution > 1? `<div id="${this.GUID}-interpolatey" class="modify-button interpolate-y-button"><h3>&nbsp;☰&nbsp;</h3></div>` : ``}
+                ${this._xResolution > 1 && this._yResolution > 1? `<div id="${this.GUID}-interpolatexy" class="modify-button interpolate-xy-button"><h3>&nbsp;&#9632;&nbsp;</h3></div>` : ``}
             </div>
         </div>
     </div>

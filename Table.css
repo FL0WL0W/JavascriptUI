@@ -17,13 +17,21 @@
 }
 .configtable .paste-button,
 .configtable .modify-button ,
-.configtable input.modify-button {
-    padding: 2px;
+.configtable input.modify-value {
     border-radius: 6px;
     border: 3px solid #666;
     cursor: pointer;
     margin: 2px;
-    display: inline-block;
+    width: 3em;
+    height: 3em;
+    display: inline-flex;
+    align-items:center;
+    justify-content: center;  
+}
+.configtable input.modify-value {
+    font-size: 1.5em;
+    height: 2em;
+    width: 6em;
 }
 .configtable input.modify-button {
     font-size: 1.5em;
