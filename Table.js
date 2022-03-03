@@ -890,7 +890,7 @@ class Table {
             const celly = parseInt($(this).attr(`data-y`));
             const index = cellx + celly * thisClass._xResolution;
             if(!isNaN(index) && cellx > -1 && celly > -1) {
-                $(this).parent().attr(`style`, `background-color: hsl(${thisClass._getHueFromValue(thisClass._value[index])},60%,50%);`);
+                $(this).parent().attr(`style`, `background-color: hsl(${thisClass._getHueFromValue(thisClass._value[index])},100%,50%);`);
             }
         });
     }
@@ -1346,8 +1346,8 @@ class Table {
             value = $(`#${id}`).html();
 
         if(rowClass.indexOf("origselect") === -1)
-            return `<div${x>-1&&y>-1? ` style="background-color: hsl(${this._getHueFromValue(value)},60%,50%);"` : ``}><div ${rowClass} id="${id}" data-x="${x}" data-y="${y}">${Table.FormatNumberForDisplay(value)}</div></div>`;
-        return `<div${x>-1&&y>-1? ` style="background-color: hsl(${this._getHueFromValue(value)},60%,50%);"` : ``}><input ${rowClass} id="${id}" data-x="${x}" data-y="${y}" value="${Table.FormatNumberForDisplay(value)}" type="number"/></div>`;
+            return `<div${x>-1&&y>-1? ` style="background-color: hsl(${this._getHueFromValue(value)},100%,50%);"` : ``}><div ${rowClass} id="${id}" data-x="${x}" data-y="${y}">${Table.FormatNumberForDisplay(value)}</div></div>`;
+        return `<div${x>-1&&y>-1? ` style="background-color: hsl(${this._getHueFromValue(value)},100%,50%);"` : ``}><input ${rowClass} id="${id}" data-x="${x}" data-y="${y}" value="${Table.FormatNumberForDisplay(value)}" type="number"/></div>`;
     }
 
     static FormatNumberForDisplay(number, precision = 6) {
