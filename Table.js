@@ -38,6 +38,7 @@ class Table {
             }
         }
         this._xResolution = xRes;
+        $(`#${this.GUID}-xres`).val(this._xResolution);
         this._value = newValue;
         this.TableValueUpdate();
     }
@@ -71,6 +72,7 @@ class Table {
             }
         }
         this._yResolution = yRes;
+        $(`#${this.GUID}-yres`).val(this._yResolution);
         this._value = newValue;
         this.TableValueUpdate();
     }
@@ -361,6 +363,12 @@ class Table {
             thisClass.OnChange.forEach(function(OnChange) { OnChange(); });
         });
 
+        $(document).on(`change.${this.GUID}`, `#${this.GUID}-yres`, function(e){
+            thisClass.YResolution = parseInt($(e.target).val());
+        });
+        $(document).on(`change.${this.GUID}`, `#${this.GUID}-xres`, function(e){
+            thisClass.XResolution = parseInt($(e.target).val());
+        });
         $(document).on(`change.${this.GUID}`, `#${this.GUID}-table`, function(e){
             var x = parseInt($(e.target).attr(`data-x`));
             var y = parseInt($(e.target).attr(`data-y`));
@@ -823,24 +831,34 @@ class Table {
         return `<div id="${this.GUID}"${this._hidden? ` style="display: none;"` : ``} class="configtable"> 
     ${(this._xResolution > 1 && this._yResolution > 1)? this.GetTable3DHtml() : ``}
     <div style="display:block;">
-        ${GetPasteOptions()}
-        <div style="display:inline-block; position: relative;">
-            <div style="width: 100; position: absolute; top: -10; left: 32px;z-index:1">Modify</div>
-            <div class="container">
-                <input id="${this.GUID}-modifyvalue" class="modify-value" type="number"></input>
-                <div id="${this.GUID}-equal" class="modify-button"><h3>&nbsp;=&nbsp;</h3></div>
-                <div id="${this.GUID}-add" class="modify-button"><h3>&nbsp;+&nbsp;</h3></div>
-                <div id="${this.GUID}-multiply" class="modify-button"><h3>&nbsp;x&nbsp;</h3></div>
+        <div style="float:right;">
+            ${GetPasteOptions()}
+            <div style="display:inline-block; position: relative;">
+                <div style="width: 100; position: absolute; top: -10; left: 32px;z-index:1">Modify</div>
+                <div class="container">
+                    <input id="${this.GUID}-modifyvalue" class="modify-value" type="number"></input>
+                    <div id="${this.GUID}-equal" class="modify-button"><h3>&nbsp;=&nbsp;</h3></div>
+                    <div id="${this.GUID}-add" class="modify-button"><h3>&nbsp;+&nbsp;</h3></div>
+                    <div id="${this.GUID}-multiply" class="modify-button"><h3>&nbsp;x&nbsp;</h3></div>
+                </div>
+            </div>
+            <div style="display:inline-block; position: relative;">
+                ${this._xResolution > 1 && this._yResolution > 1? `<div style="width: 100; position: absolute; top: -10; left: 32px;z-index:1">Interpolate</div>` : ``}
+                <div class="container">
+                    ${this._xResolution > 1? `<div id="${this.GUID}-interpolatex" class="modify-button interpolate-x-button"><h3>&nbsp;☰&nbsp;</h3></div>` : ``}
+                    ${this._yResolution > 1? `<div id="${this.GUID}-interpolatey" class="modify-button interpolate-y-button"><h3>&nbsp;☰&nbsp;</h3></div>` : ``}
+                    ${this._xResolution > 1 && this._yResolution > 1? `<div id="${this.GUID}-interpolatexy" class="modify-button interpolate-xy-button"><h3>&nbsp;&#9632;&nbsp;</h3></div>` : ``}
+                </div>
             </div>
         </div>
-        <div style="display:inline-block; position: relative;">
-            ${this._xResolution > 1 && this._yResolution > 1? `<div style="width: 100; position: absolute; top: -10; left: 32px;z-index:1">Interpolate</div>` : ``}
+        ${this.XResolutionModifiable || this.YResolutionModifiable? `<div style="display:inline-block; position: relative;">
+            <div style="width: 100; position: absolute; top: -10; left: ${this.XResolutionModifiable && this.YResolutionModifiable? `32` : `0`}px;z-index:1">Table Size</div>
             <div class="container">
-                ${this._xResolution > 1? `<div id="${this.GUID}-interpolatex" class="modify-button interpolate-x-button"><h3>&nbsp;☰&nbsp;</h3></div>` : ``}
-                ${this._yResolution > 1? `<div id="${this.GUID}-interpolatey" class="modify-button interpolate-y-button"><h3>&nbsp;☰&nbsp;</h3></div>` : ``}
-                ${this._xResolution > 1 && this._yResolution > 1? `<div id="${this.GUID}-interpolatexy" class="modify-button interpolate-xy-button"><h3>&nbsp;&#9632;&nbsp;</h3></div>` : ``}
+                ${this.XResolutionModifiable? `<input id="${this.GUID}-xres" class="xres" type="number" value="${this._xResolution}"></input>` : ``}
+                ${this.XResolutionModifiable && this.YResolutionModifiable? `X` : ``}
+                ${this.YResolutionModifiable? `<input id="${this.GUID}-yres" class="xres" type="number" value="${this._yResolution}"></input>` : ``}
             </div>
-        </div>
+        </div>` : ``}
     </div>
     ${this.GetTableHtml()}
 </div>`;

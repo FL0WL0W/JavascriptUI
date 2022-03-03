@@ -17,7 +17,9 @@
 }
 .configtable .paste-button,
 .configtable .modify-button ,
-.configtable input.modify-value {
+.configtable input.modify-value,
+.configtable input.xres,
+.configtable input.yres {
     border-radius: 6px;
     border: 3px solid #666;
     cursor: pointer;
@@ -32,6 +34,12 @@
     font-size: 1.5em;
     height: 2em;
     width: 6em;
+}
+.configtable input.xres,
+.configtable input.yres {
+    font-size: 1.5em;
+    height: 2em;
+    width: 3em;
 }
 .configtable input.modify-button {
     font-size: 1.5em;
