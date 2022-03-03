@@ -1356,10 +1356,28 @@ class Table {
             return `&nbsp;`;
         return ret;
     }
-    
 
+    _trailSvg = [];
+    UpdateTrailSvg() {
+
+    }
+
+    UpdateTrail() {
+        UpdateTrailSvg();
+    }
+
+    GetTrailHtml() {
+        UpdateTrailSvg();
+
+    }
+
+    
+    _trailXY = []
+    TailLength = 20;
     Trail(x, y, z) {
-        //TODO add trail
+        this._trailXY.unshift([x, y]);
+        this._trailXY.splice(this.TrailLength);
+        this.UpdateTrail();
     }
 }
 
