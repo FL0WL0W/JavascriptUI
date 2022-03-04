@@ -13,7 +13,7 @@ class Table {
     set XAxis(xAxis) {
         this._xAxis = xAxis;
         $(`#${this.GUID}-table .number[data-x='-1']`).each(function() {
-            const x = $(this).attr(`data-x`);
+            const x = parseInt($(this).attr(`data-x`));
             const id = $(this).attr(`id`)
             $(this).parent().replaceWith(thisClass._formatNumberForDisplay(id, x, -1, xAxis[x]));
         })
@@ -370,8 +370,8 @@ class Table {
             $(this).addClass(`selected`);
             $(this).addClass(`origselect`);
 
-            let x = $(this).attr(`data-x`);
-            let y = $(this).attr(`data-y`);
+            let x = parseInt($(this).attr(`data-x`));
+            let y = parseInt($(this).attr(`data-y`));
 
             if(x === undefined || parseInt(x) < 0 || y === undefined || parseInt(y) < 0)
                 return;
@@ -435,8 +435,8 @@ class Table {
                 thisClass._maxSelectY = 0;
                 $.each($(`#${thisClass.GUID}-table .number`), function(index, cell) {
                     var cellElement = $(cell);
-                    let x = cellElement.attr(`data-x`);
-                    let y = cellElement.attr(`data-y`);
+                    let x = parseInt(cellElement.attr(`data-x`));
+                    let y = parseInt(cellElement.attr(`data-y`));
                     if(cellElement.attr(`data-x`) === undefined || parseInt(x) < 0 || y === undefined || parseInt(y) < 0)
                         return;
 
@@ -470,8 +470,8 @@ class Table {
                 });
                 $.each($(`#${thisClass.GUID}-tablesvg g path`), function(index, cell) {
                     var cellElement = $(cell);
-                    let x = cellElement.attr(`data-x`);
-                    let y = cellElement.attr(`data-y`);
+                    let x = parseInt(cellElement.attr(`data-x`));
+                    let y = parseInt(cellElement.attr(`data-y`));
 
                     if(x >= thisClass._minSelectX && x < thisClass._maxSelectX && y >= thisClass._minSelectY && y < thisClass._maxSelectY)
                         cellElement.addClass(`selected`);
@@ -480,8 +480,8 @@ class Table {
                 });
                 $.each($(`#${thisClass.GUID}-tablesvg g circle`), function(index, cell) {
                     var cellElement = $(cell);
-                    let x = cellElement.attr(`data-x`);
-                    let y = cellElement.attr(`data-y`);
+                    let x = parseInt(cellElement.attr(`data-x`));
+                    let y = parseInt(cellElement.attr(`data-y`));
 
                     if(x >= thisClass._minSelectX && x <= thisClass._maxSelectX && y >= thisClass._minSelectY && y <= thisClass._maxSelectY)
                         cellElement.addClass(`selected`);
@@ -546,6 +546,7 @@ class Table {
             $.each(data.split(`\n`), function(yIndex, val) {
                 thisClass._maxSelectY = y + val.split(`\t`).length;
                 var yPos = y + yIndex;
+                    console.log(`${y}+${yIndex}=${yPos}`)
                 if(yPos > thisClass._yResolution - 1)
                     return;
                 $.each(val.split(`\t`), function(xIndex, val) {
@@ -605,8 +606,8 @@ class Table {
             var val = e.originalEvent.clipboardData.getData(`text/plain`);
 
             var selectedCell = $(`#${thisClass.GUID}-table .number.origselect`)
-            var x = selectedCell.attr(`data-x`);
-            var y = selectedCell.attr(`data-y`);
+            var x = parseInt(selectedCell.attr(`data-x`));
+            var y = parseInt(selectedCell.attr(`data-y`));
             if(x < 0 || y < 0)
                 return;
 
@@ -1393,8 +1394,8 @@ class Table {
         else
             rowClass = `class="number"`;
         
-        x ??= $(`#${id}`).attr(`data-x`);
-        y ??= $(`#${id}`).attr(`data-y`);
+        x ??=  parseInt($(`#${id}`).attr(`data-x`));
+        y ??=  parseInt($(`#${id}`).attr(`data-y`));
         value ??= $(`#${id}`).val();
         if(value === ``)
             value = $(`#${id}`).html();
