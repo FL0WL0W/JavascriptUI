@@ -690,9 +690,9 @@ class Table {
                         const yMin = thisClass.YAxis[0];
                         const yMag = thisClass.YAxis[thisClass._yResolution-1] - yMin;
                         let point = thisClass._transformPoint([
-                            (thisClass.XAxis[dragValue[1]]-xMin-xMag/2)/(xMag*1.41)*thisClass._table3DDisplayWidth*thisClass._table3DZoom, 
+                            (thisClass.XAxis[dragValue[1]]-xMin-xMag/2)/(xMag*2)*thisClass._table3DDisplayWidth*thisClass._table3DZoom, 
                             value*thisClass._table3DZoom, 
-                            (thisClass.ReverseY? 1 : -1) * (thisClass.YAxis[dragValue[2]]-yMin-yMag/2)/(yMag*1.41)*thisClass._table3DDisplayWidth*thisClass._table3DZoom
+                            (thisClass.ReverseY? 1 : -1) * (thisClass.YAxis[dragValue[2]]-yMin-yMag/2)/(yMag*2)*thisClass._table3DDisplayWidth*thisClass._table3DZoom
                         ]);
                         $(dragValue[5]).attr(`cy`, point[1]+thisClass._table3DDisplayHeight/2+thisClass._table3DOffsetY);
                         var cell = $(`#${thisClass.GUID}-table .number[data-x='${dragValue[1]}'][data-y='${dragValue[2]}']`);
@@ -1167,9 +1167,9 @@ class Table {
                 let value = this._value[x + this._xResolution * valueY];
                 value = mag * (0.5 - (value - this._valueMin) / (this._valueMax - this._valueMin));
                 t[y] = this._transformPoint([
-                    ((this.XAxis[x]-xMin-xMag/2)/(xMag*1.41))*this._table3DDisplayWidth*this._table3DZoom, 
+                    ((this.XAxis[x]-xMin-xMag/2)/(xMag*2))*this._table3DDisplayWidth*this._table3DZoom, 
                     value*this._table3DZoom, 
-                    (this.ReverseY? 1 : -1) * ((this.YAxis[valueY]-yMin-yMag/2)/(yMag*1.41))*this._table3DDisplayWidth*this._table3DZoom
+                    (this.ReverseY? 1 : -1) * ((this.YAxis[valueY]-yMin-yMag/2)/(yMag*2))*this._table3DDisplayWidth*this._table3DZoom
                 ]);
             }
         }
@@ -1197,9 +1197,9 @@ class Table {
                         value = this._valueMax;
                     value = mag * (0.5 - (value - this._valueMin) / (this._valueMax - this._valueMin));
                     t[y][z] = this._transformPoint([
-                        ((this.XAxis[x]-xMin-xMag/2)/(xMag*1.41))*this._table3DDisplayWidth*this._table3DZoom, 
+                        ((this.XAxis[x]-xMin-xMag/2)/(xMag*2))*this._table3DDisplayWidth*this._table3DZoom, 
                         value*this._table3DZoom, 
-                        (this.ReverseY? 1 : -1) * ((this.YAxis[valueY]-yMin-yMag/2)/(yMag*1.41))*this._table3DDisplayWidth*this._table3DZoom
+                        (this.ReverseY? 1 : -1) * ((this.YAxis[valueY]-yMin-yMag/2)/(yMag*2))*this._table3DDisplayWidth*this._table3DZoom
                     ]);
                 }
             }
@@ -1229,9 +1229,9 @@ class Table {
                         value = this._valueMax;
                     value = mag * (0.5 - (value - this._valueMin) / (this._valueMax - this._valueMin));
                     t[y][z] = this._transformPoint([
-                        ((this.XAxis[vx]-xMin-xMag/2)/(xMag*1.41))*this._table3DDisplayWidth*this._table3DZoom, 
+                        ((this.XAxis[vx]-xMin-xMag/2)/(xMag*2))*this._table3DDisplayWidth*this._table3DZoom, 
                         value*this._table3DZoom, 
-                        (this.ReverseY? 1 : -1) * ((this.YAxis[valueY]-yMin-yMag/2)/(yMag*1.41))*this._table3DDisplayWidth*this._table3DZoom
+                        (this.ReverseY? 1 : -1) * ((this.YAxis[valueY]-yMin-yMag/2)/(yMag*2))*this._table3DDisplayWidth*this._table3DZoom
                     ]);
                 }
             }
@@ -1243,7 +1243,7 @@ class Table {
                 let depth=this._dataSvg[x][y][2];
                 let midPointValue = this._value[x + this._xResolution * valueY];
                 this.svg.push({
-                    circle: {cx:(this._dataSvg[x][y][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10), cy: (this._dataSvg[x][y][1]+this._table3DDisplayHeight/2+this._table3DOffsetY), r:1/(this._xResolution*1.41)*this._table3DDisplayWidth*this._table3DZoom/10 },
+                    circle: {cx:(this._dataSvg[x][y][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10), cy: (this._dataSvg[x][y][1]+this._table3DDisplayHeight/2+this._table3DOffsetY), r:1/(this._xResolution*2)*this._table3DDisplayWidth*this._table3DZoom/10 },
                     depth: depth, 
                     x: x,
                     y: valueY,
