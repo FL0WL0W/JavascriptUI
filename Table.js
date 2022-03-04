@@ -920,14 +920,14 @@ class Table {
 
         for(let i = 0; i < this.svg.length; i++) {
             if(this.svg[i].line) {
-                html += `<line x1="${this.svg[i].line.x1}" y1="${this.svg[i].line.y1}" x2="${this.svg[i].line.x2}" y2="${this.svg[i].line.y2}" stroke="${this.svg[i].hue !== undefined? `hsl(${this.svg[i].hue},60%,50%)` : `white`}" stroke-width="1"></line>`
+                html += `<line x1="${this.svg[i].line.x1}" y1="${this.svg[i].line.y1}" x2="${this.svg[i].line.x2}" y2="${this.svg[i].line.y2}" stroke="${this.svg[i].hue !== undefined? `hsl(${this.svg[i].hue},60%,50%)` : this.svg[i].color ?? `white`}" stroke-width="1"></line>`
             }
         }
 
         for(let i = 0; i < this.svg.length; i++) {
             if(this.svg[i].path) {
                 let pathSelected = this._minSelectX !== undefined && this.svg[i].x >= this._minSelectX && this.svg[i].x < this._maxSelectX && this.svg[i].y >= this._minSelectY && this.svg[i].y < this._maxSelectY;
-                html += `<path${pathSelected? ` class="selected"` : ``} data-x="${this.svg[i].x}" data-y="${this.svg[i].y}" d="${this.svg[i].path}" fill="hsl(${this.svg[i].hue},60%,50%)"></path>`;
+                html += `<path${pathSelected? ` class="selected"` : ``} data-x="${this.svg[i].x}" data-y="${this.svg[i].y}" d="${this.svg[i].path}" fill="${this.svg[i].hue !== undefined? `hsl(${this.svg[i].hue},60%,50%)` : this.svg[i].color ?? `grey`}"></path>`;
             }
         }
 
@@ -955,7 +955,8 @@ class Table {
             $(this).attr(`x1`, lines[index].line.x1)
                 .attr(`y1`, lines[index].line.y1)
                 .attr(`x2`, lines[index].line.x2)
-                .attr(`y2`, lines[index].line.y2);
+                .attr(`y2`, lines[index].line.y2)
+                .attr(`stroke`, lines[index].hue? `hsl(${lines[index].hue},60%,50%)` : lines[index].color ?? `white`);
         });
         $(`#${this.GUID}-tablesvg g path`).each(function(index) { 
             const pathSelected = thisClass._minSelectX !== undefined && paths[index].x >= thisClass._minSelectX && paths[index].x < thisClass._maxSelectX && paths[index].y >= thisClass._minSelectY && paths[index].y < thisClass._maxSelectY;
@@ -963,7 +964,7 @@ class Table {
             t.attr(`data-x`, paths[index].x)
                 .attr(`data-y`, paths[index].y)
                 .attr(`d`, paths[index].path)
-                .attr(`fill`, `hsl(${paths[index].hue},60%,50%)`);
+                .attr(`fill`, paths[index].hue? `hsl(${paths[index].hue},60%,50%)` : paths[index].color ?? `grey`);
 
             if(pathSelected) {
                 t.attr(`class`, `selected`)
@@ -1345,7 +1346,16 @@ class Table {
                 y1: this._yAxisSvg[yaxisFrontX][0][xyaxisRearZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY, 
                 x2: this._yAxisSvg[yaxisFrontX][this._yResolution-1][xyaxisRearZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX, 
                 y2: this._yAxisSvg[yaxisFrontX][this._yResolution-1][xyaxisRearZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY
-            }
+            },
+            color : `white`
+        });
+        this.svg.unshift({
+            path:
+                `M${(this._yAxisSvg[yaxisFrontX][0][xyaxisRearZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)},${(this._yAxisSvg[yaxisFrontX][0][xyaxisRearZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10)}`+
+                `L${(this._yAxisSvg[yaxisFrontX][this._yResolution-1][xyaxisRearZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)},${(this._yAxisSvg[yaxisFrontX][this._yResolution-1][xyaxisRearZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10)}`+
+                `L${(this._yAxisSvg[yaxisRearX][this._yResolution-1][xyaxisRearZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)},${(this._yAxisSvg[yaxisRearX][this._yResolution-1][xyaxisRearZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10)}`+
+                `L${(this._yAxisSvg[yaxisRearX][0][xyaxisRearZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)},${(this._yAxisSvg[yaxisRearX][0][xyaxisRearZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10)}Z`,
+            color: this.Table3DPitch > 0? `grey` : `transparent`
         });
     }
 
