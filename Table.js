@@ -713,15 +713,20 @@ class Table {
                 });
             }
         });
-        $(document).on(`mousewheel.${this.GUID}-svg`, `#${this.GUID}-tablesvg`, function(e){
-            if(e.originalEvent.wheelDelta /120 > 0) {
-                thisClass._table3DZoom *= 1.05;
+        document.addEventListener('wheel', function(e){
+            if($(e.target).parents(`#${thisClass.GUID}-tablesvg`).length > 0) {
+                if(e.wheelDelta /120 > 0) {
+                    thisClass._table3DZoom *= 1.01;
+                }
+                else{
+                    thisClass._table3DZoom *= 0.99;
+                }
+                thisClass.UpdateSvgHtml();
+                e.preventDefault();
+                e.stopPropagation()
+                return false;
             }
-            else{
-                thisClass._table3DZoom *= 0.95;
-            }
-            thisClass.UpdateSvgHtml();
-        });
+        }, {passive: false});
     }
 
     _attachModify() {
