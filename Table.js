@@ -1234,12 +1234,15 @@ class Table {
                 y2: this._table3DDisplayHeight-this._valueOffset2D-this._padding2D
             },
         });
+        let liney0 = this._table3DDisplayHeight-this._valueOffset2D-this._padding2D;
+        if(this._valueMin <= 0 && this._valueMax >= 0) liney0 = ((liney0)-(0-this._valueMin) * valueMag).toFixed(10);
+        else if(this._valueMax < 0) liney0 = this._padding2D;
         this.svg.unshift({
             line: {
                 x1: this._axisOffset2D+this._padding2D, 
-                y1: this._table3DDisplayHeight-this._valueOffset2D-this._padding2D,
+                y1: liney0,
                 x2: this._table3DDisplayWidth-this._padding2D, 
-                y2: this._table3DDisplayHeight-this._valueOffset2D-this._padding2D
+                y2: liney0
             },
         });
     }
