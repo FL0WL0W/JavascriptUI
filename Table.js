@@ -906,7 +906,6 @@ class Table {
     }
 
     UpdateHtml() {
-        console.log(`update`);
         $(`#${this.GUID}`).replaceWith(this.GetHtml());
     }
   
