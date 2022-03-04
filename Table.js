@@ -832,7 +832,6 @@ class Table {
     ${(this._xResolution > 1 && this._yResolution > 1)? this.GetTable3DHtml() : ``}
     <div style="display:block;">
         <div style="float:right;">
-            ${GetPasteOptions()}
             <div style="display:inline-block; position: relative;">
                 <div style="width: 100; position: absolute; top: -10; left: 32px;z-index:1">Modify</div>
                 <div class="container">
@@ -859,6 +858,7 @@ class Table {
                 ${this.YResolutionModifiable? `<input id="${this.GUID}-yres" class="xres" type="number" value="${this._yResolution}"></input>` : ``}
             </div>
         </div>` : ``}
+        ${GetPasteOptions()}
     </div>
     ${this.GetTableHtml()}
 </div>`;
@@ -1112,8 +1112,6 @@ class Table {
                 y2: this._yAxis3d[yaxisFrontX][this._yResolution-1][xyaxisRearZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY
             }
         });
-
-        console.log(this.svg[0])
     }
 
     UpdateTable3D(skipPoints){
