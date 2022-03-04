@@ -807,8 +807,6 @@ class Table {
                 const id = $(cell).attr(`id`);
                 const cellx = parseInt($(cell).attr(`data-x`));
                 const celly = parseInt($(cell).attr(`data-y`));
-                if(cellx === xMin || cellx === xMax || celly === yMin || celly === yMax)
-                    return;
                 const xMinVal = thisClass._value[xMin + celly * thisClass._xResolution];
                 const yMinVal = thisClass._value[cellx + yMin * thisClass._xResolution];
                 const xMag = (thisClass._value[xMax + celly * thisClass._xResolution] - xMinVal) / (thisClass.XAxis[xMax] - thisClass.XAxis[xMin]);
