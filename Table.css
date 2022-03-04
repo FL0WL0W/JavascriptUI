@@ -90,6 +90,10 @@
 .hidecircles circle {
     display: none;
 }
+line {
+    stroke: white;
+    stroke-width: 1;
+}
 .configtable path.selected,
 .configtable circle.selected {
     fill: #3590d0 !important;

@@ -940,26 +940,30 @@ class Table {
 
         for(let i = 0; i < this.svg.length; i++) {
             if(this.svg[i].line && !isNaN(this.svg[i].line.x1) && !isNaN(this.svg[i].line.y1) && !isNaN(this.svg[i].line.x2) && !isNaN(this.svg[i].line.y2)) {
-                html += `<line x1="${this.svg[i].line.x1}" y1="${this.svg[i].line.y1}" x2="${this.svg[i].line.x2}" y2="${this.svg[i].line.y2}" stroke="${this.svg[i].hue !== undefined? `hsl(${this.svg[i].hue},60%,50%)` : this.svg[i].color ?? `white`}" stroke-width="1"></line>`
+                html += Table._getSvgLineHtml(this.svg[i]);
             }
         }
 
         for(let i = 0; i < this.svg.length; i++) {
             if(this.svg[i].path) {
                 let pathSelected = this._minSelectX !== undefined && this.svg[i].x >= this._minSelectX && this.svg[i].x < this._maxSelectX && this.svg[i].y >= this._minSelectY && this.svg[i].y < this._maxSelectY;
-                html += `<path${pathSelected? ` class="selected"` : ``} data-x="${this.svg[i].x}" data-y="${this.svg[i].y}" d="${this.svg[i].path}" fill="${this.svg[i].hue !== undefined? `hsl(${this.svg[i].hue},60%,50%)` : this.svg[i].color ?? `grey`}"></path>`;
+                html += `<path${pathSelected? ` class="selected"` : ``} data-x="${this.svg[i].x}" data-y="${this.svg[i].y}" d="${this.svg[i].path}"${this.svg[i].hue !== undefined? ` style="fill:hsl(${this.svg[i].hue},60%,50%);"` : (this.svg[i].color !== undefined? ` style="fill:${this.svg[i].color};"` : ``)}></path>`;
             }
         }
 
         for(let i = 0; i < this.svg.length; i++) {
             if(this.svg[i].circle) {
                 let pointSelected = this._minSelectX !== undefined && this.svg[i].x >= this._minSelectX && this.svg[i].x <= this._maxSelectX && this.svg[i].y >= this._minSelectY && this.svg[i].y <= this._maxSelectY;
-                html += `<circle${pointSelected? ` class="selected"` : ``} data-x="${this.svg[i].x}" data-y="${this.svg[i].y}" cx="${this.svg[i].circle.cx}" cy="${this.svg[i].circle.cy}" r="${this.svg[i].circle.r}" fill="hsl(${this.svg[i].hue},60%,50%)"></circle>`;
+                html += `<circle${pointSelected? ` class="selected"` : ``} data-x="${this.svg[i].x}" data-y="${this.svg[i].y}" cx="${this.svg[i].circle.cx}" cy="${this.svg[i].circle.cy}" r="${this.svg[i].circle.r}" ${this.svg[i].hue !== undefined? ` style="fill:hsl(${this.svg[i].hue},60%,50%);"` : (this.svg[i].color !== undefined? ` style="fill:${this.svg[i].color};"` : ``)}></circle>`;
             }
         }
 
         return `<svg${this._xResolution > 1 && this._yResolution > 1? ` class="hidecircles"` : ``} overflow="visible" id="${this.GUID}-tablesvg" height="${this._table3DDisplayHeight}" width="${this._table3DDisplayWidth}"><g oncontextmenu="return false;">${html}</g></svg>`;
     };
+
+    static _getSvgLineHtml(line) {
+        return `<line x1="${line.line.x1}" y1="${line.line.y1}" x2="${line.line.x2}" y2="${line.line.y2}"${line.hue !== undefined? ` style="stroke:hsl(${line.hue},100%,50%);"` : (line.color !== undefined? ` style="stroke:${line.color};"` : ``)}></line>`;
+    }
 
     UpdateSvgHtml(drag){
         if(this._xResolution > 1 && this._yResolution > 1) {
@@ -968,23 +972,33 @@ class Table {
             this._calculateSvg2D();
         }
         const thisClass = this;
-        let paths = this.svg.filter(x => x.path);
         let lines = this.svg.filter(x => x.line);
+        const lineSelector = $(`#${this.GUID}-tablesvg g line`);
+        if(lines.length !== lineSelector.length)
+            return $(`#${this.GUID}-tablesvg`).replaceWith(this.GetSvgHtml());
+        let paths = this.svg.filter(x => x.path);
         let circles = this.svg.filter(x => x.circle);
-        $(`#${this.GUID}-tablesvg g line`).each(function(index) {
-            $(this).attr(`x1`, lines[index].line.x1)
-                .attr(`y1`, lines[index].line.y1)
-                .attr(`x2`, lines[index].line.x2)
-                .attr(`y2`, lines[index].line.y2)
-                .attr(`stroke`, lines[index].hue !== undefined? `hsl(${lines[index].hue},60%,50%)` : lines[index].color ?? `white`);
+        const pathSelector = $(`#${this.GUID}-tablesvg g path`);
+        const circleSelector = $(`#${this.GUID}-tablesvg g circle${drag? `:visible` : ``}`)
+        lines.forEach(function(line, index) {
+            const t = $(lineSelector[index]);
+            t.attr(`x1`, line.line.x1)
+                .attr(`y1`, line.line.y1)
+                .attr(`x2`, line.line.x2)
+                .attr(`y2`, line.line.y2)
+                .attr(`style`, line.hue !== undefined? `stroke:hsl(${line.hue},60%,50%);` : `stroke:${line.color};`);
+            if(line.hue === undefined && line.color === undefined)
+                t.removeAttr(`style`);
         });
-        $(`#${this.GUID}-tablesvg g path`).each(function(index) { 
+        pathSelector.each(function(index) { 
             const pathSelected = thisClass._minSelectX !== undefined && paths[index].x >= thisClass._minSelectX && paths[index].x < thisClass._maxSelectX && paths[index].y >= thisClass._minSelectY && paths[index].y < thisClass._maxSelectY;
             const t = $(this);
             t.attr(`data-x`, paths[index].x)
                 .attr(`data-y`, paths[index].y)
                 .attr(`d`, paths[index].path)
-                .attr(`fill`, paths[index].hue !== undefined? `hsl(${paths[index].hue},60%,50%)` : paths[index].color ?? `grey`);
+                .attr(`style`, paths[index].hue !== undefined? `fill:hsl(${paths[index].hue},60%,50%)` : `fill:${paths[index].color};`);
+            if(paths[index].hue === undefined && paths[index].color === undefined)
+                t.removeAttr(`style`);
 
             if(pathSelected) {
                 t.attr(`class`, `selected`)
@@ -992,7 +1006,7 @@ class Table {
                 t.removeAttr(`class`);
             }
         });
-        $(`#${this.GUID}-tablesvg g circle${drag? `:visible` : ``}`).each(function(index) { 
+        circleSelector.each(function(index) { 
             const t = $(this);
             let circle = circles[index];
             if(drag) {
@@ -1006,7 +1020,10 @@ class Table {
                 .attr(`cx`, circle.circle.cx)
                 .attr(`cy`, circle.circle.cy)
                 .attr(`r`, circle.circle.r)
-                .attr(`fill`, `hsl(${circle.hue},60%,50%)`);
+                .attr(`style`, circle.hue !== undefined? `fill:hsl(${circle.hue},60%,50%)` : `fill:${circle.color};`);
+            if(circle.hue === undefined && circle.color === undefined)
+                t.removeAttr(`style`);
+
             if(pointSelected) {
                 t.attr(`class`, `selected`)
             } else {
@@ -1180,7 +1197,6 @@ class Table {
     _valueOffset2D = 25;
     _calculateSvg2D() {
         this._calculateValueMinMax();
-        console.log(this._valueMin, this._valueMax);
         this.svg=[];
         let axis = this._yResolution < 2? this.XAxis : this.YAxis;
         let axisMin = 10000000000;
@@ -1191,6 +1207,10 @@ class Table {
                 axisMin = a;
             if(a > axisMax)
                 axisMax = a;
+        }
+        let valueaxis = new Array(parseInt(1.5+axis.length * this._table3DDisplayHeight/this._table3DDisplayWidth));
+        for(let i=0; i<valueaxis.length; i++) {
+            valueaxis[i] = i*(this._valueMax-this._valueMin)/(valueaxis.length-1) + this._valueMin;
         }
         const axisMag = (this._table3DDisplayWidth-this._axisOffset2D-this._padding2D*2) / (axisMax-axisMin);
         const valueMag = (this._table3DDisplayHeight-this._valueOffset2D-this._padding2D*2) / (this._valueMax-this._valueMin);
@@ -1226,14 +1246,44 @@ class Table {
                 };
             }
         }
-        this.svg.unshift({
-            line: {
-                x1: this._axisOffset2D+this._padding2D, 
-                y1: this._padding2D,
-                x2: this._axisOffset2D+this._padding2D, 
-                y2: this._table3DDisplayHeight-this._valueOffset2D-this._padding2D
-            },
-        });
+        for(let i=0; i<axis.length; i++) {
+            if(parseFloat(axis[i])===0)
+                continue;
+            this.svg.unshift({
+                line: {
+                    x1: (this._axisOffset2D+this._padding2D+(parseFloat(axis[i])-axisMin) * axisMag).toFixed(10), 
+                    y1: this._padding2D,
+                    x2: (this._axisOffset2D+this._padding2D+(parseFloat(axis[i])-axisMin) * axisMag).toFixed(10), 
+                    y2: this._table3DDisplayHeight-this._valueOffset2D-this._padding2D
+                },
+                color: `dimgrey`
+            });
+        }
+        for(let i=0; i<valueaxis.length; i++) {
+            if(parseFloat(valueaxis[i])===0)
+                continue;
+            this.svg.unshift({
+                line: {
+                    x1: this._axisOffset2D+this._padding2D,
+                    y1: this._table3DDisplayHeight-this._valueOffset2D-this._padding2D-((parseFloat(valueaxis[i])-this._valueMin) * valueMag).toFixed(10),
+                    x2: this._table3DDisplayWidth-this._padding2D, 
+                    y2: this._table3DDisplayHeight-this._valueOffset2D-this._padding2D-((parseFloat(valueaxis[i])-this._valueMin) * valueMag).toFixed(10)
+                },
+                color: `dimgrey`
+            });
+        }
+
+        //xy origin
+        if(axisMin <= 0 && axisMax >= 0) {
+            this.svg.unshift({
+                line: {
+                    x1: (this._axisOffset2D+this._padding2D+(0-axisMin) * axisMag).toFixed(10), 
+                    y1: this._padding2D,
+                    x2: (this._axisOffset2D+this._padding2D+(0-axisMin) * axisMag).toFixed(10), 
+                    y2: this._table3DDisplayHeight-this._valueOffset2D-this._padding2D
+                }
+            });
+        }
         let liney0 = this._table3DDisplayHeight-this._valueOffset2D-this._padding2D;
         if(this._valueMin <= 0 && this._valueMax >= 0) liney0 = ((liney0)-(0-this._valueMin) * valueMag).toFixed(10);
         else if(this._valueMax < 0) liney0 = this._padding2D;
@@ -1243,7 +1293,7 @@ class Table {
                 y1: liney0,
                 x2: this._table3DDisplayWidth-this._padding2D, 
                 y2: liney0
-            },
+            }
         });
     }
     _calculateSvg3D() {
