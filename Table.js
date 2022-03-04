@@ -182,6 +182,7 @@ class Table {
     }
     set Value(value) {
         this._value = value;
+        this.UpdateHtml();
     }
 
     _onChange() {
@@ -879,6 +880,7 @@ class Table {
     }
 
     UpdateHtml() {
+        console.log(`update`);
         $(`#${this.GUID}`).replaceWith(this.GetHtml());
     }
   
