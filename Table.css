@@ -95,6 +95,15 @@
     fill: #3590d0 !important;
     display: block !important;;
 }
+.configtable ellipse.trail {
+    stroke: #3590d0aa !important;
+    stroke-width: 6;
+    fill: #3590d088 !important;
+}
+.configtable line.trail {
+    stroke: #3590d0aa !important;
+    stroke-width: 6;
+}
 .configtable .number.selected, 
 .configtable .number.selected:hover,
 .configtable div.selected,

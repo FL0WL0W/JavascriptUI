@@ -225,12 +225,16 @@ class Table {
         this.OnChange.forEach(function(OnChange) { OnChange(); });
     }
 
-    _trailXY = []
-    TailLength = 20;
-    Trail(x, y, z) {
+    _trailXY = [];
+    TrailTime = 2000;
+    Trail(x, y = 0, z) {
+        const thisClass = this;
         this._trailXY.unshift([x, y]);
-        this._trailXY.splice(this.TrailLength);
-        this.UpdateTrail();
+        setTimeout(function() {
+            thisClass._trailXY.pop();
+            this.UpdateTrailHtml();
+        }, this.TrailTime);
+        this.UpdateTrailHtml();
     }
     
     constructor(GUID, copyObject){
@@ -546,7 +550,6 @@ class Table {
             $.each(data.split(`\n`), function(yIndex, val) {
                 thisClass._maxSelectY = y + val.split(`\t`).length;
                 var yPos = y + yIndex;
-                    console.log(`${y}+${yIndex}=${yPos}`)
                 if(yPos > thisClass._yResolution - 1)
                     return;
                 $.each(val.split(`\t`), function(xIndex, val) {
@@ -648,7 +651,7 @@ class Table {
                 $(`#${thisClass.GUID}-tablesvg g circle`).removeClass(`selected`);
                 $(`#${thisClass.GUID}-table .number`).removeClass(`selected`).removeClass(`origselect`);
                 var cell = $(`#${thisClass.GUID}-table .number[data-x='${x}'][data-y='${y}']`);
-                cell.addClass(`selected`);
+                cell.addClass(`selected`).addClass(`origselect`);
                 cell.parent().replaceWith(thisClass._formatNumberForDisplay(cell.attr(`id`), x, y, thisClass._value[index]));
                 let closestCircleSelector = $(dragValue[5]);
                 closestCircleSelector.addClass(`selected`);
@@ -907,7 +910,8 @@ class Table {
         </div>` : ``}
         ${GetPasteOptions()}
     </div>
-    ${this.GetTableHtml()}
+    <div>${this.GetTrailHtml()}
+    ${this.GetTableHtml()}</div>
 </div>`;
     }
 
@@ -1138,11 +1142,24 @@ class Table {
     }
 
     GetTrailHtml() {
+        let html = ``;
+
         this._calculateSvgTrail();
+        for(let i = 0; i < this._trailSvg.length; i++) {
+            if(this._trailSvg[i].ellipse) {
+                html += `<ellipse cx="${this._trailSvg[i].ellipse.x}" cy="${this._trailSvg[i].ellipse.y}" rx="${this._trailSvg[i].ellipse.rx}" ry="${this._trailSvg[i].ellipse.ry}" class="trail"></ellipse>`;
+            }
+            if(this._trailSvg[i].line) {
+                html += `<line x1="${this._trailSvg[i].line.x1}" y1="${this._trailSvg[i].line.y1}" x2="${this._trailSvg[i].line.x2}" y2="${this._trailSvg[i].line.y2}" class="trail" stroke-width="1"></line>`
+            }
+        }
+
+        return `<svg style="position:absolute; pointer-events: none;" z-index="100" overflow="visible" id="${this.GUID}-trailsvg" height="60" width="100"><g>${html}</g></svg>`;
     }
     
     UpdateTrailHtml() {
-        this._calculateSvgTrail();
+        if($(`#${this.GUID}-trailsvg`).is(":visible"))
+            $(`#${this.GUID}-trailsvg`).replaceWith(this.GetTrailHtml());
     }
 
     _dataSvg=[];
@@ -1366,7 +1383,45 @@ class Table {
 
     _trailSvg = [];
     _calculateSvgTrail() {
+        if($(`#${this.GUID}-table`).length === 0)
+            return;
+        const number0x0Selector = $(`#${this.GUID}-table .number[data-x=0][data-y=${this.ReverseY? this._yResolution-1 : 0}]`).parent();
+        const trailSvgSelector = $(`#${this.GUID}-trailsvg`);
+        const trailSvgOffset = trailSvgSelector.offset();
 
+        const number0x0Width = number0x0Selector.width();
+        const number0x0Height = number0x0Selector.height();
+        const number0x0Offset = number0x0Selector.offset()
+        const x0 = number0x0Offset.left - trailSvgOffset.left + number0x0Width/2;
+        const y0 = number0x0Offset.top - trailSvgOffset.top + number0x0Height/2;
+
+        this._trailSvg.splice(this._trailXY.length);
+        for(let i=0; i<this._trailXY.length; i++) {
+            let xAxisIndex = this.XAxis.findIndex(x => x>this._trailXY[i][0]);
+            if(xAxisIndex < 0) xAxisIndex = this._xResolution-1;
+            else if(xAxisIndex > 0 && xAxisIndex < this._xResolution-1) xAxisIndex += (this._trailXY[i][0] - this.XAxis[xAxisIndex-1])/ (this.XAxis[xAxisIndex] - this.XAxis[xAxisIndex-1]) - 1;
+            let yAxisIndex = this.YAxis.findIndex(y => y>this._trailXY[i][1]);
+            if(yAxisIndex < 0) yAxisIndex = this._yResolution-1;
+            else if(yAxisIndex > 0 && yAxisIndex < this._yResolution-1) yAxisIndex += (this._trailXY[i][1] - this.YAxis[yAxisIndex-1])/ (this.YAxis[yAxisIndex] - this.YAxis[yAxisIndex-1]) - 1;
+            const x = x0 + xAxisIndex * number0x0Width;
+            const y = y0 + (this.ReverseY? this._yResolution-yAxisIndex-1 : yAxisIndex) * number0x0Height;
+            if(i === 0) {
+                this._trailSvg[0] = { ellipse: {
+                    x,
+                    y,
+                    rx: number0x0Width/2,
+                    ry: number0x0Height/2
+                }};
+            } else {
+                this._trailSvg[i] = { line: {
+                    x1: x,
+                    y1: y,
+                    x2: (this._trailSvg[i-1].ellipse?.x ?? this._trailSvg[i-1].line?.x1),
+                    y2: (this._trailSvg[i-1].ellipse?.y ?? this._trailSvg[i-1].line?.y1)
+                }}
+            }
+        }
+        this._trailSvg.reverse();
     }
 
     _calculateValueMinMax() {
