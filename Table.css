@@ -87,7 +87,7 @@
     font-weight: bold;
     transform: scale(2);
 }
-.configtable circle {
+.hidecircles circle {
     display: none;
 }
 .configtable path.selected,
