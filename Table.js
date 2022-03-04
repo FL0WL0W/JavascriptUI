@@ -232,7 +232,7 @@ class Table {
         this._trailXY.unshift([x, y]);
         setTimeout(function() {
             thisClass._trailXY.pop();
-            this.UpdateTrailHtml();
+            thisClass.UpdateTrailHtml();
         }, this.TrailTime);
         this.UpdateTrailHtml();
     }
@@ -396,11 +396,13 @@ class Table {
         }
 
         function up() {
-            $(document).off(`touchmove.${this.GUID}`);
-            $(document).off(`mousemove.${this.GUID}`);
+            $(document).off(`touchmove.${thisClass.GUID}`);
+            $(document).off(`mousemove.${thisClass.GUID}`);
 
+            thisClass._selecting = false;
             $(`#${thisClass.GUID}-table .origselect`).parent().replaceWith(thisClass._formatNumberForDisplay($(`#${thisClass.GUID}-table .origselect`).attr(`id`)));
-            $(`#${thisClass.GUID}-table .origselect`).select();
+            if($(`:focus:input`).length === 0)
+                $(`#${thisClass.GUID}-table .origselect`).select();
             dragX = false;
             dragY = false;
             $(`#overlay`).removeClass(`col_expand`);
