@@ -1,12 +1,38 @@
 class Table {
-    XAxis = [];
-    YAxis = [];
     XAxisModifiable = true;
     YAxisModifiable = true;
     XResolutionModifiable = true;
     YResolutionModifiable = true;
     OnChange = [];
     ReverseY = false;
+
+    _xAxis = [];
+    get XAxis() {
+        return this._xAxis;
+    }
+    set XAxis(xAxis) {
+        this._xAxis = xAxis;
+        $(`#${this.GUID}-table .number[data-x='-1']`).each(function() {
+            const x = $(this).attr(`data-x`);
+            const id = $(this).attr(`id`)
+            $(this).parent().replaceWith(thisClass._formatNumberForDisplay(id, x, -1, xAxis[x]));
+        })
+        this.UpdateSvgHtml();
+    }
+
+    _yAxis = [];
+    get YAxis() {
+        return this._yAxis;
+    }
+    set YAxis(yAxis) {
+        this._yAxis = yAxis;
+        $(`#${this.GUID}-table .number[data-x='-1']`).each(function() {
+            const y = $(this).attr(`data-y`);
+            const id = $(this).attr(`id`)
+            $(this).parent().replaceWith(thisClass._formatNumberForDisplay(id, -1, y, yAxis[y]));
+        })
+        this.UpdateSvgHtml();
+    }
 
     _xResolution = 8;
     get XResolution() {
@@ -1344,7 +1370,7 @@ class Table {
     }
 
     _getHueFromValue(value) {
-        return 180 - (180 * (value - this._valueMin) / (this._valueMax - this._valueMin));
+        return 180 - (180 * (parseFloat(value) - this._valueMin) / (this._valueMax - this._valueMin));
     }
 
     _formatNumberForDisplay(id, x, y, value) {
