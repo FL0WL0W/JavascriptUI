@@ -12,4 +12,5 @@ Features
  - 3D and 2D editable graphs
  - Live Value Tracking point
 
-![image](https://user-images.githubusercontent.com/1595263/156873258-d1b7641b-519e-4cec-9d5e-46380227fb3f.png)
+![image](https://user-images.githubusercontent.com/1595263/156873280-0dcc02bd-2806-4899-899b-c3e6b42a21df.png)
+
