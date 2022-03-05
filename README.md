@@ -8,6 +8,9 @@ Features
  - Equal, Add, Multiply table modification
  - Single Axis and Dual Axis
  - Resizeable
+ - Interpolation
+ - 3D and 2D editable graphs
+ - Live Value Tracking point
 
-![image](https://user-images.githubusercontent.com/1595263/135737030-cfab1061-f87f-4506-b88f-ccc1b0900c7b.png)
-![image](https://user-images.githubusercontent.com/1595263/135737045-47c6ace3-216e-46ef-8b84-488a91c90ae7.png)
+![image](https://user-images.githubusercontent.com/1595263/156873280-0dcc02bd-2806-4899-899b-c3e6b42a21df.png)
+
