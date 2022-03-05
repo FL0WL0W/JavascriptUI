@@ -945,6 +945,12 @@ class Table {
         }
 
         for(let i = 0; i < this.svg.length; i++) {
+            if(this.svg[i].text) {
+                html += `<text x="${this.svg[i].text.x}" y="${this.svg[i].text.y}"${this.svg[i].text.alignmentbaseline !== undefined? ` alignment-baseline="${this.svg[i].text.alignmentbaseline}"` : ``}${this.svg[i].text.anchor !== undefined? ` text-anchor="${this.svg[i].text.anchor}"` : ``}${this.svg[i].hue !== undefined? ` style="fill:hsl(${this.svg[i].hue},60%,50%);"` : (this.svg[i].color !== undefined? ` style="fill:${this.svg[i].color};"` : ``)}>${this.svg[i].text.text}</text>`;
+            }
+        }
+
+        for(let i = 0; i < this.svg.length; i++) {
             if(this.svg[i].path) {
                 let pathSelected = this._minSelectX !== undefined && this.svg[i].x >= this._minSelectX && this.svg[i].x < this._maxSelectX && this.svg[i].y >= this._minSelectY && this.svg[i].y < this._maxSelectY;
                 html += `<path${pathSelected? ` class="selected"` : ``} data-x="${this.svg[i].x}" data-y="${this.svg[i].y}" d="${this.svg[i].path}"${this.svg[i].hue !== undefined? ` style="fill:hsl(${this.svg[i].hue},60%,50%);"` : (this.svg[i].color !== undefined? ` style="fill:${this.svg[i].color};"` : ``)}></path>`;
@@ -972,12 +978,14 @@ class Table {
             this._calculateSvg2D();
         }
         const thisClass = this;
-        let lines = this.svg.filter(x => x.line);
+        const lines = this.svg.filter(x => x.line);
         const lineSelector = $(`#${this.GUID}-tablesvg g line`);
         if(lines.length !== lineSelector.length)
             return $(`#${this.GUID}-tablesvg`).replaceWith(this.GetSvgHtml());
-        let paths = this.svg.filter(x => x.path);
-        let circles = this.svg.filter(x => x.circle);
+        const texts = this.svg.filter(x => x.text);
+        const paths = this.svg.filter(x => x.path);
+        const circles = this.svg.filter(x => x.circle);
+        const textSelector = $(`#${this.GUID}-tablesvg g text`);
         const pathSelector = $(`#${this.GUID}-tablesvg g path`);
         const circleSelector = $(`#${this.GUID}-tablesvg g circle${drag? `:visible` : ``}`)
         lines.forEach(function(line, index) {
@@ -988,6 +996,17 @@ class Table {
                 .attr(`y2`, line.line.y2)
                 .attr(`style`, line.hue !== undefined? `stroke:hsl(${line.hue},60%,50%);` : `stroke:${line.color};`);
             if(line.hue === undefined && line.color === undefined)
+                t.removeAttr(`style`);
+        });
+        textSelector.each(function(index) {
+            const t = $(this);
+            t.attr(`x`, texts[index].text.x)
+                .attr(`y`, texts[index].text.y)
+                .attr(`alignment-baseline`, texts[index].text.alignmentbaseline)
+                .attr(`text-anchor`, texts[index].text.anchor)
+                .attr(`style`, texts[index].hue !== undefined? `fill:hsl(${texts[index].hue},60%,50%)` : `fill:${texts[index].color};`)
+                .html(texts[index].text.text);
+            if(texts[index].hue === undefined && texts[index].color === undefined)
                 t.removeAttr(`style`);
         });
         pathSelector.each(function(index) { 
@@ -1199,6 +1218,8 @@ class Table {
         this._calculateValueMinMax();
         this.svg=[];
         let axis = this._yResolution < 2? this.XAxis : this.YAxis;
+        if(axis.length === 0)
+            return;
         let axisMin = 10000000000;
         let axisMax = -10000000000;
         for(let i=0; i<axis.length; i++) {
@@ -1213,6 +1234,8 @@ class Table {
             valueaxis[i] = i*(this._valueMax-this._valueMin)/(valueaxis.length-1) + this._valueMin;
         }
         const axisMag = (this._table3DDisplayWidth-this._axisOffset2D-this._padding2D*2) / (axisMax-axisMin);
+        const r = parseFloat((1/(axis.length*2)*this._table3DDisplayWidth/10).toFixed(10));
+        this._valueOffset2D = 25 + r;
         const valueMag = (this._table3DDisplayHeight-this._valueOffset2D-this._padding2D*2) / (this._valueMax-this._valueMin);
 
         for(let i=0; i<axis.length; i++) {
@@ -1224,9 +1247,9 @@ class Table {
 
             this.svg[i+axis.length-1] ={
                 circle: { 
-                    cx: (this._axisOffset2D+this._padding2D+(parseFloat(axis[i])-axisMin) * axisMag).toFixed(10), 
-                    cy: ((this._table3DDisplayHeight-this._valueOffset2D-this._padding2D)-((parseFloat(this._value[i])-this._valueMin) * valueMag)).toFixed(10), 
-                    r:(1/(axis.length*2)*this._table3DDisplayWidth/10).toFixed(10) },
+                    cx: parseFloat((this._axisOffset2D+this._padding2D+(parseFloat(axis[i])-axisMin) * axisMag).toFixed(10)), 
+                    cy: parseFloat(((this._table3DDisplayHeight-this._valueOffset2D-this._padding2D)-((parseFloat(this._value[i])-this._valueMin) * valueMag)).toFixed(10)), 
+                    r },
                 x: x,
                 y: y,
                 midPointValue: this._value[i],
@@ -1246,55 +1269,76 @@ class Table {
                 };
             }
         }
+        let axis0found = false;
         for(let i=0; i<axis.length; i++) {
             if(parseFloat(axis[i])===0)
-                continue;
+                axis0found = true;
             this.svg.unshift({
                 line: {
-                    x1: (this._axisOffset2D+this._padding2D+(parseFloat(axis[i])-axisMin) * axisMag).toFixed(10), 
+                    x1: parseFloat((this._axisOffset2D+this._padding2D+(parseFloat(axis[i])-axisMin) * axisMag).toFixed(10)), 
                     y1: this._padding2D,
-                    x2: (this._axisOffset2D+this._padding2D+(parseFloat(axis[i])-axisMin) * axisMag).toFixed(10), 
+                    x2: parseFloat((this._axisOffset2D+this._padding2D+(parseFloat(axis[i])-axisMin) * axisMag).toFixed(10)), 
                     y2: this._table3DDisplayHeight-this._valueOffset2D-this._padding2D
                 },
-                color: `dimgrey`
+                color: parseFloat(axis[i])===0? undefined : `dimgrey`
             });
+            this.svg.unshift({
+                text: {
+                    x: this.svg[0].line.x2,
+                    y: this.svg[0].line.y2 + r,
+                    alignmentbaseline: `hanging`,
+                    text: Table._formatNumberForDisplay(axis[i])
+                }
+            })
         }
+        let value0found = false;
         for(let i=0; i<valueaxis.length; i++) {
             if(parseFloat(valueaxis[i])===0)
-                continue;
+                value0found = true;
             this.svg.unshift({
                 line: {
                     x1: this._axisOffset2D+this._padding2D,
-                    y1: this._table3DDisplayHeight-this._valueOffset2D-this._padding2D-((parseFloat(valueaxis[i])-this._valueMin) * valueMag).toFixed(10),
+                    y1: this._table3DDisplayHeight-this._valueOffset2D-this._padding2D-parseFloat(((parseFloat(valueaxis[i])-this._valueMin) * valueMag).toFixed(10)),
                     x2: this._table3DDisplayWidth-this._padding2D, 
-                    y2: this._table3DDisplayHeight-this._valueOffset2D-this._padding2D-((parseFloat(valueaxis[i])-this._valueMin) * valueMag).toFixed(10)
+                    y2: this._table3DDisplayHeight-this._valueOffset2D-this._padding2D-parseFloat(((parseFloat(valueaxis[i])-this._valueMin) * valueMag).toFixed(10))
                 },
-                color: `dimgrey`
+                color: parseFloat(valueaxis[i])===0? undefined : `dimgrey`
             });
+            this.svg.unshift({
+                text: {
+                    x: this.svg[0].line.x1-r,
+                    y: this.svg[0].line.y1,
+                    alignmentbaseline: `middle`,
+                    anchor: `end`,
+                    text: Table._formatNumberForDisplay(valueaxis[i])
+                }
+            })
         }
 
         //xy origin
-        if(axisMin <= 0 && axisMax >= 0) {
+        if(axisMin <= 0 && axisMax >= 0 && !axis0found) {
             this.svg.unshift({
                 line: {
-                    x1: (this._axisOffset2D+this._padding2D+(0-axisMin) * axisMag).toFixed(10), 
+                    x1: parseFloat((this._axisOffset2D+this._padding2D+(0-axisMin) * axisMag).toFixed(10)), 
                     y1: this._padding2D,
-                    x2: (this._axisOffset2D+this._padding2D+(0-axisMin) * axisMag).toFixed(10), 
+                    x2: parseFloat((this._axisOffset2D+this._padding2D+(0-axisMin) * axisMag).toFixed(10)), 
                     y2: this._table3DDisplayHeight-this._valueOffset2D-this._padding2D
                 }
             });
         }
         let liney0 = this._table3DDisplayHeight-this._valueOffset2D-this._padding2D;
-        if(this._valueMin <= 0 && this._valueMax >= 0) liney0 = ((liney0)-(0-this._valueMin) * valueMag).toFixed(10);
+        if(this._valueMin <= 0 && this._valueMax >= 0) liney0 = parseFloat(((liney0)-(0-this._valueMin) * valueMag).toFixed(10));
         else if(this._valueMax < 0) liney0 = this._padding2D;
-        this.svg.unshift({
-            line: {
-                x1: this._axisOffset2D+this._padding2D, 
-                y1: liney0,
-                x2: this._table3DDisplayWidth-this._padding2D, 
-                y2: liney0
-            }
-        });
+        if(!value0found) {
+            this.svg.unshift({
+                line: {
+                    x1: this._axisOffset2D+this._padding2D, 
+                    y1: liney0,
+                    x2: this._table3DDisplayWidth-this._padding2D, 
+                    y2: liney0
+                }
+            });
+        }
     }
     _calculateSvg3D() {
         this._calculateValueMinMax();
@@ -1393,7 +1437,7 @@ class Table {
                 let depth=this._dataSvg[x][y][2];
                 let midPointValue = this._value[x + this._xResolution * valueY];
                 this.svg.push({
-                    circle: {cx:(this._dataSvg[x][y][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10), cy: (this._dataSvg[x][y][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10), r:(1/(this._xResolution*2)*this._table3DDisplayWidth*this._table3DZoom/10).toFixed(10) },
+                    circle: {cx:parseFloat((this._dataSvg[x][y][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)), cy: parseFloat((this._dataSvg[x][y][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10)), r:(1/(this._xResolution*2)*this._table3DDisplayWidth*this._table3DZoom/10).toFixed(10) },
                     depth: depth, 
                     x: x,
                     y: valueY,
@@ -1432,70 +1476,70 @@ class Table {
             const coord = this._xAxisSvg[x][xaxisRearY];
             this.svg.unshift({
                 line: {
-                    x1: (coord[0][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10), 
-                    y1: (coord[0][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10), 
-                    x2: (coord[1][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10), 
-                    y2: (coord[1][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10)
+                    x1: parseFloat((coord[0][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)), 
+                    y1: parseFloat((coord[0][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10)), 
+                    x2: parseFloat((coord[1][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)), 
+                    y2: parseFloat((coord[1][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10))
                 }
             });
         }
         this.svg.unshift({
             line: {
-                x1: (this._xAxisSvg[0][xaxisRearY][xyaxisFrontZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10), 
-                y1: (this._xAxisSvg[0][xaxisRearY][xyaxisFrontZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10), 
-                x2: (this._xAxisSvg[this._xResolution-1][xaxisRearY][xyaxisFrontZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10), 
-                y2: (this._xAxisSvg[this._xResolution-1][xaxisRearY][xyaxisFrontZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10)
+                x1: parseFloat((this._xAxisSvg[0][xaxisRearY][xyaxisFrontZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)), 
+                y1: parseFloat((this._xAxisSvg[0][xaxisRearY][xyaxisFrontZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10)), 
+                x2: parseFloat((this._xAxisSvg[this._xResolution-1][xaxisRearY][xyaxisFrontZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)), 
+                y2: parseFloat((this._xAxisSvg[this._xResolution-1][xaxisRearY][xyaxisFrontZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10))
             }
         });
         this.svg.unshift({
             line: {
-                x1: (this._xAxisSvg[0][xaxisRearY][xyaxisRearZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10), 
-                y1: (this._xAxisSvg[0][xaxisRearY][xyaxisRearZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10), 
-                x2: (this._xAxisSvg[this._xResolution-1][xaxisRearY][xyaxisRearZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10), 
-                y2: (this._xAxisSvg[this._xResolution-1][xaxisRearY][xyaxisRearZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10)
+                x1: parseFloat((this._xAxisSvg[0][xaxisRearY][xyaxisRearZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)), 
+                y1: parseFloat((this._xAxisSvg[0][xaxisRearY][xyaxisRearZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10)), 
+                x2: parseFloat((this._xAxisSvg[this._xResolution-1][xaxisRearY][xyaxisRearZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)), 
+                y2: parseFloat((this._xAxisSvg[this._xResolution-1][xaxisRearY][xyaxisRearZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10))
             }
         });
         this.svg.unshift({
             line: {
-                x1: (this._xAxisSvg[0][xaxisFrontY][xyaxisRearZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10), 
-                y1: (this._xAxisSvg[0][xaxisFrontY][xyaxisRearZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10), 
-                x2: (this._xAxisSvg[this._xResolution-1][xaxisFrontY][xyaxisRearZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10), 
-                y2: (this._xAxisSvg[this._xResolution-1][xaxisFrontY][xyaxisRearZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10)
+                x1: parseFloat((this._xAxisSvg[0][xaxisFrontY][xyaxisRearZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)), 
+                y1: parseFloat((this._xAxisSvg[0][xaxisFrontY][xyaxisRearZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10)), 
+                x2: parseFloat((this._xAxisSvg[this._xResolution-1][xaxisFrontY][xyaxisRearZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)), 
+                y2: parseFloat((this._xAxisSvg[this._xResolution-1][xaxisFrontY][xyaxisRearZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10))
             }
         });
         for(let y=0; y<this._yResolution; y++) {
             const coord = this._yAxisSvg[yaxisRearX][y];
             this.svg.unshift({
                 line: {
-                    x1: (coord[0][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10), 
-                    y1: (coord[0][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10), 
-                    x2: (coord[1][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10), 
-                    y2: (coord[1][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10)
+                    x1: parseFloat((coord[0][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)), 
+                    y1: parseFloat((coord[0][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10)), 
+                    x2: parseFloat((coord[1][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)), 
+                    y2: parseFloat((coord[1][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10))
                 }
             });
         }
         this.svg.unshift({
             line: {
-                x1: (this._yAxisSvg[yaxisRearX][0][xyaxisFrontZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10), 
-                y1: (this._yAxisSvg[yaxisRearX][0][xyaxisFrontZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10), 
-                x2: (this._yAxisSvg[yaxisRearX][this._yResolution-1][xyaxisFrontZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10), 
-                y2: (this._yAxisSvg[yaxisRearX][this._yResolution-1][xyaxisFrontZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10)
+                x1: parseFloat((this._yAxisSvg[yaxisRearX][0][xyaxisFrontZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)), 
+                y1: parseFloat((this._yAxisSvg[yaxisRearX][0][xyaxisFrontZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10)), 
+                x2: parseFloat((this._yAxisSvg[yaxisRearX][this._yResolution-1][xyaxisFrontZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)), 
+                y2: parseFloat((this._yAxisSvg[yaxisRearX][this._yResolution-1][xyaxisFrontZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10))
             }
         });
         this.svg.unshift({
             line: {
-                x1: (this._yAxisSvg[yaxisRearX][0][xyaxisRearZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10), 
-                y1: (this._yAxisSvg[yaxisRearX][0][xyaxisRearZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10), 
-                x2: (this._yAxisSvg[yaxisRearX][this._yResolution-1][xyaxisRearZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10), 
-                y2: (this._yAxisSvg[yaxisRearX][this._yResolution-1][xyaxisRearZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10)
+                x1: parseFloat((this._yAxisSvg[yaxisRearX][0][xyaxisRearZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)), 
+                y1: parseFloat((this._yAxisSvg[yaxisRearX][0][xyaxisRearZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10)), 
+                x2: parseFloat((this._yAxisSvg[yaxisRearX][this._yResolution-1][xyaxisRearZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)), 
+                y2: parseFloat((this._yAxisSvg[yaxisRearX][this._yResolution-1][xyaxisRearZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10))
             }
         });
         this.svg.unshift({
             line: {
-                x1: (this._yAxisSvg[yaxisFrontX][0][xyaxisRearZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10), 
-                y1: (this._yAxisSvg[yaxisFrontX][0][xyaxisRearZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10), 
-                x2: (this._yAxisSvg[yaxisFrontX][this._yResolution-1][xyaxisRearZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10), 
-                y2: (this._yAxisSvg[yaxisFrontX][this._yResolution-1][xyaxisRearZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10)
+                x1: parseFloat((this._yAxisSvg[yaxisFrontX][0][xyaxisRearZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)), 
+                y1: parseFloat((this._yAxisSvg[yaxisFrontX][0][xyaxisRearZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10)), 
+                x2: parseFloat((this._yAxisSvg[yaxisFrontX][this._yResolution-1][xyaxisRearZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)), 
+                y2: parseFloat((this._yAxisSvg[yaxisFrontX][this._yResolution-1][xyaxisRearZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10))
             }
         });
         this.svg.unshift({
@@ -1534,17 +1578,17 @@ class Table {
             const y = y0 + (this.ReverseY? this._yResolution-yAxisIndex-1 : yAxisIndex) * number0x0Height;
             if(i === 0) {
                 this._trailSvg[0] = { ellipse: {
-                    x: x.toFixed(10),
-                    y: y.toFixed(10),
-                    rx: (number0x0Width/2).toFixed(10),
-                    ry: (number0x0Height/2).toFixed(10)
+                    x: parseFloat(x.toFixed(10)),
+                    y: parseFloat(y.toFixed(10)),
+                    rx: parseFloat((number0x0Width/2).toFixed(10)),
+                    ry: parseFloat((number0x0Height/2).toFixed(10))
                 }};
             } else {
                 this._trailSvg[i] = { line: {
-                    x1: x.toFixed(10),
-                    y1: y.toFixed(10),
-                    x2: (this._trailSvg[i-1].ellipse?.x ?? this._trailSvg[i-1].line?.x1).toFixed(10),
-                    y2: (this._trailSvg[i-1].ellipse?.y ?? this._trailSvg[i-1].line?.y1).toFixed(10)
+                    x1: parseFloat(x.toFixed(10)),
+                    y1: parseFloat(y.toFixed(10)),
+                    x2: parseFloat(parseFloat(this._trailSvg[i-1].ellipse?.x ?? this._trailSvg[i-1].line?.x1).toFixed(10)),
+                    y2: parseFloat(parseFloat(this._trailSvg[i-1].ellipse?.y ?? this._trailSvg[i-1].line?.y1).toFixed(10))
                 }}
             }
         }

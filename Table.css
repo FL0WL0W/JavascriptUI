@@ -1,9 +1,22 @@
-
 .configtable svg {
     margin-left: auto;
     margin-right: auto;
     display: flex;
-    align-items: center
+    align-items: center;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.configtable svg g{
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 .configtable table {
     border-spacing: 0px;
@@ -17,6 +30,11 @@
     font-size: 20px;
     width: 80px;
     padding: 3px 2px;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
     user-select: none;
     background-color: #50596288;
     font: bold 16px Arial;
@@ -90,9 +108,12 @@
 .hidecircles circle {
     display: none;
 }
-line {
+.configtable line {
     stroke: white;
     stroke-width: 1;
+}
+.configtable text {
+    fill: white;
 }
 .configtable path.selected,
 .configtable circle.selected {
