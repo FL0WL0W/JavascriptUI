@@ -146,8 +146,8 @@ class Table {
         this._zLabel = value;
     }
 
-    _table3DDisplayWidth=810; 
-    _table3DDisplayHeight=400;
+    _table3DDisplayWidth=800; 
+    _table3DDisplayHeight=450;
     _table3DZoom=1;
   
     _table3DtransformPrecalc=[];
@@ -248,7 +248,7 @@ class Table {
             Object.assign(this, copyObject);
         if(!Array.isArray(this.OnChange))
             this.OnChange = [ this.OnChange ];
-        this.Table3DPitch = 30;
+        this.Table3DPitch = 17;
         this.Table3DYaw = 30;
     }
 
@@ -970,7 +970,7 @@ class Table {
             let svg = this.svg[i];
             if(svg.path) {
                 let pathSelected = this._minSelectX !== undefined && svg.x >= this._minSelectX && svg.x < this._maxSelectX && svg.y >= this._minSelectY && svg.y < this._maxSelectY;
-                html += `<path${pathSelected? ` class="selected"` : ``} data-x="${svg.x}" data-y="${svg.y}" d="${svg.path}"${svg.hue !== undefined? ` style="fill:hsl(${svg.hue},60%,50%);"` : (svg.color !== undefined? ` style="fill:${svg.color};"` : ``)}></path>`;
+                html += `<path${pathSelected? ` class="selected"` : ``} data-x="${svg.x}" data-y="${svg.y}" d="${svg.path}"${svg.hue !== undefined? ` style="fill:hsla(${svg.hue},60%,50%,90%);"` : (svg.color !== undefined? ` style="fill:${svg.color};"` : ``)}></path>`;
             }
         }
 
@@ -1040,7 +1040,7 @@ class Table {
             t.attr(`data-x`, paths[index].x)
                 .attr(`data-y`, paths[index].y)
                 .attr(`d`, paths[index].path)
-                .attr(`style`, paths[index].hue !== undefined? `fill:hsl(${paths[index].hue},60%,50%)` : `fill:${paths[index].color};`);
+                .attr(`style`, paths[index].hue !== undefined? `fill:hsl(${paths[index].hue},60%,50%,90%)` : `fill:${paths[index].color};`);
             if(paths[index].hue === undefined && paths[index].color === undefined)
                 t.removeAttr(`style`);
 
@@ -1671,7 +1671,7 @@ class Table {
                 `L${(this._yAxisSvg[yaxisFrontX][this._yResolution-1][xyaxisRearZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)},${(this._yAxisSvg[yaxisFrontX][this._yResolution-1][xyaxisRearZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10)}`+
                 `L${(this._yAxisSvg[yaxisRearX][this._yResolution-1][xyaxisRearZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)},${(this._yAxisSvg[yaxisRearX][this._yResolution-1][xyaxisRearZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10)}`+
                 `L${(this._yAxisSvg[yaxisRearX][0][xyaxisRearZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)},${(this._yAxisSvg[yaxisRearX][0][xyaxisRearZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10)}Z`,
-            color: this.Table3DPitch > 0? `grey` : `transparent`
+            color: this.Table3DPitch > 0? `#80808080` : `transparent`
         });
     }
 
