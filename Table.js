@@ -379,8 +379,7 @@ class Table {
             previousOrigSelect.parent().replaceWith(thisClass._formatNumberForDisplay(previousOrigSelect.attr(`id`)));
             $(`#${thisClass.GUID}-tablesvg g path`).removeClass(`selected`);
             $(`#${thisClass.GUID}-tablesvg g circle`).removeClass(`selected`);
-            $(`#${thisClass.GUID}-table .number`).removeClass(`selected`);
-            $(`#${thisClass.GUID}-table .number`).removeClass(`origselect`);
+            $(`#${thisClass.GUID}-table .number`).removeClass(`selected`).removeClass(`origselect`);
 
             $(this).addClass(`selected`);
             $(this).addClass(`origselect`);
@@ -645,6 +644,7 @@ class Table {
                 if(closestCircle === undefined || element.dist < closestCircle.dist)
                     closestCircle = element;
             });
+            const axis = thisClass._yResolution < 2? thisClass.XAxis : thisClass.YAxis;
             if(closestCircle && e.which === 1) {
                 let x = closestCircle.x;
                 let y = closestCircle.y;
@@ -653,9 +653,22 @@ class Table {
                 thisClass._maxSelectX = x;
                 thisClass._maxSelectY = y;
                 index = x + thisClass._xResolution * y;
-                dragValue=[e.pageY,x,y,thisClass._value[index],(thisClass._valueMax - thisClass._valueMin) / (thisClass._table3DDisplayHeight-thisClass._padding2D*2-thisClass._valueOffset2D), `#${thisClass.GUID}-tablesvg g circle[data-x='${x}'][data-y='${y}']`, parseFloat(closestCircle.circle.cy)];
+                dragValue=[
+                    e.pageY,
+                    x,
+                    y,
+                    thisClass._value[index],
+                    (thisClass._valueMax - thisClass._valueMin) / (thisClass._table3DDisplayHeight-thisClass._padding2D*2-thisClass._valueOffset2D), 
+                    `#${thisClass.GUID}-tablesvg g circle[data-x='${x}'][data-y='${y}']`, 
+                    e.pageX,
+                    (axis[axis.length - 1] - axis[0]) / (thisClass._table3DDisplayWidth-thisClass._padding2D*2-thisClass._axisOffset2D), 
+                    axis[index]];
                 $(`#${thisClass.GUID}-tablesvg g path`).removeClass(`selected`);
                 $(`#${thisClass.GUID}-tablesvg g circle`).removeClass(`selected`);
+                var previousOrigSelect = $(`#${thisClass.GUID}-table .origselect`);
+                previousOrigSelect.removeClass(`selected`);
+                previousOrigSelect.removeClass(`origselect`);
+                previousOrigSelect.parent().replaceWith(thisClass._formatNumberForDisplay(previousOrigSelect.attr(`id`)));
                 $(`#${thisClass.GUID}-table .number`).removeClass(`selected`).removeClass(`origselect`);
                 var cell = $(`#${thisClass.GUID}-table .number[data-x='${x}'][data-y='${y}']`);
                 cell.addClass(`selected`).addClass(`origselect`);
@@ -675,7 +688,7 @@ class Table {
             if((closestCircle && e.which === 1) || ((e.which === 2 || e.which === 3) && thisClass._xResolution > 1 && thisClass._yResolution > 1)) {
                 $(document).on(`mousemove.${thisClass.GUID}-svg`, function(e){
                     if(drag){          
-                        let yaw=drag[2]-(e.pageX-drag[0]);
+                        const yaw=drag[2]-(e.pageX-drag[0]);
                         let pitch=drag[3]+(e.pageY-drag[1]);
                         pitch=Math.max(-90,Math.min(90,pitch));
                         if(yaw === thisClass.Table3DYaw && pitch === thisClass.Table3DPitch)
@@ -684,15 +697,17 @@ class Table {
                         thisClass.Table3DPitch = pitch;
                         thisClass.UpdateSvgHtml(true);
                     } else if(move3d) {
-                        let xdiff=e.pageX-move3d[0];
-                        let ydiff=e.pageY-move3d[1];
+                        const xdiff=e.pageX-move3d[0];
+                        const ydiff=e.pageY-move3d[1];
                         thisClass._table3DOffsetX = move3d[2] + xdiff;
                         thisClass._table3DOffsetY = move3d[3] + ydiff;
                         thisClass.UpdateSvgHtml(true);
                     }else if(dragValue) {
-                        let diff = dragValue[0] - e.pageY;
-                        let mag = dragValue[4]
-                        let index = dragValue[1] + thisClass._xResolution * dragValue[2];
+                        const xdiff=e.pageX-dragValue[6];
+                        const xmag=dragValue[7];
+                        const diff = dragValue[0] - e.pageY;
+                        const mag = dragValue[4]
+                        const index = dragValue[1] + thisClass._xResolution * dragValue[2];
                         let value = thisClass._value[index] = dragValue[3] + diff * mag;
                         if(thisClass._xResolution > 1 && thisClass._yResolution > 1) {
                             mag = thisClass._table3DDisplayHeight / 2;
@@ -708,6 +723,11 @@ class Table {
                             ]);
                             $(dragValue[5]).attr(`cy`, point[1]+thisClass._table3DDisplayHeight/2+thisClass._table3DOffsetY);
                         } else {
+                            axis[index] = dragValue[8] + xdiff * xmag;
+                            if(thisClass.XAxis === axis)
+                                $(`#${thisClass.GUID}-table .number[data-x='${dragValue[1]}'][data-y='-1']`).html(Table._formatNumberForDisplay(axis[index]));
+                            else
+                                $(`#${thisClass.GUID}-table .number[data-x='-1'][data-y='${dragValue[2]}']`).html(Table._formatNumberForDisplay(axis[index]));
                             thisClass.UpdateSvgHtml();
                         }
                         var cell = $(`#${thisClass.GUID}-table .number[data-x='${dragValue[1]}'][data-y='${dragValue[2]}']`);
@@ -1236,7 +1256,7 @@ class Table {
     _calculateSvg2D() {
         this._calculateValueMinMax();
         this.svg=[];
-        let axis = this._yResolution < 2? this.XAxis : this.YAxis;
+        const axis = this._yResolution < 2? this.XAxis : this.YAxis;
         if(axis.length === 0)
             return;
         let axisMin = 10000000000;
