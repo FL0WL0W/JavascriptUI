@@ -451,7 +451,7 @@ class Table {
             let x = parseInt(downElement.attr(`data-x`));
             let y = parseInt(downElement.attr(`data-y`));
 
-            if(x === undefined || parseInt(x) < 0 || y === undefined || parseInt(y) < 0)
+            if(x === undefined || y === undefined)
                 return;
 
             x = parseInt(x);
@@ -518,11 +518,16 @@ class Table {
                 thisClass._minSelectY = thisClass._yResolution;
                 thisClass._maxSelectX = 0;
                 thisClass._maxSelectY = 0;
-                $.each($(`#${thisClass.GUID}-table .number`), function(index, cell) {
+                let loopNumbers = `#${thisClass.GUID}-table .number`;
+                if(parseInt($(`#${thisClass.GUID}-table .origselect`).attr(`data-x`)) === -1)
+                    loopNumbers += `[data-x=-1]`;
+                if(parseInt($(`#${thisClass.GUID}-table .origselect`).attr(`data-y`)) === -1)
+                    loopNumbers += `[data-y=-1]`;
+                $.each($(loopNumbers), function(index, cell) {
                     var cellElement = $(cell);
                     let x = parseInt(cellElement.attr(`data-x`));
                     let y = parseInt(cellElement.attr(`data-y`));
-                    if(x === undefined || parseInt(x) < 0 || y === undefined || parseInt(y) < 0)
+                    if(x === undefined || y === undefined)
                         return;
 
                     x = parseInt(x);
@@ -874,9 +879,11 @@ class Table {
                 const id = $(cell).attr(`id`);
                 const cellx = parseInt($(cell).attr(`data-x`));
                 const celly = parseInt($(cell).attr(`data-y`));
-                index = cellx + celly * thisClass._xResolution;
-                thisClass._value[index] = value;
-                $(cell).parent().replaceWith(thisClass._formatNumberForDisplay(id, cellx, celly, thisClass._value[index]));
+                if(cellx > -1 && celly > -1) {
+                    index = cellx + celly * thisClass._xResolution;
+                    thisClass._value[index] = value;
+                    $(cell).parent().replaceWith(thisClass._formatNumberForDisplay(id, cellx, celly, thisClass._value[index]));
+                }
             });
             thisClass._onChange();
         });
@@ -888,9 +895,11 @@ class Table {
                 const id = $(cell).attr(`id`);
                 const cellx = parseInt($(cell).attr(`data-x`));
                 const celly = parseInt($(cell).attr(`data-y`));
-                index = cellx + celly * thisClass._xResolution;
-                thisClass._value[index] += value;
-                $(cell).parent().replaceWith(thisClass._formatNumberForDisplay(id, cellx, celly, thisClass._value[index]));
+                if(cellx > -1 && celly > -1) {
+                    index = cellx + celly * thisClass._xResolution;
+                    thisClass._value[index] += value;
+                    $(cell).parent().replaceWith(thisClass._formatNumberForDisplay(id, cellx, celly, thisClass._value[index]));
+                }
             });
             thisClass._onChange();
         });
@@ -902,9 +911,11 @@ class Table {
                 const id = $(cell).attr(`id`);
                 const cellx = parseInt($(cell).attr(`data-x`));
                 const celly = parseInt($(cell).attr(`data-y`));
-                index = cellx + celly * thisClass._xResolution;
-                thisClass._value[index] -= value;
-                $(cell).parent().replaceWith(thisClass._formatNumberForDisplay(id, cellx, celly, thisClass._value[index]));
+                if(cellx > -1 && celly > -1) {
+                    index = cellx + celly * thisClass._xResolution;
+                    thisClass._value[index] -= value;
+                    $(cell).parent().replaceWith(thisClass._formatNumberForDisplay(id, cellx, celly, thisClass._value[index]));
+                }
             });
             thisClass._onChange();
         });
@@ -916,9 +927,11 @@ class Table {
                 const id = $(cell).attr(`id`);
                 const cellx = parseInt($(cell).attr(`data-x`));
                 const celly = parseInt($(cell).attr(`data-y`));
-                index = cellx + celly * thisClass._xResolution;
-                thisClass._value[index] *= value;
-                $(cell).parent().replaceWith(thisClass._formatNumberForDisplay(id, cellx, celly, thisClass._value[index]));
+                if(cellx > -1 && celly > -1) {
+                    index = cellx + celly * thisClass._xResolution;
+                    thisClass._value[index] *= value;
+                    $(cell).parent().replaceWith(thisClass._formatNumberForDisplay(id, cellx, celly, thisClass._value[index]));
+                }
             });
             thisClass._onChange();
         });
@@ -930,9 +943,11 @@ class Table {
                 const id = $(cell).attr(`id`);
                 const cellx = parseInt($(cell).attr(`data-x`));
                 const celly = parseInt($(cell).attr(`data-y`));
-                index = cellx + celly * thisClass._xResolution;
-                thisClass._value[index] /= value;
-                $(cell).parent().replaceWith(thisClass._formatNumberForDisplay(id, cellx, celly, thisClass._value[index]));
+                if(cellx > -1 && celly > -1) {
+                    index = cellx + celly * thisClass._xResolution;
+                    thisClass._value[index] /= value;
+                    $(cell).parent().replaceWith(thisClass._formatNumberForDisplay(id, cellx, celly, thisClass._value[index]));
+                }
             });
             thisClass._onChange();
         });
@@ -964,15 +979,17 @@ class Table {
                 const id = $(cell).attr(`id`);
                 const cellx = parseInt($(cell).attr(`data-x`));
                 const celly = parseInt($(cell).attr(`data-y`));
-                const xMinVal = thisClass._value[xMin + celly * thisClass._xResolution];
-                const yMinVal = thisClass._value[cellx + yMin * thisClass._xResolution];
-                const xMag = (thisClass._value[xMax + celly * thisClass._xResolution] - xMinVal) / (thisClass.XAxis[xMax] - thisClass.XAxis[xMin]);
-                const yMag = (thisClass._value[cellx + yMax * thisClass._xResolution] - yMinVal) / (thisClass.YAxis[yMax] - thisClass.YAxis[yMin]);
-                let value = xMinVal + xMag * (thisClass.XAxis[cellx]-thisClass.XAxis[xMin]) + yMinVal + yMag * (thisClass.YAxis[celly]-thisClass.YAxis[yMin])
-                value /= 2;
-                index = cellx + celly * thisClass._xResolution;
-                thisClass._value[index] = value;
-                $(cell).parent().replaceWith(thisClass._formatNumberForDisplay(id, cellx, celly, thisClass._value[index]));
+                if(cellx > -1 && celly > -1) {
+                    const xMinVal = thisClass._value[xMin + celly * thisClass._xResolution];
+                    const yMinVal = thisClass._value[cellx + yMin * thisClass._xResolution];
+                    const xMag = (thisClass._value[xMax + celly * thisClass._xResolution] - xMinVal) / (thisClass.XAxis[xMax] - thisClass.XAxis[xMin]);
+                    const yMag = (thisClass._value[cellx + yMax * thisClass._xResolution] - yMinVal) / (thisClass.YAxis[yMax] - thisClass.YAxis[yMin]);
+                    let value = xMinVal + xMag * (thisClass.XAxis[cellx]-thisClass.XAxis[xMin]) + yMinVal + yMag * (thisClass.YAxis[celly]-thisClass.YAxis[yMin])
+                    value /= 2;
+                    index = cellx + celly * thisClass._xResolution;
+                    thisClass._value[index] = value;
+                    $(cell).parent().replaceWith(thisClass._formatNumberForDisplay(id, cellx, celly, thisClass._value[index]));
+                }
             });
             thisClass._onChange();
         });
@@ -995,12 +1012,14 @@ class Table {
                 const celly = parseInt($(cell).attr(`data-y`));
                 if(cellx === xMin || cellx === xMax)
                     return;
-                const xMinVal = thisClass._value[xMin + celly * thisClass._xResolution];
-                const xMag = (thisClass._value[xMax + celly * thisClass._xResolution] - xMinVal) / (thisClass.XAxis[xMax] - thisClass.XAxis[xMin]);
-                let value = xMinVal + xMag * (thisClass.XAxis[cellx]-thisClass.XAxis[xMin]);
-                index = cellx + celly * thisClass._xResolution;
-                thisClass._value[index] = value;
-                $(cell).parent().replaceWith(thisClass._formatNumberForDisplay(id, cellx, celly, thisClass._value[index]));
+                if(cellx > -1 && celly > -1) {
+                    const xMinVal = thisClass._value[xMin + celly * thisClass._xResolution];
+                    const xMag = (thisClass._value[xMax + celly * thisClass._xResolution] - xMinVal) / (thisClass.XAxis[xMax] - thisClass.XAxis[xMin]);
+                    let value = xMinVal + xMag * (thisClass.XAxis[cellx]-thisClass.XAxis[xMin]);
+                    index = cellx + celly * thisClass._xResolution;
+                    thisClass._value[index] = value;
+                    $(cell).parent().replaceWith(thisClass._formatNumberForDisplay(id, cellx, celly, thisClass._value[index]));
+                }
             });
             thisClass._onChange();
         });
@@ -1023,12 +1042,14 @@ class Table {
                 const celly = parseInt($(cell).attr(`data-y`));
                 if(celly === yMin || celly === yMax)
                     return;
-                const yMinVal = thisClass._value[cellx + yMin * thisClass._xResolution];
-                const yMag = (thisClass._value[cellx + yMax * thisClass._xResolution] - yMinVal) / (thisClass.YAxis[yMax] - thisClass.YAxis[yMin]);
-                let value = yMinVal + yMag * (thisClass.YAxis[celly]-thisClass.YAxis[yMin])
-                index = cellx + celly * thisClass._xResolution;
-                thisClass._value[index] = value;
-                $(cell).parent().replaceWith(thisClass._formatNumberForDisplay(id, cellx, celly, thisClass._value[index]));
+                if(cellx > -1 && celly > -1) {
+                    const yMinVal = thisClass._value[cellx + yMin * thisClass._xResolution];
+                    const yMag = (thisClass._value[cellx + yMax * thisClass._xResolution] - yMinVal) / (thisClass.YAxis[yMax] - thisClass.YAxis[yMin]);
+                    let value = yMinVal + yMag * (thisClass.YAxis[celly]-thisClass.YAxis[yMin])
+                    index = cellx + celly * thisClass._xResolution;
+                    thisClass._value[index] = value;
+                    $(cell).parent().replaceWith(thisClass._formatNumberForDisplay(id, cellx, celly, thisClass._value[index]));
+                }
             });
             thisClass._onChange();
         });
