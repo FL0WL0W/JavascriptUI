@@ -53,6 +53,10 @@
     align-items:center;
     justify-content: center;  
 }
+.configtable .paste-button,
+.configtable .modify-button {
+    cursor: pointer;
+}
 .configtable input.modify-value {
     font-size: 1.5em;
     height: 2em;

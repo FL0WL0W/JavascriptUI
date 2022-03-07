@@ -253,6 +253,8 @@ class Table {
     }
 
     Detach() {
+        $(document).off(`keypress.${this.GUID}`);
+        $(document).off(`blur.${this.GUID}`);
         $(document).off(`change.${this.GUID}`);
         $(document).off(`click.${this.GUID}`);
         $(document).off(`mousedown.${this.GUID}`);
@@ -276,7 +278,6 @@ class Table {
         this._attachSvg();
         this._attachModify();
         this._attachInterpolate();
-        this._attachModify();
     }
 
     _attachTable() {
@@ -292,6 +293,41 @@ class Table {
             if(val > 1)
                 thisClass.XResolution = parseInt($(e.target).val());
             $(e.target).val(thisClass.XResolution);
+        });
+        $(document).on(`keypress.${this.GUID}`, `#${this.GUID}-table`, function(e){
+            //minus
+            if(e.which === 45) {
+                e.preventDefault();
+                $(`#${thisClass.GUID}-add`).hide();
+                $(`#${thisClass.GUID}-subtract`).show();
+                $(`#${thisClass.GUID}-modifyvalue`).select();
+                $(`#${thisClass.GUID}-subtract`).addClass(`selected`);
+            }
+            //add
+            if(e.which === 43) {
+                e.preventDefault();
+                $(`#${thisClass.GUID}-modifyvalue`).select();
+                $(`#${thisClass.GUID}-add`).addClass(`selected`);
+            }
+            //multiply
+            if(e.which === 42) {
+                e.preventDefault();
+                $(`#${thisClass.GUID}-modifyvalue`).select();
+                $(`#${thisClass.GUID}-multiply`).addClass(`selected`);
+            }
+            //divide
+            if(e.which === 47) {
+                e.preventDefault();
+                $(`#${thisClass.GUID}-multiply`).hide();
+                $(`#${thisClass.GUID}-divide`).show();
+                $(`#${thisClass.GUID}-modifyvalue`).select();
+                $(`#${thisClass.GUID}-divide`).addClass(`selected`);
+            }
+            if(e.which === 61) {
+                $(`#${thisClass.GUID}-modifyvalue`).select();
+                $(`#${thisClass.GUID}-equal`).addClass(`selected`);
+                e.preventDefault();
+            }
         });
         $(document).on(`change.${this.GUID}`, `#${this.GUID}-table`, function(e){
             var x = parseInt($(e.target).attr(`data-x`));
@@ -329,13 +365,23 @@ class Table {
                     }
                 }
             } else {
+                let operation = `equal`;
+                if(value - Table._formatNumberForDisplay(thisClass._value[x + thisClass._xResolution * y]) === 1)
+                    operation = `increment`;
+                if(Table._formatNumberForDisplay(thisClass._value[x + thisClass._xResolution * y]) - value === 1)
+                    operation = `decrement`;
                 $.each($(`#${thisClass.GUID}-table .number.selected`), function(index, cell) {
                     const cellx = parseInt($(cell).attr(`data-x`));
                     const celly = parseInt($(cell).attr(`data-y`));
                     index = cellx + celly * thisClass._xResolution;
-                    thisClass._value[index] = value;
+                    if(operation === `increment`)
+                        thisClass._value[index]++;
+                    else if(operation === `decrement`)
+                        thisClass._value[index]--;
+                    else
+                        thisClass._value[index] = value;
                     if(cellx !== x || celly !== y) {
-                        $(cell).html(thisClass._value[index]);
+                        $(cell).html(Table._formatNumberForDisplay(thisClass._value[index]));
                     }
                 });
             }
@@ -793,6 +839,33 @@ class Table {
 
     _attachModify() {
         const thisClass = this;
+        $(document).on(`blur.${this.GUID}`, `#${this.GUID}-modifyvalue`, function(){
+            $(`#${thisClass.GUID}-add`).show();
+            $(`#${thisClass.GUID}-subtract`).hide();
+            $(`#${thisClass.GUID}-multiply`).show();
+            $(`#${thisClass.GUID}-divide`).hide();
+            $(`#${thisClass.GUID}-add`).removeClass(`selected`);
+            $(`#${thisClass.GUID}-subtract`).removeClass(`selected`);
+            $(`#${thisClass.GUID}-multiply`).removeClass(`selected`);
+            $(`#${thisClass.GUID}-divide`).removeClass(`selected`);
+            $(`#${thisClass.GUID}-equal`).removeClass(`selected`);
+        });
+        $(document).on(`keypress.${this.GUID}`, `#${this.GUID}-modifyvalue`, function(e){
+            if(e.which !== 13)
+                return;
+            if($(`#${thisClass.GUID}-add`).hasClass(`selected`))
+                $(`#${thisClass.GUID}-add`).trigger(`click`);
+            if($(`#${thisClass.GUID}-subtract`).hasClass(`selected`))
+                $(`#${thisClass.GUID}-subtract`).trigger(`click`);
+            if($(`#${thisClass.GUID}-multiply`).hasClass(`selected`))
+                $(`#${thisClass.GUID}-multiply`).trigger(`click`);
+            if($(`#${thisClass.GUID}-divide`).hasClass(`selected`))
+                $(`#${thisClass.GUID}-divide`).trigger(`click`);
+            if($(`#${thisClass.GUID}-equal`).hasClass(`selected`))
+                $(`#${thisClass.GUID}-equal`).trigger(`click`);
+            $(`#${thisClass.GUID}-modifyvalue`).blur();
+            $(`#${thisClass.GUID}-table .origselect`).select();
+        });
         $(document).on(`click.${this.GUID}`, `#${this.GUID}-equal`, function(){
             var value = parseFloat($(`#${thisClass.GUID}-modifyvalue`).val());
             if(isNaN(value))
@@ -821,6 +894,20 @@ class Table {
             });
             thisClass._onChange();
         });
+        $(document).on(`click.${this.GUID}`, `#${this.GUID}-subtract`, function(){
+            var value = parseFloat($(`#${thisClass.GUID}-modifyvalue`).val());
+            if(isNaN(value))
+                return;
+            $.each($(`#${thisClass.GUID}-table .number.selected`), function(index, cell) {
+                const id = $(cell).attr(`id`);
+                const cellx = parseInt($(cell).attr(`data-x`));
+                const celly = parseInt($(cell).attr(`data-y`));
+                index = cellx + celly * thisClass._xResolution;
+                thisClass._value[index] -= value;
+                $(cell).parent().replaceWith(thisClass._formatNumberForDisplay(id, cellx, celly, thisClass._value[index]));
+            });
+            thisClass._onChange();
+        });
         $(document).on(`click.${this.GUID}`, `#${this.GUID}-multiply`, function(){
             var value = parseFloat($(`#${thisClass.GUID}-modifyvalue`).val());
             if(isNaN(value))
@@ -831,6 +918,20 @@ class Table {
                 const celly = parseInt($(cell).attr(`data-y`));
                 index = cellx + celly * thisClass._xResolution;
                 thisClass._value[index] *= value;
+                $(cell).parent().replaceWith(thisClass._formatNumberForDisplay(id, cellx, celly, thisClass._value[index]));
+            });
+            thisClass._onChange();
+        });
+        $(document).on(`click.${this.GUID}`, `#${this.GUID}-divide`, function(){
+            var value = parseFloat($(`#${thisClass.GUID}-modifyvalue`).val());
+            if(isNaN(value))
+                return;
+            $.each($(`#${thisClass.GUID}-table .number.selected`), function(index, cell) {
+                const id = $(cell).attr(`id`);
+                const cellx = parseInt($(cell).attr(`data-x`));
+                const celly = parseInt($(cell).attr(`data-y`));
+                index = cellx + celly * thisClass._xResolution;
+                thisClass._value[index] /= value;
                 $(cell).parent().replaceWith(thisClass._formatNumberForDisplay(id, cellx, celly, thisClass._value[index]));
             });
             thisClass._onChange();
@@ -944,7 +1045,9 @@ class Table {
                     <input id="${this.GUID}-modifyvalue" class="modify-value" type="number"></input>
                     <div id="${this.GUID}-equal" class="modify-button"><h3>&nbsp;=&nbsp;</h3></div>
                     <div id="${this.GUID}-add" class="modify-button"><h3>&nbsp;+&nbsp;</h3></div>
+                    <div id="${this.GUID}-subtract" style="display: none;" class="modify-button"><h3>&nbsp;-&nbsp;</h3></div>
                     <div id="${this.GUID}-multiply" class="modify-button"><h3>&nbsp;x&nbsp;</h3></div>
+                    <div id="${this.GUID}-divide" style="display: none;" class="modify-button"><h3>&nbsp;÷&nbsp;</h3></div>
                 </div>
             </div>
             <div style="display:inline-block; position: relative;">
@@ -1789,7 +1892,7 @@ class Table {
         if(value === ``)
             value = $(`#${id}`).html();
 
-        if(rowClass.indexOf("origselect") === -1)
+        if(rowClass.indexOf(`origselect`) === -1)
             return `<div${x>-1&&y>-1? ` style="background-color: hsl(${this._getHueFromValue(value)},100%,50%);"` : ``}><div ${rowClass} id="${id}" data-x="${x}" data-y="${y}">${Table._formatNumberForDisplay(value)}</div></div>`;
         return `<div${x>-1&&y>-1? ` style="background-color: hsl(${this._getHueFromValue(value)},100%,50%);"` : ``}><input ${rowClass} id="${id}" data-x="${x}" data-y="${y}" value="${Table._formatNumberForDisplay(value)}" type="number"/></div>`;
     }
