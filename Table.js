@@ -41,7 +41,7 @@ class Table {
     set XResolution(xRes) {
         this.XAxis.splice(xRes);
         const oldXAxisLength = this.XAxis.length;
-        if(oldXAxisLength > 2) {
+        if(oldXAxisLength > 1) {
             let xAxisAdd = this.XAxis[oldXAxisLength-1] - this.XAxis[oldXAxisLength-2]
             for(let x=oldXAxisLength; x<xRes; x++){
                 this.XAxis[x] = this.XAxis[x-1] + xAxisAdd;
@@ -66,7 +66,8 @@ class Table {
         this._xResolution = xRes;
         $(`#${this.GUID}-xres`).val(this._xResolution);
         this._value = newValue;
-        this.UpdateHtml();
+        this.UpdateTableHtml();
+        this.UpdateSvgHtml();
         this.OnChange.forEach(function(OnChange) { OnChange(); });
     }
 
@@ -77,7 +78,7 @@ class Table {
     set YResolution(yRes) {
         this.YAxis.splice(yRes);
         const oldYAxisLength = this.YAxis.length;
-        if(oldYAxisLength > 2) {
+        if(oldYAxisLength > 1) {
             let yAxisAdd = this.YAxis[oldYAxisLength-1] - this.YAxis[oldYAxisLength-2]
             for(let y=oldYAxisLength; y<yRes; y++){
                 this.YAxis[y] = this.YAxis[y-1] + yAxisAdd;
@@ -101,7 +102,8 @@ class Table {
         this._yResolution = yRes;
         $(`#${this.GUID}-yres`).val(this._yResolution);
         this._value = newValue;
-        this.UpdateHtml();
+        this.UpdateTableHtml();
+        this.UpdateSvgHtml();
         this.OnChange.forEach(function(OnChange) { OnChange(); });
     }
 
@@ -280,10 +282,16 @@ class Table {
     _attachTable() {
         const thisClass = this;
         $(document).on(`change.${this.GUID}`, `#${this.GUID}-yres`, function(e){
-            thisClass.YResolution = parseInt($(e.target).val());
+            let val = parseInt($(e.target).val());
+            if(val > 1)
+                thisClass.YResolution = parseInt($(e.target).val());
+            $(e.target).val(thisClass.YResolution);
         });
         $(document).on(`change.${this.GUID}`, `#${this.GUID}-xres`, function(e){
-            thisClass.XResolution = parseInt($(e.target).val());
+            let val = parseInt($(e.target).val());
+            if(val > 1)
+                thisClass.XResolution = parseInt($(e.target).val());
+            $(e.target).val(thisClass.XResolution);
         });
         $(document).on(`change.${this.GUID}`, `#${this.GUID}-table`, function(e){
             var x = parseInt($(e.target).attr(`data-x`));
@@ -1235,7 +1243,6 @@ class Table {
         }
         const axisMag = (this._table3DDisplayWidth-this._axisOffset2D-this._padding2D*2) / (axisMax-axisMin);
         const r = parseFloat((1/(axis.length*2)*this._table3DDisplayWidth/10).toFixed(10));
-        this._valueOffset2D = 25 + r;
         const valueMag = (this._table3DDisplayHeight-this._valueOffset2D-this._padding2D*2) / (this._valueMax-this._valueMin);
 
         for(let i=0; i<axis.length; i++) {
@@ -1607,6 +1614,8 @@ class Table {
                     this._valueMax = value;
             }
         }
+        if(this._valueMax === this._valueMin)
+            this._valueMax = this._valueMin + 1;
     }
 
     _getHueFromValue(value) {
