@@ -1356,6 +1356,10 @@ class Table {
         const yMin = this.YAxis[0];
         const yMag = this.YAxis[this._yResolution-1] - yMin;
         const mag = this._table3DDisplayHeight / 2;
+        let valueaxis = new Array(parseInt(1.5+Math.max(this.XAxis.length, this.YAxis.length) * this._table3DDisplayHeight/this._table3DDisplayWidth));
+        for(let i=0; i<valueaxis.length; i++) {
+            valueaxis[i] = i*(this._valueMax-this._valueMin)/(valueaxis.length-1) + this._valueMin;
+        }
         for(let x=0;x<this._xResolution;x++){
             let t = this._dataSvg[x];
             if(!t) {
@@ -1479,6 +1483,7 @@ class Table {
         const yaxisFrontX = yaxisRearX === 1? 0 : 1; 
         const xyaxisRearZ = this.Table3DPitch > 0? 0 : 1
         const xyaxisFrontZ = xyaxisRearZ === 1? 0 : 1; 
+        //xlines
         for(let x=0; x<this._xResolution; x++) {
             const coord = this._xAxisSvg[x][xaxisRearY];
             this.svg.unshift({
@@ -1490,30 +1495,7 @@ class Table {
                 }
             });
         }
-        this.svg.unshift({
-            line: {
-                x1: parseFloat((this._xAxisSvg[0][xaxisRearY][xyaxisFrontZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)), 
-                y1: parseFloat((this._xAxisSvg[0][xaxisRearY][xyaxisFrontZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10)), 
-                x2: parseFloat((this._xAxisSvg[this._xResolution-1][xaxisRearY][xyaxisFrontZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)), 
-                y2: parseFloat((this._xAxisSvg[this._xResolution-1][xaxisRearY][xyaxisFrontZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10))
-            }
-        });
-        this.svg.unshift({
-            line: {
-                x1: parseFloat((this._xAxisSvg[0][xaxisRearY][xyaxisRearZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)), 
-                y1: parseFloat((this._xAxisSvg[0][xaxisRearY][xyaxisRearZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10)), 
-                x2: parseFloat((this._xAxisSvg[this._xResolution-1][xaxisRearY][xyaxisRearZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)), 
-                y2: parseFloat((this._xAxisSvg[this._xResolution-1][xaxisRearY][xyaxisRearZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10))
-            }
-        });
-        this.svg.unshift({
-            line: {
-                x1: parseFloat((this._xAxisSvg[0][xaxisFrontY][xyaxisRearZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)), 
-                y1: parseFloat((this._xAxisSvg[0][xaxisFrontY][xyaxisRearZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10)), 
-                x2: parseFloat((this._xAxisSvg[this._xResolution-1][xaxisFrontY][xyaxisRearZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)), 
-                y2: parseFloat((this._xAxisSvg[this._xResolution-1][xaxisFrontY][xyaxisRearZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10))
-            }
-        });
+        //ylines
         for(let y=0; y<this._yResolution; y++) {
             const coord = this._yAxisSvg[yaxisRearX][y];
             this.svg.unshift({
@@ -1525,22 +1507,29 @@ class Table {
                 }
             });
         }
-        this.svg.unshift({
-            line: {
-                x1: parseFloat((this._yAxisSvg[yaxisRearX][0][xyaxisFrontZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)), 
-                y1: parseFloat((this._yAxisSvg[yaxisRearX][0][xyaxisFrontZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10)), 
-                x2: parseFloat((this._yAxisSvg[yaxisRearX][this._yResolution-1][xyaxisFrontZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)), 
-                y2: parseFloat((this._yAxisSvg[yaxisRearX][this._yResolution-1][xyaxisFrontZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10))
-            }
-        });
-        this.svg.unshift({
-            line: {
-                x1: parseFloat((this._yAxisSvg[yaxisRearX][0][xyaxisRearZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)), 
-                y1: parseFloat((this._yAxisSvg[yaxisRearX][0][xyaxisRearZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10)), 
-                x2: parseFloat((this._yAxisSvg[yaxisRearX][this._yResolution-1][xyaxisRearZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)), 
-                y2: parseFloat((this._yAxisSvg[yaxisRearX][this._yResolution-1][xyaxisRearZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10))
-            }
-        });
+        //z lines
+        let zhmag = (this._xAxisSvg[0][xaxisRearY][0][1] - this._xAxisSvg[0][xaxisRearY][1][1]) / (valueaxis.length-1);
+        for(let z=0; z<valueaxis.length; z++){
+            let zh = zhmag * z;
+            this.svg.unshift({
+                line: {
+                    x1: parseFloat((this._xAxisSvg[0][xaxisRearY][0][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)), 
+                    y1: parseFloat((this._xAxisSvg[0][xaxisRearY][0][1]+this._table3DDisplayHeight/2+this._table3DOffsetY-zh).toFixed(10)), 
+                    x2: parseFloat((this._xAxisSvg[this._xResolution-1][xaxisRearY][0][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)), 
+                    y2: parseFloat((this._xAxisSvg[this._xResolution-1][xaxisRearY][0][1]+this._table3DDisplayHeight/2+this._table3DOffsetY-zh).toFixed(10))
+                }
+            });
+            this.svg.unshift({
+                line: {
+                    x1: parseFloat((this._yAxisSvg[yaxisRearX][0][0][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)), 
+                    y1: parseFloat((this._yAxisSvg[yaxisRearX][0][0][1]+this._table3DDisplayHeight/2+this._table3DOffsetY-zh).toFixed(10)), 
+                    x2: parseFloat((this._yAxisSvg[yaxisRearX][this._yResolution-1][0][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)), 
+                    y2: parseFloat((this._yAxisSvg[yaxisRearX][this._yResolution-1][0][1]+this._table3DDisplayHeight/2+this._table3DOffsetY-zh).toFixed(10))
+                }
+            });
+        }
+
+        //front axis lines
         this.svg.unshift({
             line: {
                 x1: parseFloat((this._yAxisSvg[yaxisFrontX][0][xyaxisRearZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)), 
@@ -1549,6 +1538,15 @@ class Table {
                 y2: parseFloat((this._yAxisSvg[yaxisFrontX][this._yResolution-1][xyaxisRearZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10))
             }
         });
+        this.svg.unshift({
+            line: {
+                x1: parseFloat((this._xAxisSvg[0][xaxisFrontY][xyaxisRearZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)), 
+                y1: parseFloat((this._xAxisSvg[0][xaxisFrontY][xyaxisRearZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10)), 
+                x2: parseFloat((this._xAxisSvg[this._xResolution-1][xaxisFrontY][xyaxisRearZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)), 
+                y2: parseFloat((this._xAxisSvg[this._xResolution-1][xaxisFrontY][xyaxisRearZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10))
+            }
+        });
+        //bottom
         this.svg.unshift({
             path:
                 `M${(this._yAxisSvg[yaxisFrontX][0][xyaxisRearZ][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)},${(this._yAxisSvg[yaxisFrontX][0][xyaxisRearZ][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10)}`+
