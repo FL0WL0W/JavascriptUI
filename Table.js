@@ -340,7 +340,7 @@ class Table {
             dragX = true;
             $(`#overlay`).addClass(`rowcol_expand`);
             $(`#overlay`).show();
-            $(document).on(`mousemove.${this.GUID}`, function(e){
+            $(document).on(`mousemove.${thisClass.GUID}`, function(e){
                 move(e.pageX, e.pageY);
             });
         });
@@ -349,7 +349,7 @@ class Table {
             dragX = true;
             $(`#overlay`).addClass(`col_expand`);
             $(`#overlay`).show();
-            $(document).on(`mousemove.${this.GUID}`, function(e){
+            $(document).on(`mousemove.${thisClass.GUID}`, function(e){
                 move(e.pageX, e.pageY);
             });
         });
@@ -358,17 +358,17 @@ class Table {
             dragY = true;
             $(`#overlay`).addClass(`row_expand`);
             $(`#overlay`).show();
-            $(document).on(`mousemove.${this.GUID}`, function(e){
+            $(document).on(`mousemove.${thisClass.GUID}`, function(e){
                 move(e.pageX, e.pageY);
             });
         });
 
         function down() {
-            $(document).on(`touchmove.${this.GUID}`, function(e){
+            $(document).on(`touchmove.${thisClass.GUID}`, function(e){
                 var touch = e.touches[e.touches.length - 1];
                 move(touch.pageX, touch.pageY);
             });
-            $(document).on(`mousemove.${this.GUID}`, function(e){
+            $(document).on(`mousemove.${thisClass.GUID}`, function(e){
                 move(e.pageX, e.pageY);
             });
 
@@ -425,10 +425,11 @@ class Table {
         var selectOnMove = false;
         function move(pageX, pageY) {
             var tableElement = $(`#${thisClass.GUID}-table`);
+            const tableOffset = tableElement.offset();
             if(dragX) {
                 var cellElement = $(`#${thisClass.GUID}-${thisClass._xResolution - 1}-axis`);
-                var relX = pageX - tableElement.offset().left;
-                var elX = cellElement.offset().left - tableElement.offset().left;
+                var relX = pageX - tableOffset.left;
+                var elX = cellElement.offset().left - tableOffset.left;
                 var comp = relX - elX;
                 if(comp > (cellElement.width() * 3/2))
                     thisClass.XResolution += 1;
@@ -437,8 +438,8 @@ class Table {
             }
             if(dragY) {
                 var cellElement = $(`#${thisClass.GUID}-axis-${thisClass._yResolution - 1}`);
-                var relY = pageY - tableElement.offset().top;
-                var elY = cellElement.offset().top - tableElement.offset().top;
+                var relY = pageY - tableOffset.top;
+                var elY = cellElement.offset().top - tableOffset.top;
                 var comp = relY - elY;
                 if(comp > (cellElement.height() * 3/2))
                     thisClass.YResolution += 1;
@@ -454,18 +455,19 @@ class Table {
                     var cellElement = $(cell);
                     let x = parseInt(cellElement.attr(`data-x`));
                     let y = parseInt(cellElement.attr(`data-y`));
-                    if(cellElement.attr(`data-x`) === undefined || parseInt(x) < 0 || y === undefined || parseInt(y) < 0)
+                    if(x === undefined || parseInt(x) < 0 || y === undefined || parseInt(y) < 0)
                         return;
 
                     x = parseInt(x);
                     y = parseInt(y);
         
-                    var relX = pageX - tableElement.offset().left;
-                    var elX = cellElement.offset().left - tableElement.offset().left;
-                    var relY = pageY - tableElement.offset().top;
-                    var elY = cellElement.offset().top - tableElement.offset().top;
-                    if(((elX <= relX && elX >= pointX) || (elX >= (relX - cellElement.width()) && elX <= pointX) || (pointX == cellElement.offset().left - tableElement.offset().left)) &&
-                        ((elY <= relY && elY >= pointY) || (elY >= (relY - cellElement.height()) && elY <= pointY) || (pointY == cellElement.offset().top - tableElement.offset().top))) {
+                    const cellOffset = cellElement.offset();
+                    const relX = pageX - tableOffset.left;
+                    const elX = cellOffset.left - tableOffset.left;
+                    const relY = pageY - tableOffset.top;
+                    const elY = cellOffset.top - tableOffset.top;
+                    if(((elX <= relX && elX >= pointX) || (elX >= (relX - cellElement.width()) && elX <= pointX) || (pointX == cellOffset.left - tableOffset.left)) &&
+                        ((elY <= relY && elY >= pointY) || (elY >= (relY - cellElement.height()) && elY <= pointY) || (pointY == cellOffset.top - tableOffset.top))) {
                         if(thisClass._selecting) {
                             if(x < thisClass._minSelectX)
                                 thisClass._minSelectX = x;
@@ -485,26 +487,18 @@ class Table {
                         cellElement.removeClass(`selected`);
                     }
                 });
-                $.each($(`#${thisClass.GUID}-tablesvg g path`), function(index, cell) {
-                    var cellElement = $(cell);
-                    let x = parseInt(cellElement.attr(`data-x`));
-                    let y = parseInt(cellElement.attr(`data-y`));
-
-                    if(x >= thisClass._minSelectX && x < thisClass._maxSelectX && y >= thisClass._minSelectY && y < thisClass._maxSelectY)
-                        cellElement.addClass(`selected`);
-                    else
-                        cellElement.removeClass(`selected`);
-                });
-                $.each($(`#${thisClass.GUID}-tablesvg g circle`), function(index, cell) {
-                    var cellElement = $(cell);
-                    let x = parseInt(cellElement.attr(`data-x`));
-                    let y = parseInt(cellElement.attr(`data-y`));
-
-                    if(x >= thisClass._minSelectX && x <= thisClass._maxSelectX && y >= thisClass._minSelectY && y <= thisClass._maxSelectY)
-                        cellElement.addClass(`selected`);
-                    else
-                        cellElement.removeClass(`selected`);
-                });
+                $(`#${thisClass.GUID}-tablesvg g path`).removeClass(`selected`)
+                for(let x=thisClass._minSelectX; x<thisClass._maxSelectX; x++) {
+                    for(let y=thisClass._minSelectY; y<thisClass._maxSelectY; y++) {
+                        $(`#${thisClass.GUID}-tablesvg g path[data-x='${x}'][data-y='${y}']`).addClass(`selected`);
+                    }
+                }
+                $(`#${thisClass.GUID}-tablesvg g circle`).removeClass(`selected`);
+                for(let x=thisClass._minSelectX; x<thisClass._maxSelectX+1; x++) {
+                    for(let y=thisClass._minSelectY; y<thisClass._maxSelectY+1; y++) {
+                        $(`#${thisClass.GUID}-tablesvg g circle[data-x='${x}'][data-y='${y}']`).addClass(`selected`);
+                    }
+                }
             }
         }
 
