@@ -341,13 +341,13 @@ class Table {
                 for(let ya=y; ya<thisClass._yResolution; ya++) {
                     if(thisClass.YAxis[ya] < value) {
                         thisClass.YAxis[ya] = value;
-                        $(`#${thisClass.GUID}-table .number[data-y='${ya}'][data-x='-1']`).html(value);
+                        $(`#${thisClass.GUID}-table .number[data-y='${ya}'][data-x='-1']`).html(Table._formatNumberForDisplay(value));
                     }
                 }
                 for(let ya=y; ya>=0; ya--) {
                     if(thisClass.YAxis[ya] > value) {
                         thisClass.YAxis[ya] = value;
-                        $(`#${thisClass.GUID}-table .number[data-y='${ya}'][data-x='-1']`).html(value);
+                        $(`#${thisClass.GUID}-table .number[data-y='${ya}'][data-x='-1']`).html(Table._formatNumberForDisplay(value));
                     }
                 }
             } else if(y === -1) {
@@ -355,13 +355,13 @@ class Table {
                 for(let xa=x; xa<thisClass._xResolution; xa++) {
                     if(thisClass.XAxis[xa] < value) {
                         thisClass.XAxis[xa] = value;
-                        $(`#${thisClass.GUID}-table .number[data-x='${xa}'][data-y='-1']`).html(value);
+                        $(`#${thisClass.GUID}-table .number[data-x='${xa}'][data-y='-1']`).html(Table._formatNumberForDisplay(value));
                     }
                 }
                 for(let xa=x; xa>=0; xa--) {
                     if(thisClass.XAxis[xa] > value) {
                         thisClass.XAxis[xa] = value;
-                        $(`#${thisClass.GUID}-table .number[data-x='${xa}'][data-y='-1']`).html(value);
+                        $(`#${thisClass.GUID}-table .number[data-x='${xa}'][data-y='-1']`).html(Table._formatNumberForDisplay(value));
                     }
                 }
             } else {
@@ -599,14 +599,24 @@ class Table {
         function getCopyData() {
             var copyData = ``;
 
-            for(var y = 0; y < thisClass._yResolution; y++){
+            for(var y = -1; y < thisClass._yResolution; y++){
                 var rowSelected = false
-                    for(var x = 0; x < thisClass._xResolution; x++){
-                    if($(`#${thisClass.GUID}-table .number[data-x='${x}'][data-y='${y}']`).hasClass(`selected`)){
+                for(var x = -1; x < thisClass._xResolution; x++){
+                    let numberSelector = $(`#${thisClass.GUID}-table .number[data-x='${x}'][data-y='${y}']`);
+                    if(numberSelector.hasClass(`selected`)){
                         if(rowSelected){
                             copyData += `\t`;
                         }
-                        copyData += thisClass._value[x + y * thisClass._xResolution];
+                        let value = ``;
+                        if(x > -1 && y > -1)
+                            value = thisClass._value[x + y * thisClass._xResolution];
+                        else if(x === -1)
+                            value = thisClass.YAxis[y];
+                        else if(y === -1)
+                            value = thisClass.XAxis[x];
+                        else
+                            value = numberSelector.val() ?? numberSelector.html();
+                        copyData += value;
                         rowSelected = true;
                     }
                 }
@@ -638,35 +648,53 @@ class Table {
 
                     var v = parseFloat(val);
 
+                    let numberSelector = $(`#${thisClass.GUID}-table .number[data-x='${xPos}'][data-y='${yPos}']`);
+                    let newValue;
+                    if(xPos > -1 && yPos > -1)
+                        newValue = thisClass._value[xPos + yPos * thisClass._xResolution];
+                    else if(xPos === -1)
+                        newValue = thisClass.YAxis[yPos];
+                    else if(yPos === -1)
+                        newValue = thisClass.XAxis[xPos];
+                    else
+                        newValue = numberSelector.val() ?? numberSelector.html();
+
                     switch(special)
                     {
                         case `add`:
-                            thisClass._value[xPos + yPos * thisClass._xResolution] += v;
+                            newValue += v;
                             break;
                         case `subtract`:
-                            thisClass._value[xPos + yPos * thisClass._xResolution] -= v;
+                            newValue -= v;
                             break;
                         case `multiply`:
-                            thisClass._value[xPos + yPos * thisClass._xResolution] *= v;
+                            newValue *= v;
                             break;
                         case `multiply%`:
-                            thisClass._value[xPos + yPos * thisClass._xResolution] *= 1 + (v/100);
+                            newValue *= 1 + (v/100);
                             break;
                         case `multiply%/2`:
-                            thisClass._value[xPos + yPos * thisClass._xResolution] *= 1 + (v/200);
+                            newValue *= 1 + (v/200);
                             break;
                         case `average`:
-                            thisClass._value[xPos + yPos * thisClass._xResolution] += v;
-                            thisClass._value[xPos + yPos * thisClass._xResolution] /= 2;
+                            newValue += v;
+                            newValue /= 2;
                             break;
                         default:
-                            thisClass._value[xPos + yPos * thisClass._xResolution] = v;
+                            newValue = v;
                             break;
                     }
-                    var cell = $(`#${thisClass.GUID}-table .number[data-x='${xPos}'][data-y='${yPos}']`);
-                    cell.addClass(`selected`);
-                    const id = cell.attr(`id`);
-                    cell.parent().replaceWith(thisClass._formatNumberForDisplay(id, xPos, yPos, thisClass._value[xPos + yPos * thisClass._xResolution]));
+
+                    if(xPos > -1 && yPos > -1)
+                        thisClass._value[xPos + yPos * thisClass._xResolution] = newValue;
+                    else if(xPos === -1)
+                        thisClass.YAxis[yPos] = newValue;
+                    else if(yPos === -1)
+                        thisClass.XAxis[xPos] = newValue;
+
+                    numberSelector.addClass(`selected`);
+                    const id = numberSelector.attr(`id`);
+                    numberSelector.parent().replaceWith(thisClass._formatNumberForDisplay(id, xPos, yPos, newValue));
                     $(`#${id}`).select();
                 });
             });
@@ -674,7 +702,7 @@ class Table {
         }
 
         $(document).on(`copy.${this.GUID}`, `#${this.GUID}-table .number`, function(e){
-            if($(this).attr(`data-x`) === undefined || parseInt($(this).attr(`data-x`)) < 0 || $(this).attr(`data-y`) === undefined || parseInt($(this).attr(`data-y`)) < 0)
+            if($(this).attr(`data-x`) === undefined || $(this).attr(`data-y`) === undefined )
                 return;
 
             thisClass._selecting = false;
@@ -683,17 +711,42 @@ class Table {
         });
 
         $(document).on(`paste.${this.GUID}`, `#${this.GUID}-table .number`, function(e){
-            if($(this).attr(`data-x`) === undefined || parseInt($(this).attr(`data-x`)) < 0 || $(this).attr(`data-y`) === undefined || parseInt($(this).attr(`data-y`)) < 0)
+            if($(this).attr(`data-x`) === undefined || $(this).attr(`data-y`) === undefined)
                 return;
             var val = e.originalEvent.clipboardData.getData(`text/plain`);
+            const lines = val.split(`\n`).length;
+            const cols = val.split(`\t`).length;
+            if(parseInt($(this).attr(`data-x`)) < 0 && cols > 1)
+                return;
+            if(parseInt($(this).attr(`data-y`)) < 0 && lines > 1)
+                return;
 
             var selectedCell = $(`#${thisClass.GUID}-table .number.origselect`)
             var x = parseInt(selectedCell.attr(`data-x`));
             var y = parseInt(selectedCell.attr(`data-y`));
-            if(x < 0 || y < 0)
+            if(x < 0 && cols > 1)
+                return;
+            if(y < 0 && lines > 1)
                 return;
 
             pasteData(x,y,val,pastetype);
+
+            if(x < 0){
+                $(`#${thisClass.GUID}-table .number[data-x='-1'][data-y='${y}']`).trigger(`change`);
+
+                const cell = $(`#${thisClass.GUID}-table .number[data-x='-1'][data-y='${y+lines-1}']`);
+                cell.addClass(`origselect`);
+                cell.parent().replaceWith(thisClass._formatNumberForDisplay(cell.attr(`id`), -1, y+lines-1));
+                $(`#${thisClass.GUID}-table .number[data-x='-1'][data-y='${y+lines-1}']`).trigger(`change`);
+            }
+            if(y < 0){
+                $(`#${thisClass.GUID}-table .number[data-y='-1'][data-x='${x}']`).trigger(`change`);
+
+                const cell = $(`#${thisClass.GUID}-table .number[data-y='-1'][data-x='${x+cols-1}']`);
+                cell.addClass(`origselect`);
+                cell.parent().replaceWith(thisClass._formatNumberForDisplay(cell.attr(`id`), x+cols-1, -1));
+                $(`#${thisClass.GUID}-table .number[data-y='-1'][data-x='${x+cols-1}']`).trigger(`change`);
+            }
 
             thisClass._selecting = false;
             e.preventDefault();
