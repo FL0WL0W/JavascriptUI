@@ -46,7 +46,6 @@
 .configtable input.yres {
     border-radius: 6px;
     border: 3px solid #666;
-    cursor: pointer;
     margin: 2px;
     width: 3em;
     height: 3em;

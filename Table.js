@@ -308,10 +308,22 @@ class Table {
                         $(`#${thisClass.GUID}-table .number[data-y='${ya}'][data-x='-1']`).html(value);
                     }
                 }
+                for(let ya=y; ya>=0; ya--) {
+                    if(thisClass.YAxis[ya] > value) {
+                        thisClass.YAxis[ya] = value;
+                        $(`#${thisClass.GUID}-table .number[data-y='${ya}'][data-x='-1']`).html(value);
+                    }
+                }
             } else if(y === -1) {
                 thisClass.XAxis[x] = value;
                 for(let xa=x; xa<thisClass._xResolution; xa++) {
                     if(thisClass.XAxis[xa] < value) {
+                        thisClass.XAxis[xa] = value;
+                        $(`#${thisClass.GUID}-table .number[data-x='${xa}'][data-y='-1']`).html(value);
+                    }
+                }
+                for(let xa=x; xa>=0; xa--) {
+                    if(thisClass.XAxis[xa] > value) {
                         thisClass.XAxis[xa] = value;
                         $(`#${thisClass.GUID}-table .number[data-x='${xa}'][data-y='-1']`).html(value);
                     }
@@ -372,20 +384,26 @@ class Table {
                 move(e.pageX, e.pageY);
             });
 
-            $(this).focus();
-            var previousOrigSelect = $(`#${thisClass.GUID}-table .origselect`);
-            previousOrigSelect.removeClass(`selected`);
-            previousOrigSelect.removeClass(`origselect`);
-            previousOrigSelect.parent().replaceWith(thisClass._formatNumberForDisplay(previousOrigSelect.attr(`id`)));
+            const downElement = $(this);
+
+            downElement.focus();
+            $(`#${thisClass.GUID}-table .origselect`).each(function(index, cell) { 
+                cell=$(cell);
+                if(cell.attr(`data-x`) === downElement.attr(`data-x`) && cell.attr(`data-y`) === downElement.attr(`data-y`))
+                    return;
+                cell.removeClass(`selected`);
+                cell.removeClass(`origselect`);
+                cell.parent().replaceWith(thisClass._formatNumberForDisplay(cell.attr(`id`)));
+            });
             $(`#${thisClass.GUID}-tablesvg g path`).removeClass(`selected`);
             $(`#${thisClass.GUID}-tablesvg g circle`).removeClass(`selected`);
             $(`#${thisClass.GUID}-table .number`).removeClass(`selected`).removeClass(`origselect`);
 
-            $(this).addClass(`selected`);
-            $(this).addClass(`origselect`);
+            downElement.addClass(`selected`);
+            downElement.addClass(`origselect`);
 
-            let x = parseInt($(this).attr(`data-x`));
-            let y = parseInt($(this).attr(`data-y`));
+            let x = parseInt(downElement.attr(`data-x`));
+            let y = parseInt(downElement.attr(`data-y`));
 
             if(x === undefined || parseInt(x) < 0 || y === undefined || parseInt(y) < 0)
                 return;
@@ -401,8 +419,8 @@ class Table {
             let circleSelector = $(`#${thisClass.GUID}-tablesvg g circle[data-x='${x}'][data-y='${y}']`);
             circleSelector.addClass(`selected`);
 
-            pointX =  $(this).offset().left - $(this).closest(`table`).offset()?.left;
-            pointY =  $(this).offset().top - $(this).closest(`table`).offset()?.top;
+            pointX =  downElement.offset().left - downElement.closest(`table`).offset()?.left;
+            pointY =  downElement.offset().top - downElement.closest(`table`).offset()?.top;
         }
 
         function up() {
@@ -410,9 +428,13 @@ class Table {
             $(document).off(`mousemove.${thisClass.GUID}`);
 
             thisClass._selecting = false;
-            $(`#${thisClass.GUID}-table .origselect`).parent().replaceWith(thisClass._formatNumberForDisplay($(`#${thisClass.GUID}-table .origselect`).attr(`id`)));
-            if($(`:focus:input`).length === 0)
+            $(`#${thisClass.GUID}-table .origselect`).each(function(index, cell) { 
+                cell=$(cell);
+                if(cell.is(`:input`))
+                    return;
+                cell.parent().replaceWith(thisClass._formatNumberForDisplay(cell.attr(`id`)));
                 $(`#${thisClass.GUID}-table .origselect`).select();
+            });
             dragX = false;
             dragY = false;
             $(`#overlay`).removeClass(`col_expand`);
@@ -662,17 +684,21 @@ class Table {
                     `#${thisClass.GUID}-tablesvg g circle[data-x='${x}'][data-y='${y}']`, 
                     e.pageX,
                     (axis[axis.length - 1] - axis[0]) / (thisClass._table3DDisplayWidth-thisClass._padding2D*2-thisClass._axisOffset2D), 
-                    axis[index]];
+                    axis[index],
+                    thisClass._xResolution < 2 || thisClass._yResolution < 2? `#${thisClass.GUID}-table .number${thisClass.XAxis === axis? `[data-x='${x}'][data-y='-1']` : `[data-x='-1'][data-y='${y}']`}` : undefined];
                 $(`#${thisClass.GUID}-tablesvg g path`).removeClass(`selected`);
                 $(`#${thisClass.GUID}-tablesvg g circle`).removeClass(`selected`);
-                var previousOrigSelect = $(`#${thisClass.GUID}-table .origselect`);
-                previousOrigSelect.removeClass(`selected`);
-                previousOrigSelect.removeClass(`origselect`);
-                previousOrigSelect.parent().replaceWith(thisClass._formatNumberForDisplay(previousOrigSelect.attr(`id`)));
+                $(`#${thisClass.GUID}-table .origselect`).each(function(index, cell) { 
+                    cell=$(cell);
+                    cell.removeClass(`selected`);
+                    cell.removeClass(`origselect`);
+                    cell.parent().replaceWith(thisClass._formatNumberForDisplay(cell.attr(`id`)));
+                });
                 $(`#${thisClass.GUID}-table .number`).removeClass(`selected`).removeClass(`origselect`);
                 var cell = $(`#${thisClass.GUID}-table .number[data-x='${x}'][data-y='${y}']`);
                 cell.addClass(`selected`).addClass(`origselect`);
                 cell.parent().replaceWith(thisClass._formatNumberForDisplay(cell.attr(`id`), x, y, thisClass._value[index]));
+                $(dragValue[9]).addClass(`origselect`);
                 let closestCircleSelector = $(dragValue[5]);
                 closestCircleSelector.addClass(`selected`);
             } else if(thisClass._xResolution > 1 && thisClass._yResolution > 1) {
@@ -706,7 +732,7 @@ class Table {
                         const xdiff=e.pageX-dragValue[6];
                         const xmag=dragValue[7];
                         const diff = dragValue[0] - e.pageY;
-                        const mag = dragValue[4]
+                        let mag = dragValue[4]
                         const index = dragValue[1] + thisClass._xResolution * dragValue[2];
                         let value = thisClass._value[index] = dragValue[3] + diff * mag;
                         if(thisClass._xResolution > 1 && thisClass._yResolution > 1) {
@@ -724,10 +750,7 @@ class Table {
                             $(dragValue[5]).attr(`cy`, point[1]+thisClass._table3DDisplayHeight/2+thisClass._table3DOffsetY);
                         } else {
                             axis[index] = dragValue[8] + xdiff * xmag;
-                            if(thisClass.XAxis === axis)
-                                $(`#${thisClass.GUID}-table .number[data-x='${dragValue[1]}'][data-y='-1']`).html(Table._formatNumberForDisplay(axis[index]));
-                            else
-                                $(`#${thisClass.GUID}-table .number[data-x='-1'][data-y='${dragValue[2]}']`).html(Table._formatNumberForDisplay(axis[index]));
+                            $(dragValue[9]).html(Table._formatNumberForDisplay(axis[index]));
                             thisClass.UpdateSvgHtml();
                         }
                         var cell = $(`#${thisClass.GUID}-table .number[data-x='${dragValue[1]}'][data-y='${dragValue[2]}']`);
@@ -737,6 +760,7 @@ class Table {
                 $(document).on(`mouseup.${thisClass.GUID}-svg`,function(){
                     drag=false;
                     if(dragValue) {
+                        $(dragValue[9]).trigger(`change`);
                         thisClass._onChange();
                     } else {
                         thisClass.UpdateSvgHtml();
