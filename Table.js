@@ -15,7 +15,7 @@ class Table {
         $(`#${this.GUID}-table .number[data-x='-1']`).each(function() {
             const x = parseInt($(this).attr(`data-x`));
             const id = $(this).attr(`id`)
-            $(this).parent().replaceWith(thisClass._formatNumberForDisplay(id, x, -1, xAxis[x]));
+            $(this).parent().replaceWith(this._formatNumberForDisplay(id, x, -1, xAxis[x]));
         })
         this.UpdateSvgHtml();
     }
@@ -29,7 +29,7 @@ class Table {
         $(`#${this.GUID}-table .number[data-x='-1']`).each(function() {
             const y = $(this).attr(`data-y`);
             const id = $(this).attr(`id`)
-            $(this).parent().replaceWith(thisClass._formatNumberForDisplay(id, -1, y, yAxis[y]));
+            $(this).parent().replaceWith(this._formatNumberForDisplay(id, -1, y, yAxis[y]));
         })
         this.UpdateSvgHtml();
     }
@@ -1109,8 +1109,8 @@ class Table {
     GetHtml() {
         return `<div id="${this.GUID}"${this._hidden? ` style="display: none;"` : ``} class="configtable"> 
     ${this.GetSvgHtml()}
-    <div style="display: block;">
-        <div ${this._xResolution > 10? `style="display: inline-block;"` : `style="display: flex; justify-content: center; margin-top: 10;"`}>
+    <div style="display: flex; flex-direction: row; flex-wrap: wrap; justify-content:space-between">
+        <div>
             ${this.XResolutionModifiable || this.YResolutionModifiable? `<div style="display:inline-block; position: relative;">
                 <div style="width: 100; position: absolute; top: -10; left: ${this.XResolutionModifiable && this.YResolutionModifiable? `32` : `0`}px;z-index:1">Table Size</div>
                 <div class="container">
@@ -1121,7 +1121,7 @@ class Table {
             </div>` : ``}
             ${GetPasteOptions()}
         </div>
-        <div ${this._xResolution > 10? `style="float:right;"` : `style="display: flex; justify-content: center; margin-top: 10;"`}>
+        <div>
             <div style="display:inline-block; position: relative;">
                 <div style="width: 100; position: absolute; top: -10; left: 32px;z-index:1">Modify</div>
                 <div class="container">
@@ -1165,14 +1165,14 @@ class Table {
 
         for(let i = 0; i < this.svg.length; i++) {
             let svg = this.svg[i];
-            if(svg.line && !isNaN(svg.line.x1) && !isNaN(svg.line.y1) && !isNaN(svg.line.x2) && !isNaN(svg.line.y2)) {
+            if(svg?.line && !isNaN(svg.line.x1) && !isNaN(svg.line.y1) && !isNaN(svg.line.x2) && !isNaN(svg.line.y2)) {
                 html += Table._getSvgLineHtml(svg);
             }
         }
 
         for(let i = 0; i < this.svg.length; i++) {
             let svg = this.svg[i];
-            if(svg.text) {
+            if(svg?.text) {
                 html += `<text x="${svg.text.x}" y="${svg.text.y}"`+
                     (svg.text.alignmentbaseline !== undefined? ` alignment-baseline="${svg.text.alignmentbaseline}"` : ``)+
                     (svg.text.anchor !== undefined? ` text-anchor="${svg.text.anchor}"` : ``)+
@@ -1185,7 +1185,7 @@ class Table {
 
         for(let i = 0; i < this.svg.length; i++) {
             let svg = this.svg[i];
-            if(svg.path) {
+            if(svg?.path) {
                 let pathSelected = this._minSelectX !== undefined && svg.x >= this._minSelectX && svg.x < this._maxSelectX && svg.y >= this._minSelectY && svg.y < this._maxSelectY;
                 html += `<path${pathSelected? ` class="selected"` : ``} data-x="${svg.x}" data-y="${svg.y}" d="${svg.path}"${svg.hue !== undefined? ` style="fill:hsla(${svg.hue},60%,50%,90%);"` : (svg.color !== undefined? ` style="fill:${svg.color};"` : ``)}></path>`;
             }
@@ -1193,7 +1193,7 @@ class Table {
 
         for(let i = 0; i < this.svg.length; i++) {
             let svg = this.svg[i];
-            if(svg.circle) {
+            if(svg?.circle) {
                 let pointSelected = this._minSelectX !== undefined && svg.x >= this._minSelectX && svg.x <= this._maxSelectX && svg.y >= this._minSelectY && svg.y <= this._maxSelectY;
                 html += `<circle${pointSelected? ` class="selected"` : ``} data-x="${svg.x}" data-y="${svg.y}" cx="${svg.circle.cx}" cy="${svg.circle.cy}" r="${svg.circle.r}" ${svg.hue !== undefined? ` style="fill:hsl(${svg.hue},60%,50%);"` : (svg.color !== undefined? ` style="fill:${svg.color};"` : ``)}></circle>`;
             }
@@ -1366,7 +1366,7 @@ class Table {
                             // X - - - -
                             // | - - - -
                             // X - - - -
-                            row += `<td rowspan="${this._yResolution}" style="width: auto;"></td><td rowspan="${this._yResolution}" class="yaxislabel"><div id="${this.GUID}-ylabel">${this._yLabel}</div></td>`;
+                            row += `<td rowspan="${this._yResolution}" style="width: auto;"></td><td rowspan="${this._yResolution}" class="yaxislabel"><div id="${this.GUID}-ylabel" class="yrot">${this._yLabel}</div></td>`;
                         }
                     } else if(x === -1) {
                         // - - - - -
