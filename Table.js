@@ -66,8 +66,7 @@ class Table {
         this._xResolution = xRes;
         $(`#${this.GUID}-xres`).val(this._xResolution);
         this._value = newValue;
-        this.UpdateTableHtml();
-        this.UpdateSvgHtml();
+        this.UpdateHtml();
         this.OnChange.forEach(function(OnChange) { OnChange(); });
     }
 
@@ -102,8 +101,7 @@ class Table {
         this._yResolution = yRes;
         $(`#${this.GUID}-yres`).val(this._yResolution);
         this._value = newValue;
-        this.UpdateTableHtml();
-        this.UpdateSvgHtml();
+        this.UpdateHtml();
         this.OnChange.forEach(function(OnChange) { OnChange(); });
     }
 
@@ -1111,8 +1109,19 @@ class Table {
     GetHtml() {
         return `<div id="${this.GUID}"${this._hidden? ` style="display: none;"` : ``} class="configtable"> 
     ${this.GetSvgHtml()}
-    <div style="display:block;">
-        <div style="float:right;">
+    <div style="display: block;">
+        <div ${this._xResolution > 10? `style="display: inline-block;"` : `style="display: flex; justify-content: center; margin-top: 10;"`}>
+            ${this.XResolutionModifiable || this.YResolutionModifiable? `<div style="display:inline-block; position: relative;">
+                <div style="width: 100; position: absolute; top: -10; left: ${this.XResolutionModifiable && this.YResolutionModifiable? `32` : `0`}px;z-index:1">Table Size</div>
+                <div class="container">
+                    ${this.XResolutionModifiable? `<input id="${this.GUID}-xres" class="xres" type="number" value="${this._xResolution}"></input>` : ``}
+                    ${this.XResolutionModifiable && this.YResolutionModifiable? `X` : ``}
+                    ${this.YResolutionModifiable? `<input id="${this.GUID}-yres" class="xres" type="number" value="${this._yResolution}"></input>` : ``}
+                </div>
+            </div>` : ``}
+            ${GetPasteOptions()}
+        </div>
+        <div ${this._xResolution > 10? `style="float:right;"` : `style="display: flex; justify-content: center; margin-top: 10;"`}>
             <div style="display:inline-block; position: relative;">
                 <div style="width: 100; position: absolute; top: -10; left: 32px;z-index:1">Modify</div>
                 <div class="container">
@@ -1133,18 +1142,11 @@ class Table {
                 </div>
             </div>
         </div>
-        ${this.XResolutionModifiable || this.YResolutionModifiable? `<div style="display:inline-block; position: relative;">
-            <div style="width: 100; position: absolute; top: -10; left: ${this.XResolutionModifiable && this.YResolutionModifiable? `32` : `0`}px;z-index:1">Table Size</div>
-            <div class="container">
-                ${this.XResolutionModifiable? `<input id="${this.GUID}-xres" class="xres" type="number" value="${this._xResolution}"></input>` : ``}
-                ${this.XResolutionModifiable && this.YResolutionModifiable? `X` : ``}
-                ${this.YResolutionModifiable? `<input id="${this.GUID}-yres" class="xres" type="number" value="${this._yResolution}"></input>` : ``}
-            </div>
-        </div>` : ``}
-        ${GetPasteOptions()}
     </div>
-    <div>${this.GetTrailHtml()}
-    ${this.GetTableHtml()}</div>
+    <div style="display: flex; justify-content: center;">
+        <div>${this.GetTrailHtml()}
+        ${this.GetTableHtml()}</div>
+    </div>
 </div>`;
     }
 
