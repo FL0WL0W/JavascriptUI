@@ -161,10 +161,10 @@ class Table {
       if(pitch === this._table3DPitch)
         return;
       this._table3DPitch = pitch;
-      var cosA=Math.cos(this._table3DPitch);
-      var sinA=Math.sin(this._table3DPitch);
-      var cosB=Math.cos(this._table3DYaw);
-      var sinB=Math.sin(this._table3DYaw);
+      var cosA=Math.cos(this._table3DPitch * (Math.PI / 180));
+      var sinA=Math.sin(this._table3DPitch * (Math.PI / 180));
+      var cosB=Math.cos(this._table3DYaw * (Math.PI / 180));
+      var sinB=Math.sin(this._table3DYaw * (Math.PI / 180));
       this._table3DtransformPrecalc[0]=cosB;
       this._table3DtransformPrecalc[1]=0;
       this._table3DtransformPrecalc[2]=sinB;
@@ -183,10 +183,10 @@ class Table {
       if(yaw === this._table3DYaw)
         return;
       this._table3DYaw = yaw;
-      var cosA=Math.cos(this._table3DPitch);
-      var sinA=Math.sin(this._table3DPitch);
-      var cosB=Math.cos(this._table3DYaw);
-      var sinB=Math.sin(this._table3DYaw);
+      var cosA=Math.cos(this._table3DPitch * (Math.PI / 180));
+      var sinA=Math.sin(this._table3DPitch * (Math.PI / 180));
+      var cosB=Math.cos(this._table3DYaw * (Math.PI / 180));
+      var sinB=Math.sin(this._table3DYaw * (Math.PI / 180));
       this._table3DtransformPrecalc[0]=cosB;
       this._table3DtransformPrecalc[1]=0;
       this._table3DtransformPrecalc[2]=sinB;
@@ -248,8 +248,8 @@ class Table {
             Object.assign(this, copyObject);
         if(!Array.isArray(this.OnChange))
             this.OnChange = [ this.OnChange ];
-        this.Table3DPitch = 0.5;
-        this.Table3DYaw = 0.5;
+        this.Table3DPitch = 30;
+        this.Table3DYaw = 30;
     }
 
     Detach() {
@@ -681,9 +681,9 @@ class Table {
             if((closestCircle && e.which === 1) || ((e.which === 2 || e.which === 3) && thisClass._xResolution > 1 && thisClass._yResolution > 1)) {
                 $(document).on(`mousemove.${thisClass.GUID}-svg`, function(e){
                     if(drag){          
-                        let yaw=drag[2]-(e.pageX-drag[0])/50;
-                        let pitch=drag[3]+(e.pageY-drag[1])/50;
-                        pitch=Math.max(-Math.PI/2,Math.min(Math.PI/2,pitch));
+                        let yaw=drag[2]-(e.pageX-drag[0]);
+                        let pitch=drag[3]+(e.pageY-drag[1]);
+                        pitch=Math.max(-90,Math.min(90,pitch));
                         if(yaw === thisClass.Table3DYaw && pitch === thisClass.Table3DPitch)
                             return;
                         thisClass.Table3DYaw = yaw;
@@ -947,28 +947,38 @@ class Table {
         let html = ``;
 
         for(let i = 0; i < this.svg.length; i++) {
-            if(this.svg[i].line && !isNaN(this.svg[i].line.x1) && !isNaN(this.svg[i].line.y1) && !isNaN(this.svg[i].line.x2) && !isNaN(this.svg[i].line.y2)) {
-                html += Table._getSvgLineHtml(this.svg[i]);
+            let svg = this.svg[i];
+            if(svg.line && !isNaN(svg.line.x1) && !isNaN(svg.line.y1) && !isNaN(svg.line.x2) && !isNaN(svg.line.y2)) {
+                html += Table._getSvgLineHtml(svg);
             }
         }
 
         for(let i = 0; i < this.svg.length; i++) {
-            if(this.svg[i].text) {
-                html += `<text x="${this.svg[i].text.x}" y="${this.svg[i].text.y}"${this.svg[i].text.alignmentbaseline !== undefined? ` alignment-baseline="${this.svg[i].text.alignmentbaseline}"` : ``}${this.svg[i].text.anchor !== undefined? ` text-anchor="${this.svg[i].text.anchor}"` : ``}${this.svg[i].hue !== undefined? ` style="fill:hsl(${this.svg[i].hue},60%,50%);"` : (this.svg[i].color !== undefined? ` style="fill:${this.svg[i].color};"` : ``)}>${this.svg[i].text.text}</text>`;
+            let svg = this.svg[i];
+            if(svg.text) {
+                html += `<text x="${svg.text.x}" y="${svg.text.y}"`+
+                    (svg.text.alignmentbaseline !== undefined? ` alignment-baseline="${svg.text.alignmentbaseline}"` : ``)+
+                    (svg.text.anchor !== undefined? ` text-anchor="${svg.text.anchor}"` : ``)+
+                    (svg.text.size !== undefined? ` font-size="${svg.text.size}"` : ``)+
+                    (svg.text.transform !== undefined? ` transform="${svg.text.transform}"` : ``)+
+                    (svg.hue !== undefined? ` style="fill:hsl(${svg.hue},60%,50%);"` : (svg.color !== undefined? ` style="fill:${svg.color};"` : ``))+
+                    ` transform-origin="${svg.text.x} ${svg.text.y}">${svg.text.text}</text>`;
             }
         }
 
         for(let i = 0; i < this.svg.length; i++) {
-            if(this.svg[i].path) {
-                let pathSelected = this._minSelectX !== undefined && this.svg[i].x >= this._minSelectX && this.svg[i].x < this._maxSelectX && this.svg[i].y >= this._minSelectY && this.svg[i].y < this._maxSelectY;
-                html += `<path${pathSelected? ` class="selected"` : ``} data-x="${this.svg[i].x}" data-y="${this.svg[i].y}" d="${this.svg[i].path}"${this.svg[i].hue !== undefined? ` style="fill:hsl(${this.svg[i].hue},60%,50%);"` : (this.svg[i].color !== undefined? ` style="fill:${this.svg[i].color};"` : ``)}></path>`;
+            let svg = this.svg[i];
+            if(svg.path) {
+                let pathSelected = this._minSelectX !== undefined && svg.x >= this._minSelectX && svg.x < this._maxSelectX && svg.y >= this._minSelectY && svg.y < this._maxSelectY;
+                html += `<path${pathSelected? ` class="selected"` : ``} data-x="${svg.x}" data-y="${svg.y}" d="${svg.path}"${svg.hue !== undefined? ` style="fill:hsl(${svg.hue},60%,50%);"` : (svg.color !== undefined? ` style="fill:${svg.color};"` : ``)}></path>`;
             }
         }
 
         for(let i = 0; i < this.svg.length; i++) {
-            if(this.svg[i].circle) {
-                let pointSelected = this._minSelectX !== undefined && this.svg[i].x >= this._minSelectX && this.svg[i].x <= this._maxSelectX && this.svg[i].y >= this._minSelectY && this.svg[i].y <= this._maxSelectY;
-                html += `<circle${pointSelected? ` class="selected"` : ``} data-x="${this.svg[i].x}" data-y="${this.svg[i].y}" cx="${this.svg[i].circle.cx}" cy="${this.svg[i].circle.cy}" r="${this.svg[i].circle.r}" ${this.svg[i].hue !== undefined? ` style="fill:hsl(${this.svg[i].hue},60%,50%);"` : (this.svg[i].color !== undefined? ` style="fill:${this.svg[i].color};"` : ``)}></circle>`;
+            let svg = this.svg[i];
+            if(svg.circle) {
+                let pointSelected = this._minSelectX !== undefined && svg.x >= this._minSelectX && svg.x <= this._maxSelectX && svg.y >= this._minSelectY && svg.y <= this._maxSelectY;
+                html += `<circle${pointSelected? ` class="selected"` : ``} data-x="${svg.x}" data-y="${svg.y}" cx="${svg.circle.cx}" cy="${svg.circle.cy}" r="${svg.circle.r}" ${svg.hue !== undefined? ` style="fill:hsl(${svg.hue},60%,50%);"` : (svg.color !== undefined? ` style="fill:${svg.color};"` : ``)}></circle>`;
             }
         }
 
@@ -1013,9 +1023,16 @@ class Table {
                 .attr(`alignment-baseline`, texts[index].text.alignmentbaseline)
                 .attr(`text-anchor`, texts[index].text.anchor)
                 .attr(`style`, texts[index].hue !== undefined? `fill:hsl(${texts[index].hue},60%,50%)` : `fill:${texts[index].color};`)
+                .attr(`font-size`, texts[index].text.size)
+                .attr(`transform`, texts[index].text.transform)
+                .attr(`transform-origin`, `${texts[index].text.x} ${texts[index].text.y}`)
                 .html(texts[index].text.text);
             if(texts[index].hue === undefined && texts[index].color === undefined)
                 t.removeAttr(`style`);
+            if(texts[index].text.transform === undefined)
+                t.removeAttr(`transform`);
+            if(texts[index].text.size === undefined)
+                t.removeAttr(`font-size`);
         });
         pathSelector.each(function(index) { 
             const pathSelected = thisClass._minSelectX !== undefined && paths[index].x >= thisClass._minSelectX && paths[index].x < thisClass._maxSelectX && paths[index].y >= thisClass._minSelectY && paths[index].y < thisClass._maxSelectY;
@@ -1356,6 +1373,7 @@ class Table {
         const yMin = this.YAxis[0];
         const yMag = this.YAxis[this._yResolution-1] - yMin;
         const mag = this._table3DDisplayHeight / 2;
+        const textsize = (256/Math.max(this.XAxis.length, this.YAxis.length)) * this._table3DZoom;
         let valueaxis = new Array(parseInt(1.5+Math.max(this.XAxis.length, this.YAxis.length) * this._table3DDisplayHeight/this._table3DDisplayWidth));
         for(let i=0; i<valueaxis.length; i++) {
             valueaxis[i] = i*(this._valueMax-this._valueMin)/(valueaxis.length-1) + this._valueMin;
@@ -1477,38 +1495,98 @@ class Table {
             }
         }
         this.svg.sort(function(a, b){return b.depth-a.depth});
-        const xaxisRearY = this.svg[0].y < this._yResolution / 2? (this.ReverseY? 0 : 1) : (this.ReverseY? 1 : 0);
+        const xaxisRearY = this._table3DtransformPrecalc[0] > 0? (this.ReverseY? 0 : 1) : (this.ReverseY? 1 : 0);
         const xaxisFrontY = xaxisRearY === 1? 0 : 1; 
-        const yaxisRearX = this.svg[0].x < this._xResolution / 2? 0 : 1;
+        const yaxisRearX = this._table3DtransformPrecalc[2] > 0? 0 : 1;
         const yaxisFrontX = yaxisRearX === 1? 0 : 1; 
         const xyaxisRearZ = this.Table3DPitch > 0? 0 : 1
-        const xyaxisFrontZ = xyaxisRearZ === 1? 0 : 1; 
+        const scalextext = Math.abs(this._table3DtransformPrecalc[0]);
+        const scaleytext = Math.abs(this._table3DtransformPrecalc[2]);
+        const scaleztext = Math.abs(this._table3DtransformPrecalc[4]);
         //xlines
         for(let x=0; x<this._xResolution; x++) {
             const coord = this._xAxisSvg[x][xaxisRearY];
-            this.svg.unshift({
+            const line = {
                 line: {
                     x1: parseFloat((coord[0][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)), 
                     y1: parseFloat((coord[0][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10)), 
                     x2: parseFloat((coord[1][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)), 
                     y2: parseFloat((coord[1][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10))
                 }
-            });
+            }
+            this.svg.unshift(line);
+            let xoffset = 0;
+            if(x === 0)
+                xoffset = this._table3DtransformPrecalc[2]<0? 0 : this._table3DtransformPrecalc[0] * textsize/2;
+            if(x === this._xResolution-1)
+                xoffset = this._table3DtransformPrecalc[2]>0? 0 : -this._table3DtransformPrecalc[0] * textsize/2;
+            this.svg.unshift({
+                text: {
+                    x: line.line.x2 + xoffset,
+                    y: line.line.y2 - textsize/2 * scaleztext,
+                    alignmentbaseline: `middle`,
+                    anchor: `start`,
+                    transform: `scale(${scalextext} ${scaleztext}) rotate(-90)`,
+                    text: Table._formatNumberForDisplay(this.XAxis[x]),
+                    size: textsize
+                }
+            })
+            this.svg.unshift({
+                text: {
+                    x: line.line.x1 + xoffset,
+                    y: line.line.y1 + textsize/2 * scaleztext,
+                    alignmentbaseline: `middle`,
+                    anchor: `end`,
+                    transform: `scale(${scalextext} ${scaleztext}) rotate(-90)`,
+                    text: Table._formatNumberForDisplay(this.XAxis[x]),
+                    size: textsize
+                }
+            })
         }
         //ylines
         for(let y=0; y<this._yResolution; y++) {
             const coord = this._yAxisSvg[yaxisRearX][y];
-            this.svg.unshift({
+            const line = {
                 line: {
                     x1: parseFloat((coord[0][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)), 
                     y1: parseFloat((coord[0][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10)), 
                     x2: parseFloat((coord[1][0]+this._table3DDisplayWidth/2+this._table3DOffsetX).toFixed(10)), 
                     y2: parseFloat((coord[1][1]+this._table3DDisplayHeight/2+this._table3DOffsetY).toFixed(10))
                 }
-            });
+            };
+            this.svg.unshift(line);
+            let xoffset = 0;
+            if(y === 0)
+                xoffset = this._table3DtransformPrecalc[0]>0? 0 : this._table3DtransformPrecalc[2] * textsize/2;
+            if(y === this._yResolution-1)
+                xoffset = this._table3DtransformPrecalc[0]<0? 0 : -this._table3DtransformPrecalc[2] * textsize/2;
+            this.svg.unshift({
+                text: {
+                    x: line.line.x2 + xoffset,
+                    y: line.line.y2 - textsize/2 * scaleztext,
+                    alignmentbaseline: `middle`,
+                    anchor: `start`,
+                    transform: `scale(${scaleytext} ${scaleztext}) rotate(-90)`,
+                    text: Table._formatNumberForDisplay(this.YAxis[y]),
+                    size: textsize
+                }
+            })
+            this.svg.unshift({
+                text: {
+                    x: line.line.x1 + xoffset,
+                    y: line.line.y1 + textsize/2 * scaleztext,
+                    alignmentbaseline: `middle`,
+                    anchor: `end`,
+                    transform: `scale(${scaleytext} ${scaleztext}) rotate(-90)`,
+                    text: Table._formatNumberForDisplay(this.YAxis[y]),
+                    size: textsize
+                }
+            })
         }
         //z lines
         let zhmag = (this._xAxisSvg[0][xaxisRearY][0][1] - this._xAxisSvg[0][xaxisRearY][1][1]) / (valueaxis.length-1);
+        const rotatex = Math.atan((this._xAxisSvg[0][xaxisRearY][0][1]-this._xAxisSvg[this._xResolution-1][xaxisRearY][0][1])/(this._xAxisSvg[0][xaxisRearY][0][0] - this._xAxisSvg[this._xResolution-1][xaxisRearY][0][0])) * 180 / Math.PI;
+        const rotatey = Math.atan((this._yAxisSvg[yaxisRearX][0][0][1]-this._yAxisSvg[yaxisRearX][this._yResolution-1][0][1])/(this._yAxisSvg[yaxisRearX][0][0][0]-this._yAxisSvg[yaxisRearX][this._yResolution-1][0][0])) * 180 / Math.PI;
         for(let z=0; z<valueaxis.length; z++){
             let zh = zhmag * z;
             this.svg.unshift({
@@ -1527,6 +1605,46 @@ class Table {
                     y2: parseFloat((this._yAxisSvg[yaxisRearX][this._yResolution-1][0][1]+this._table3DDisplayHeight/2+this._table3DOffsetY-zh).toFixed(10))
                 }
             });
+            let mincoord = [this.svg[0].line.x1, this.svg[0].line.y1, scaleytext, rotatey];
+            let maxcoord = [this.svg[0].line.x1, this.svg[0].line.y1, scaleytext, rotatey];
+
+            if(this.svg[0].line.x2 < this.svg[0].line.x1)
+                mincoord = [this.svg[0].line.x2, this.svg[0].line.y2, scaleytext, rotatey];
+            else 
+                maxcoord = [this.svg[0].line.x2, this.svg[0].line.y2, scaleytext, rotatey];
+
+            if(this.svg[1].line.x1 < mincoord[0])
+                mincoord = [this.svg[1].line.x1, this.svg[1].line.y1, scalextext, rotatex];
+            if(this.svg[1].line.x1 > maxcoord[0])
+                maxcoord = [this.svg[1].line.x1, this.svg[1].line.y1, scalextext, rotatex];
+
+            if(this.svg[1].line.x2 < mincoord[0])
+                mincoord = [this.svg[1].line.x2, this.svg[1].line.y2, scalextext, rotatex];
+            if(this.svg[1].line.x2 > maxcoord[0])
+                maxcoord = [this.svg[1].line.x2, this.svg[1].line.y2, scalextext, rotatex];
+
+            this.svg.unshift({
+                text: {
+                    x: mincoord[0] - textsize/2 * mincoord[2],
+                    y: mincoord[1],
+                    alignmentbaseline: `middle`,
+                    anchor: `end`,
+                    transform: `skewY(${mincoord[3]}) scale(${mincoord[2]} ${scaleztext})`,
+                    text: Table._formatNumberForDisplay(valueaxis[z]),
+                    size: textsize
+                }
+            })
+            this.svg.unshift({
+                text: {
+                    x: maxcoord[0] + textsize/2 * maxcoord[2],
+                    y: maxcoord[1],
+                    alignmentbaseline: `middle`,
+                    anchor: `start`,
+                    transform: `skewY(${maxcoord[3]}) scale(${maxcoord[2]} ${scaleztext})`,
+                    text: Table._formatNumberForDisplay(valueaxis[z]),
+                    size: textsize
+                }
+            })
         }
 
         //front axis lines
