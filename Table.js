@@ -1315,7 +1315,7 @@ class Table {
                         // - - - - -
                         // - - - - -
                         // - - - - -
-                        row += `<td></td><td></td><td></td>`;
+                        row += `<td colspan="3"></td>`;
                     } else if(x === 0){
                         // - - X---X
                         // - - - - -
@@ -1394,7 +1394,7 @@ class Table {
                     }
                 } else {
                     if(this.YResolutionModifiable && x == xstart) {
-                        row += `<td></td><td></td><td class="row_expand" colspan="${this._xResolution - xstart-1}"></td>`;
+                        row += `<td colspan="2"></td><td class="row_expand" colspan="${this._xResolution - xstart-1}"></td>`;
                         if(this.XResolutionModifiable)
                             row += `<td class="rowcol_expand"></td>`;
                     }

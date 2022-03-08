@@ -187,15 +187,13 @@
 .configtable td.yaxislabel {
     white-space: nowrap;
     vertical-align: middle; 
-    /* transform: translateY(100%); */
-    /* max-width: 1em; */
-    /* margin-left: -20em;
-    margin-right: -20em; */
+    width: 2em;
+    padding: 5px;
 }
 .configtable td.yaxislabel .yrot {
     position: absolute;
     transform-origin: 50% 50%;
-    transform: translateX(-50%) rotate(-90deg) translateY(50%);
+    transform: translateX(-50%) rotate(-90deg) translateY(50%)
 }
 
 .configtable .row_expand {
