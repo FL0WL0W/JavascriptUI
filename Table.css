@@ -176,24 +176,24 @@
     float: right;
 }
 .configtable td.xaxislabel {
-    text-align: center;
     white-space: nowrap;
 }
-.configtable td.yaxislabel {
-    text-align: center;
-    white-space: nowrap;
-    vertical-align: middle;
-    width: 1.5em;
+.configtable td.xaxislabel .xrot {
+    display: flex;
+    flex-direction: column; 
+    align-items: flex-end;
 }
 
 .configtable td.yaxislabel {
+    white-space: nowrap;
     vertical-align: top; 
+    transform: translateY(100%);
+    max-width: 1em;
 }
 .configtable td.yaxislabel .yrot {
-    transform-origin: 100% 0%;
+    transform-origin: 0% 0%;
     transform: rotate(-90deg) translateY(-100%);
-    margin-left: -20em;
-    text-align-last: right;
+    margin-left: 100%;
 }
 
 .configtable .row_expand {

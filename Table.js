@@ -1322,7 +1322,7 @@ class Table {
                         // - - - - -
                         // - - - - -
                         // - - - - -
-                        row += `<td colspan="${this._xResolution}" class="xaxislabel" id="${this.GUID}-xlabel">${this._xLabel}</td>`;
+                        row += `<td colspan="${this._xResolution}" class="xaxislabel"><div class="xrot" id="${this.GUID}-xlabel">${this._xLabel}</div></td>`;
                     }
                 } else if(y === -1) {
                     if(x === -2) {
