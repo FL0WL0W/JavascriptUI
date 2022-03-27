@@ -368,9 +368,9 @@ export default class UIGraph3D extends UITableBase {
                 if(this.x === axisResolution-1)
                     xoffset = thisClass.#transformPrecalc.sinYaw>0? 0 : -thisClass.#transformPrecalc.cosYaw * textSize/2;
                 if(this.y === 0)
-                    xoffset = thisClass.#transformPrecalc.cosYaw<0? 0 : -thisClass.#transformPrecalc.sinYaw * textSize/2;
-                if(this.y === axisResolution-1)
                     xoffset = thisClass.#transformPrecalc.cosYaw>0? 0 : thisClass.#transformPrecalc.sinYaw * textSize/2;
+                if(this.y === axisResolution-1)
+                    xoffset = thisClass.#transformPrecalc.cosYaw<0? 0 : -thisClass.#transformPrecalc.sinYaw * textSize/2;
                 line[0][0]+=xoffset;
                 line[1][0]+=xoffset;
                 this.children[1].setAttribute(`x`, line[0][0].toFixed(10));
