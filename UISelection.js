@@ -54,7 +54,7 @@ export default class UISelection extends HTMLDivElement {
 
         this.#selectName = selectName;
         if(this.selectedOption === undefined)
-            this.selectedElement.innerHTML = this.selectName;
+            this.selectedElement.textContent = this.selectName;
         if(!this.selectNotVisible){
             setElementOption(this.#selectElement, { Name: this.selectName, Disabled: this.selectDisabled, Value: this.selectValue });
         }
@@ -107,7 +107,7 @@ export default class UISelection extends HTMLDivElement {
             else { element.classList.add(`selected`); selected = true;}
         });
         if(!selected) this.#selectElement.classList.add(`selected`);
-        selectedElement.innerHTML = this.selectedOption?.Name ?? this.selectName;
+        selectedElement.textContent = this.selectedOption?.Name ?? this.selectName;
     }
 
     #options = [];
@@ -225,7 +225,7 @@ function setElementOption(element, option) {
         element.innerHTML = ``;
         let selectGroupElement = element.appendChild(document.createElement(`div`));
         selectGroupElement.classList.add(`selectgroup`);
-        selectGroupElement.innerHTML = option.Group;
+        selectGroupElement.textContent = option.Group;
         option.Options.forEach(function(option) {
             let optionElement = element.appendChild(document.createElement(`div`));
             setElementOption(optionElement, option);
@@ -236,7 +236,7 @@ function setElementOption(element, option) {
             element.classList.add(`selectdisabled`)
         element.type = typeof option.Value;
         element.value =  UISelection.ParseValue(`string`, option.Value);
-        element.innerHTML = option.Name + (option.Info? ` ${option.Info}` : ``);
+        element.textContent = option.Name + (option.Info? ` ${option.Info}` : ``);
     }
 }
 customElements.define(`ui-selection`, UISelection, { extends: `div` });

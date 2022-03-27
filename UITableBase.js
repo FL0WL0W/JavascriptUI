@@ -176,20 +176,28 @@ export default class UITableBase extends HTMLDivElement {
         this.dispatchEvent(new Event(`select`))
     }
 
+    #valueMin
     get _valueMin() {
-        let valuemin = parseFloat(this.style.getPropertyValue('--valuemin'));
-        return isNaN(valuemin)? 18000000000000000000 : valuemin;
+        return isNaN(this.#valueMin)? 18000000000000000000 : this.#valueMin;
     }
     set _valueMin(valueMin) {
+        valueMin = parseFloat(valueMin);
+        if(this.#valueMin === valueMin)
+            return;
+        this.#valueMin = valueMin;
         this.style.setProperty('--valuemin', valueMin);
     }
+    #valueMax
     get _valueMax() {
-        let valuemax = parseFloat(this.style.getPropertyValue('--valuemax'));
-        if(valuemax - this._valueMin === 0)
+        if(this.#valueMax - this.#valueMin === 0)
             return 1;
-        return isNaN(valuemax)? -9000000000000000000 : valuemax;
+        return isNaN(this.#valueMax)? -9000000000000000000 : this.#valueMax;
     }
     set _valueMax(valueMax) {
+        valueMax = parseFloat(valueMax);
+        if(this.#valueMax === valueMax)
+            return;
+        this.#valueMax = valueMax;
         this.style.setProperty('--valuemax', valueMax);
     }
     _boundAxis(element) {

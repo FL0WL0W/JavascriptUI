@@ -95,13 +95,13 @@ export default class UIGraph3D extends UITableBase {
         return this.#svgElement.getAttribute(`width`) ?? this.offsetWidth ?? 300;
     }
     set width(width) {
-        this.#svgElement.setAttribute(`width`, width);
+        this.#svgElement.setAttribute(`width`, parseFloat(width.toFixed(10)));
     }
     get height() {
         return this.#svgElement.getAttribute(`height`) ?? this.offsetHeight ?? 150;
     }
     set height(height) {
-        this.#svgElement.setAttribute(`height`, height);
+        this.#svgElement.setAttribute(`height`, parseFloat(height.toFixed(10)));
     }
 
     #floorElement       = document.createElementNS('http://www.w3.org/2000/svg','g');
@@ -203,22 +203,22 @@ export default class UIGraph3D extends UITableBase {
             lines[1] = lines[1].sort(function(a,b) { return a[0]-b[0]});
             lines[1][2] = Math.abs(thisClass.#transformPrecalc.cosYaw);
             lines = lines.sort(function(a,b) { return a[0][0]-b[0][0]});
-            this.children[1].setAttribute(`x1`, lines[0][0][0]);
-            this.children[1].setAttribute(`y1`, lines[0][0][1]);
-            this.children[1].setAttribute(`x2`, lines[0][1][0]);
-            this.children[1].setAttribute(`y2`, lines[0][1][1]);
-            this.children[2].setAttribute(`x1`, lines[1][0][0]);
-            this.children[2].setAttribute(`y1`, lines[1][0][1]);
-            this.children[2].setAttribute(`x2`, lines[1][1][0]);
-            this.children[2].setAttribute(`y2`, lines[1][1][1]);
+            this.children[1].setAttribute(`x1`, lines[0][0][0].toFixed(10));
+            this.children[1].setAttribute(`y1`, lines[0][0][1].toFixed(10));
+            this.children[1].setAttribute(`x2`, lines[0][1][0].toFixed(10));
+            this.children[1].setAttribute(`y2`, lines[0][1][1].toFixed(10));
+            this.children[2].setAttribute(`x1`, lines[1][0][0].toFixed(10));
+            this.children[2].setAttribute(`y1`, lines[1][0][1].toFixed(10));
+            this.children[2].setAttribute(`x2`, lines[1][1][0].toFixed(10));
+            this.children[2].setAttribute(`y2`, lines[1][1][1].toFixed(10));
 
             const pathStart = UIGraph3D.transformPoint([0.5-x, -(z-0.5)*Math.max(1,thisClass.height)/(Math.max(1, thisClass.width)), 0.5-y], thisClass.#transformPrecalc);
 
             this.children[0].setAttribute(`d`, 
-                            `M${pathStart[0]},${pathStart[1]}`+
-                            `L${lines[0][0][0]},${lines[0][0][1]}`+
-                            `L${lines[0][1][0]},${lines[0][1][1]}`+
-                            `L${lines[1][1][0]},${lines[1][1][1]}Z`)
+                            `M${pathStart[0].toFixed(10)},${pathStart[1].toFixed(10)}`+
+                            `L${lines[0][0][0].toFixed(10)},${lines[0][0][1].toFixed(10)}`+
+                            `L${lines[0][1][0].toFixed(10)},${lines[0][1][1].toFixed(10)}`+
+                            `L${lines[1][1][0].toFixed(10)},${lines[1][1][1].toFixed(10)}Z`)
         }
         const propValue = prop.value;
         delete prop.value;
@@ -264,34 +264,46 @@ export default class UIGraph3D extends UITableBase {
         return [x,y,depth];
     }
     #cellToPoint(x, y, value) {
+        const xAxisElements = this._xAxisElement.children;
+        const xMin = xAxisElements[0]?.value;
+        const xMax = xAxisElements[xAxisElements.length -1]?.value;
+        const xVal = xAxisElements[x]?.value;
+        const yAxisElements = this._yAxisElement.children;
+        const yMin = yAxisElements[0]?.value;
+        const yMax = yAxisElements[yAxisElements.length -1]?.value;
+        const yVal = yAxisElements[y]?.value;
         if(isNaN(value))
             return;
-        const xAxis = this.xAxis;
-        const yAxis = this.yAxis;
         y = this.yResolution-y-1;
-        x = (xAxis[x]-xAxis[0])/(xAxis[xAxis.length-1]-xAxis[0]);
+        x = (xVal-xMin)/(xMax-xMin);
         if(isNaN(x))
             x = 0;
-        y = (yAxis[y]-yAxis[0])/(yAxis[yAxis.length-1]-yAxis[0]);
+        y = (yVal-yMin)/(yMax-yMin);
         if(isNaN(y))
             y = 0;
         value = (value-this._valueMin)/(this._valueMax-this._valueMin);
         return UIGraph3D.transformPoint([x-0.5, -(value-0.5)*Math.max(1,this.height)/(Math.max(1, this.width)), y-0.5], this.#transformPrecalc);
     }
     #axisToLine(x, y) {
-        const xAxis = this.xAxis;
-        const yAxis = this.yAxis;
+        const xAxisElements = this._xAxisElement.children;
+        const xMin = xAxisElements[0]?.value;
+        const xMax = xAxisElements[xAxisElements.length -1]?.value;
+        const xVal = xAxisElements[x]?.value;
+        const yAxisElements = this._yAxisElement.children;
+        const yMin = yAxisElements[0]?.value;
+        const yMax = yAxisElements[yAxisElements.length -1]?.value;
+        const yVal = yAxisElements[y]?.value;
         y = this.yResolution-y-1;
         if(x === undefined || isNaN(x))
             x = this.#transformPrecalc?.sinYaw > 0? 0 : 1;
         else
-            x = (xAxis[x]-xAxis[0])/(xAxis[xAxis.length-1]-xAxis[0]);
+            x = (xVal-xMin)/(xMax-xMin);
         if(isNaN(x))
             x = 0;
         if(y === undefined || isNaN(y))
             y = this.#transformPrecalc?.cosYaw > 0? 1 : 0;
         else
-            y = (yAxis[y]-yAxis[0])/(yAxis[yAxis.length-1]-yAxis[0]);
+            y = (yVal-yMin)/(yMax-yMin);
         if(isNaN(y))
             y = 0;
         return [
@@ -316,23 +328,36 @@ export default class UIGraph3D extends UITableBase {
         const thisClass = this;
         const textSize = (0.45/Math.max(this.xResolution, this.yResolution, axisResolution));
         while(axisResolution < axisElements.children.length) { axisElements.removeChild(axisElements.lastChild); }
-        for(let i = axisElements.children.length; i < axisResolution; i++) { 
-            const axisElement = axisElements.appendChild(document.createElementNS(`http://www.w3.org/2000/svg`,`g`)); 
-            axisElement.append(document.createElementNS(`http://www.w3.org/2000/svg`,`line`));
-            const textTop = axisElement.appendChild(document.createElementNS(`http://www.w3.org/2000/svg`,`text`));
-            textTop.setAttribute(`alignment-baseline`, `middle`);
-            textTop.setAttribute(`text-anchor`, `end`);
-            const textBottom = axisElement.appendChild(document.createElementNS(`http://www.w3.org/2000/svg`,`text`));
-            textBottom.setAttribute(`alignment-baseline`, `middle`);
-            textBottom.setAttribute(`text-anchor`, `start`);
+        for(let i = 0; i < axisResolution; i++) { 
+            let axisElement = axisElements.children[i];
+            if(!axisElement) {
+                axisElement = axisElements.appendChild(document.createElementNS(`http://www.w3.org/2000/svg`,`g`)); 
+                axisElement.append(document.createElementNS(`http://www.w3.org/2000/svg`,`line`));
+                const textTop = axisElement.appendChild(document.createElementNS(`http://www.w3.org/2000/svg`,`text`));
+                textTop.setAttribute(`alignment-baseline`, `middle`);
+                textTop.setAttribute(`text-anchor`, `end`);
+                const textBottom = axisElement.appendChild(document.createElementNS(`http://www.w3.org/2000/svg`,`text`));
+                textBottom.setAttribute(`alignment-baseline`, `middle`);
+                textBottom.setAttribute(`text-anchor`, `start`);
+                const axisMinus1 = axisElements.children[i-1]?.value;
+                const axisMinus2 = axisElements.children[i-2]?.value;
+                let axisMinus0 = 0;
+                if(axisMinus1 !== undefined && axisMinus2 !== undefined) 
+                    axisMinus0 = axisMinus1 + (axisMinus1 - axisMinus2);
+                axisElement.value = axisMinus0;
+                if(axisElements === this._xAxisElement)
+                    axisElement.x = i;
+                else
+                    axisElement.y = i;
+            }
             axisElement.update = function() {
                 if(!thisClass.#transformPrecalc)
                     return;
                 const line = thisClass.#axisToLine(this.x, this.y);
-                this.children[0].setAttribute(`x1`, line[0][0]);
-                this.children[0].setAttribute(`y1`, line[0][1]);
-                this.children[0].setAttribute(`x2`, line[1][0]);
-                this.children[0].setAttribute(`y2`, line[1][1]);
+                this.children[0].setAttribute(`x1`, line[0][0].toFixed(10));
+                this.children[0].setAttribute(`y1`, line[0][1].toFixed(10));
+                this.children[0].setAttribute(`x2`, line[1][0].toFixed(10));
+                this.children[0].setAttribute(`y2`, line[1][1].toFixed(10));
 
                 const textSize = this.textSize * thisClass.#transformPrecalc.zoom;
                 const scalextext = Math.abs(this.x !== undefined? thisClass.#transformPrecalc.cosYaw : thisClass.#transformPrecalc.sinYaw);
@@ -348,28 +373,18 @@ export default class UIGraph3D extends UITableBase {
                     xoffset = thisClass.#transformPrecalc.cosYaw>0? 0 : thisClass.#transformPrecalc.sinYaw * textSize/2;
                 line[0][0]+=xoffset;
                 line[1][0]+=xoffset;
-                this.children[1].setAttribute(`x`, line[0][0]);
-                this.children[1].setAttribute(`y`, line[0][1]);
-                this.children[1].setAttribute(`transform-origin`, `${line[0][0]} ${line[0][1]}`);
-                this.children[1].setAttribute(`transform`, `scale(${scalextext} ${scaleytext}) rotate(-90)`);
-                this.children[1].setAttribute(`font-size`, textSize);
-                this.children[2].setAttribute(`x`, line[1][0]);
-                this.children[2].setAttribute(`y`, line[1][1]);
-                this.children[2].setAttribute(`transform-origin`, `${line[1][0]} ${line[1][1]}`);
-                this.children[2].setAttribute(`transform`, `scale(${scalextext} ${scaleytext}) rotate(-90)`);
-                this.children[2].setAttribute(`font-size`, textSize);
-                this.children[1].innerHTML = this.children[2].innerHTML = formatNumberForDisplay(this.value);
+                this.children[1].setAttribute(`x`, line[0][0].toFixed(10));
+                this.children[1].setAttribute(`y`, line[0][1].toFixed(10));
+                this.children[1].setAttribute(`transform-origin`, `${line[0][0].toFixed(10)} ${line[0][1].toFixed(10)}`);
+                this.children[1].setAttribute(`transform`, `scale(${scalextext.toFixed(10)} ${scaleytext.toFixed(10)}) rotate(-90)`);
+                this.children[1].setAttribute(`font-size`, textSize.toFixed(10));
+                this.children[2].setAttribute(`x`, line[1][0].toFixed(10));
+                this.children[2].setAttribute(`y`, line[1][1].toFixed(10));
+                this.children[2].setAttribute(`transform-origin`, `${line[1][0].toFixed(10)} ${line[1][1].toFixed(10)}`);
+                this.children[2].setAttribute(`transform`, `scale(${scalextext.toFixed(10)} ${scaleytext.toFixed(10)}) rotate(-90)`);
+                this.children[2].setAttribute(`font-size`, textSize.toFixed(10));
+                this.children[1].textContent = this.children[2].textContent = formatNumberForDisplay(this.value);
             }
-            const axisMinus1 = axisElements.children[i-1]?.value;
-            const axisMinus2 = axisElements.children[i-2]?.value;
-            let axisMinus0 = 0;
-            if(axisMinus1 !== undefined && axisMinus2 !== undefined) 
-                axisMinus0 = axisMinus1 + (axisMinus1 - axisMinus2);
-            axisElement.value = axisMinus0;
-            if(axisElements === this._xAxisElement)
-                axisElement.x = i;
-            else
-                axisElement.y = i;
         }
         for(let i = 0; i < this._xAxisElement.children.length; i++) { this._xAxisElement.children[i].textSize = textSize; }
         for(let i = 0; i < this._yAxisElement.children.length; i++) { this._yAxisElement.children[i].textSize = textSize; }
@@ -400,15 +415,15 @@ export default class UIGraph3D extends UITableBase {
                     lines[1] = lines[1].sort(function(a,b) { return a[0]-b[0]});
                     lines[1][2] = Math.abs(thisClass.#transformPrecalc.cosYaw);
                     lines = lines.sort(function(a,b) { return a[0][0]-b[0][0]});
-                    this.children[0].setAttribute(`x1`, lines[0][0][0]);
-                    this.children[0].setAttribute(`y1`, lines[0][0][1]);
-                    this.children[0].setAttribute(`x2`, lines[0][1][0]);
-                    this.children[0].setAttribute(`y2`, lines[0][1][1]);
-                    this.children[1].setAttribute(`x1`, lines[1][0][0]);
-                    this.children[1].setAttribute(`y1`, lines[1][0][1]);
-                    this.children[1].setAttribute(`x2`, lines[1][1][0]);
-                    this.children[1].setAttribute(`y2`, lines[1][1][1]);
-                    this.children[2].innerHTML = this.children[3].innerHTML = formatNumberForDisplay(zValue);
+                    this.children[0].setAttribute(`x1`, lines[0][0][0].toFixed(10));
+                    this.children[0].setAttribute(`y1`, lines[0][0][1].toFixed(10));
+                    this.children[0].setAttribute(`x2`, lines[0][1][0].toFixed(10));
+                    this.children[0].setAttribute(`y2`, lines[0][1][1].toFixed(10));
+                    this.children[1].setAttribute(`x1`, lines[1][0][0].toFixed(10));
+                    this.children[1].setAttribute(`y1`, lines[1][0][1].toFixed(10));
+                    this.children[1].setAttribute(`x2`, lines[1][1][0].toFixed(10));
+                    this.children[1].setAttribute(`y2`, lines[1][1][1].toFixed(10));
+                    this.children[2].textContent = this.children[3].textContent = formatNumberForDisplay(zValue);
 
                     const textSize = this.textSize * thisClass.#transformPrecalc.zoom;
                     const scaleZText = Math.abs(thisClass.#transformPrecalc.cosPitch);
@@ -420,17 +435,17 @@ export default class UIGraph3D extends UITableBase {
                     if(this.z === this.zResolution-1)
                         yOffset = textSize/2;
                     
-                    this.children[2].setAttribute(`x`, lines[0][0][0]);
-                    this.children[2].setAttribute(`y`, lines[0][0][1]+yOffset);
-                    this.children[2].setAttribute(`transform-origin`, `${lines[0][0][0]} ${lines[0][0][1]}`);
-                    this.children[2].setAttribute(`transform`, `skewY(${skewLeftText}) scale(${lines[0][2]} ${scaleZText})`);
-                    axisElement.children[2].setAttribute(`font-size`, textSize);
+                    this.children[2].setAttribute(`x`, lines[0][0][0].toFixed(10));
+                    this.children[2].setAttribute(`y`, (lines[0][0][1]+yOffset).toFixed(10));
+                    this.children[2].setAttribute(`transform-origin`, `${lines[0][0][0].toFixed(10)} ${lines[0][0][1].toFixed(10)}`);
+                    this.children[2].setAttribute(`transform`, `skewY(${skewLeftText.toFixed(10)}) scale(${lines[0][2].toFixed(10)} ${scaleZText})`);
+                    axisElement.children[2].setAttribute(`font-size`, textSize.toFixed(10));
 
-                    this.children[3].setAttribute(`x`, lines[1][1][0]);
-                    this.children[3].setAttribute(`y`, lines[1][1][1]+yOffset);
-                    this.children[3].setAttribute(`transform-origin`, `${lines[1][1][0]} ${lines[1][1][1]}`);
-                    this.children[3].setAttribute(`transform`, `skewY(${skewRightText}) scale(${lines[1][2]} ${scaleZText})`);
-                    axisElement.children[3].setAttribute(`font-size`, textSize);
+                    this.children[3].setAttribute(`x`, lines[1][1][0].toFixed(10));
+                    this.children[3].setAttribute(`y`, (lines[1][1][1]+yOffset).toFixed(10));
+                    this.children[3].setAttribute(`transform-origin`, `${lines[1][1][0]} ${lines[1][1][1].toFixed(10)}`);
+                    this.children[3].setAttribute(`transform`, `skewY(${skewRightText.toFixed(10)}) scale(${lines[1][2].toFixed(10)} ${scaleZText})`);
+                    axisElement.children[3].setAttribute(`font-size`, textSize.toFixed(10));
                 }
             }
             axisElement.zResolution = zResolution;
@@ -439,14 +454,14 @@ export default class UIGraph3D extends UITableBase {
         }
 
         function getPathVGetterSetter(index) {
-            let vi = `v${index}`;
+            let vi = `_v${index}`;
             return {
-                get: function() { return parseFloat(this.dataset[vi]); },
+                get: function() { return this[vi]; },
                 set: function(v) { 
                     v = parseFloat(v);
                     if(this[vi] === v)
                         return;
-                    this.dataset[vi] = v;
+                    this[vi] = v;
                     this.value = (parseFloat(this.v1) + parseFloat(this.v2) + parseFloat(this.v3) + parseFloat(this.v4))/4;
                     // this.update();
                 }
@@ -460,18 +475,20 @@ export default class UIGraph3D extends UITableBase {
             if(!valuePathElement) {
                 valuePathElement = this.#valuePathElement.appendChild(document.createElementNS('http://www.w3.org/2000/svg','path'));
                 Object.defineProperty(valuePathElement, 'value', {
-                    get: function() { return parseFloat(this.style.getPropertyValue(`--data-value`)); },
-                    set: function(value) { this.style.setProperty(`--data-value`, value); }
+                    get: function() { return this._value; },
+                    set: function(value) { value = parseFloat(value); if(this._value === value) return; this._value = value; this.style.setProperty(`--data-value`, value); }
                 });
                 valuePathElement.update = function() {
                     if(!this.p1 || !this.p2 || !this.p3 || !this.p4)
                         return;
                     this.depth = (this.p1[2] + this.p2[2] + this.p3[2] + this.p4[2])/4;
+                    if(isNaN(this.depth))
+                        return;
                     this.setAttribute(`d`, 
-                                    `M${this.p1[0]},${this.p1[1]}`+
-                                    `L${this.p2[0]},${this.p2[1]}`+
-                                    `L${this.p3[0]},${this.p3[1]}`+
-                                    `L${this.p4[0]},${this.p4[1]}Z`)
+                                    `M${this.p1[0].toFixed(10)},${this.p1[1].toFixed(10)}`+
+                                    `L${this.p2[0].toFixed(10)},${this.p2[1].toFixed(10)}`+
+                                    `L${this.p3[0].toFixed(10)},${this.p3[1].toFixed(10)}`+
+                                    `L${this.p4[0].toFixed(10)},${this.p4[1].toFixed(10)}Z`)
                 };
                 Object.defineProperty(valuePathElement, 'v1', getPathVGetterSetter(1));
                 Object.defineProperty(valuePathElement, 'v2', getPathVGetterSetter(2));
@@ -490,16 +507,17 @@ export default class UIGraph3D extends UITableBase {
             if(!valueElement) {
                 valueElement = this._valueElement.appendChild(document.createElementNS('http://www.w3.org/2000/svg','circle'));
                 Object.defineProperty(valueElement, 'value', {
-                    get: function() { return parseFloat(this.style.getPropertyValue(`--data-value`)); },
+                    get: function() { return this._value; },
                     set: function(value) { 
                         value = parseFloat(value);
-                        if(this.value === value )
+                        if(this._value === value )
                             return;
+                        this._value = value;
+                        this.style.setProperty(`--data-value`, value); 
                         if(value < thisClass._valueMin)
                             thisClass._valueMin = value;
                         if(value > thisClass._valueMax)
                             thisClass._valueMax = value;
-                        this.style.setProperty(`--data-value`, value); 
                         this.update();
                         if(this.vp1) this.vp1.v1 = value;
                         if(this.vp2) this.vp2.v2 = value;
@@ -508,31 +526,28 @@ export default class UIGraph3D extends UITableBase {
                     }
                 });
                 Object.defineProperty(valueElement, 'p', {
-                    get: function() { return this.dataset.p? JSON.parse(this.dataset.p) : undefined; },
+                    get: function() { return this.pp; },
                     set: function(p) {
                         if(!p) 
                             return;
-                        const jsonP = JSON.stringify(p);
-                        if(jsonP === this.dataset.p)
-                            return;
-                        this.dataset.p = jsonP;
-                        p[0] = p[0].toFixed(10);
-                        p[1] = p[1].toFixed(10);
+                        if(this.pp === undefined || this.pp[0] !== p[0] || this.pp[1] !== p[1]) {
+                            if(this.vp1) { this.vp1.p1 = p; this.vp1.v1 = this.value; }
+                            if(this.vp2) { this.vp2.p2 = p; this.vp2.v2 = this.value; }
+                            if(this.vp3) { this.vp3.p3 = p; this.vp3.v3 = this.value; }
+                            if(this.vp4) { this.vp4.p4 = p; this.vp4.v4 = this.value; }
+                        }
+                        this.pp = p;
                         this.depth = p[2];
-                        if(this.vp1) { this.vp1.p1 = p; this.vp1.v1 = this.value; }
-                        if(this.vp2) { this.vp2.p2 = p; this.vp2.v2 = this.value; }
-                        if(this.vp3) { this.vp3.p3 = p; this.vp3.v3 = this.value; }
-                        if(this.vp4) { this.vp4.p4 = p; this.vp4.v4 = this.value; }
                     }
                 });
-                valueElement.update = function circleUpdater() {
-                    if(!(this.p = thisClass.#cellToPoint(this.x, this.y, this.value)))
-                        return;
-                    const p = this.p;
-                    this.setAttribute(`cx`, p[0]);
-                    this.setAttribute(`cy`, p[1]);
-                };
             }
+            valueElement.update = function() {
+                if(!(this.p = thisClass.#cellToPoint(this.x, this.y, this.value)))
+                    return;
+                const p = this.p;
+                this.setAttribute(`cx`, p[0].toFixed(10));
+                this.setAttribute(`cy`, p[1].toFixed(10));
+            };
             valueElement.x = i % this.xResolution;
             valueElement.y = Math.trunc(i/this.xResolution);
             valueElement.vp1 = valuePathElements.find(element => element.x1 === valueElement.x && element.y1 === valueElement.y);

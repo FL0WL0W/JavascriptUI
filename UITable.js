@@ -7,7 +7,7 @@ export default class UITable extends UITableBase {
     set selecting(selecting) {
         if(JSON.stringify(this.selecting) === JSON.stringify(selecting))
             return;
-        this.#tableElement.querySelectorAll(`input`)?.forEach(function(element) { element.parentElement.innerHTML = formatNumberForDisplay(element.parentElement.value); });
+        this.#tableElement.querySelectorAll(`input`)?.forEach(function(element) { element.parentElement.textContent = formatNumberForDisplay(element.parentElement.value); });
         let startElement = [...this._valueElement.children].find(element => element.x===selecting.startX && element.y===selecting.startY);
         if(isNaN(selecting.startX))
             startElement = [...this._yAxisElement.children].find(element => element.y===selecting.startY);
@@ -186,7 +186,7 @@ export default class UITable extends UITableBase {
         this._xResolutionElement.class      = `resolution-value`;
         this._yResolutionElement.type       = `number`;
         this._yResolutionElement.class      = `resolution-value`;
-        this.#resolutionTextElement.innerHTML = `X`;
+        this.#resolutionTextElement.textContent = `X`;
         //paste options toolbar
         this.#leftToolbarElement.append(this.#pasteOptionsElement);
         this.#pasteOptionsElement.class = `paste container`;
@@ -279,16 +279,17 @@ export default class UITable extends UITableBase {
         this.#constructInterpolateEventListeners();
     }
     static #cellValueGetterSetter = {
-        get: function() { return parseFloat(this.style.getPropertyValue(`--data-value`)); },
+        get: function() { return this._value; },
         set: function(value) { 
             value = parseFloat(value);
+            if(this._value === value)
+                return;
+            this._value = value;
             this.style.setProperty(`--data-value`, value);
             const inputElement = this.querySelector(`input`);
             if(inputElement) inputElement.value = value;
             else {
-                const innerHTML = formatNumberForDisplay(value);
-                if(this.innerHTML !== innerHTML)
-                    this.innerHTML = innerHTML;
+                this.textContent = formatNumberForDisplay(value);
             }
         }
     }

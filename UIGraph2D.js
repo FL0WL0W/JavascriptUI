@@ -197,7 +197,7 @@ export default class UIGraph2D extends UITableBase {
                 this.children[1].setAttribute(`x`, line[0][0]);
                 this.children[1].setAttribute(`y`, line[0][1] + this.r);
                 this.children[1].setAttribute(`font-size`, this.textSize.toFixed(10));
-                this.children[1].innerHTML = formatNumberForDisplay(this.value);
+                this.children[1].textContent = formatNumberForDisplay(this.value);
             }
             const axisMinus1 = axisElements.children[i-1]?.value;
             const axisMinus2 = axisElements.children[i-2]?.value;
@@ -256,7 +256,7 @@ export default class UIGraph2D extends UITableBase {
                     this.children[1].setAttribute(`x`, line[0][0] - this.r);
                     this.children[1].setAttribute(`y`, line[0][1]);
                     this.children[1].setAttribute(`font-size`, this.textSize.toFixed(10));
-                    this.children[1].innerHTML = formatNumberForDisplay(zValue);
+                    this.children[1].textContent = formatNumberForDisplay(zValue);
                 }
             }
             if(i===0)
@@ -293,8 +293,8 @@ export default class UIGraph2D extends UITableBase {
             if(!valueLineElement) {
                 valueLineElement = this.#valueLineElement.appendChild(document.createElementNS('http://www.w3.org/2000/svg','line'));
                 Object.defineProperty(valueLineElement, 'value', {
-                    get: function() { return parseFloat(this.style.getPropertyValue(`--data-value`)); },
-                    set: function(value) { this.style.setProperty(`--data-value`, value); }
+                    get: function() { return this._value; },
+                    set: function(value) { value = parseFloat(value); if(this._value === value) return; this._value = value; this.style.setProperty(`--data-value`, value); }
                 });
                 valueLineElement.update = function() {
                     if(!this.p1 || !this.p2)
@@ -320,11 +320,12 @@ export default class UIGraph2D extends UITableBase {
             if(!valueElement) {
                 valueElement = this._valueElement.appendChild(document.createElementNS('http://www.w3.org/2000/svg','circle'));
                 Object.defineProperty(valueElement, 'value', {
-                    get: function() { return parseFloat(this.style.getPropertyValue(`--data-value`)); },
+                    get: function() { return this._value; },
                     set: function(value) { 
                         value = parseFloat(value);
-                        if(this.value === value )
+                        if(this._value === value )
                             return;
+                        this._value = value;
                         if(value < thisClass._valueMin)
                             thisClass._valueMin = value;
                         if(value > thisClass._valueMax)
@@ -350,7 +351,7 @@ export default class UIGraph2D extends UITableBase {
                         if(this.vl2) { this.vl2.p2 = p; this.vl2.v2 = this.value; }
                     }
                 });
-                valueElement.update = function circleUpdater() {
+                valueElement.update = function() {
                     if(!(this.p = thisClass.#cellToPoint(this.x, this.y, this.value)))
                         return;
                     const p = this.p;
