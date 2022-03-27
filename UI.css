@@ -4,6 +4,7 @@
     --border-selected-color: #3590d0;
     --background-selected-color: #3590d0;
     --background-hover-color: #666;
+    --background-color: #222629;
     --input-background-color: #505962;
     --border-width: 0.2em;
     --border-radius: 6px;
@@ -326,6 +327,7 @@
     content: "";
 }
 
+.ui.button,
 .ui.text,
 .ui.number {
     font: bold 16px Arial;
@@ -335,8 +337,18 @@
     color: var(--text-color);
     margin: 1px;
     padding: 1px 2px;
-    width: 6em;
 }
+
+.ui.button {
+    cursor: pointer;
+}
+
+.ui.text,
+.ui.number { 
+    width: 6em; 
+}
+
+.ui.button:hover,
 .ui.text:hover,
 .ui.number:hover {
     background-color: var(--background-hover-color);
@@ -440,4 +452,56 @@
 .ui.graph2d text,
 .ui.graph3d text {
     fill: var(--text-color);
+}
+
+.ui.dialog dialog {
+    background: var(--background-color);
+    color: var(--text-color);
+    padding: 0;
+    border-radius: 6px;
+    border: 2px solid var(--text-color);
+    overflow: hidden;
+}
+.ui.dialog .titlebar {
+    position: absolute;
+    width: 100%;
+    height: 2em;
+    background: var(--background-selected-color);
+    display: flex;
+    flex-direction: row; 
+    flex-wrap: wrap; 
+    justify-content:space-between;
+    align-items: center;
+    color: var(--text-color);
+    cursor: move;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.ui.dialog .content {
+    margin-top: 2em;
+}
+.ui.dialog .title {
+    margin-left: 0.5em;
+}
+.ui.dialog .titlebar .close {
+    display: inline-flex;
+    justify-content: center;  
+    align-items: center;
+    margin-right: 0.5em;
+    width: 1.2em;
+    height: 1.2em;
+    background-color: var(--input-background-color);
+    border-radius: 6px;
+    border: 2px solid var(--border-color);
+    cursor: pointer;
+}
+.ui.dialog .titlebar .close:hover {
+    border-color: var(--background-hover-color);
+}
+.ui.dialog .titlebar .close::after {
+    content: "X";
 }
