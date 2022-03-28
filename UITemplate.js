@@ -12,14 +12,15 @@ export default class UITemplate extends HTMLDivElement {
         Object.assign(this, prop);
         if(!Array.isArray(this.onChange))
             this.onChange = [ this.onChange ];
-        var thisClass = this;
+        const thisClass = this;
+        this.addEventListener(`change`, function() {
+            thisClass.onChange.forEach(function(onChange) { onChange(); });
+        });
         var thisEntries = Object.entries(this);
         thisEntries.forEach(function([elementName, element]) {
-            if(element?.onChange !== undefined && !element?.excludeFromOnChange) {
-                element.onChange.push(function() {
-                    thisClass.onChange.forEach(function(onChange) { onChange(); });
-                });
-            }
+            element?.addEventListener?.(`change`, function() {
+                thisClass.dispatchEvent(new Event(`change`));
+            });
         });
 
         const template = this.Template ?? this.constructor.Template;
