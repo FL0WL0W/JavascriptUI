@@ -164,8 +164,6 @@ export default class UITable extends UITableBase {
     _valueElement       = document.createElement(`div`);
     #valueInputElement  = document.createElement(`input`);
 
-    //delete onchange and migrate to addEventListener(`change`)
-    onChange = [];
     constructor(prop) {
         super();
         this.class = `ui`;
@@ -264,13 +262,6 @@ export default class UITable extends UITableBase {
         delete prop.value;
         Object.assign(this, prop);
         this.value = propValue;
-        //delete onchange and migrate to addEventListener(`change`)
-        if(!Array.isArray(this.onChange))
-            this.onChange = [ this.onChange ];
-        const thisClass = this;
-        this.addEventListener(`change`, function() {
-            thisClass.onChange.forEach(function(onChange) { onChange(); });
-        });
 
         this.#buildTableElement();
 

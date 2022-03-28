@@ -103,8 +103,6 @@ export default class UIGraph2D extends UITableBase {
         this.#zAxisElement.update();
     }
 
-    //delete onchange and migrate to addEventListener(`change`)
-    onChange = [];
     constructor(prop) {
         super();
         this.class = `ui graph2d`;
@@ -128,13 +126,6 @@ export default class UIGraph2D extends UITableBase {
         Object.assign(this, prop);
         this.#createEventListeners();
         this.value = propValue;
-        //delete onchange and migrate to addEventListener(`change`)
-        const thisClass = this;
-        if(!Array.isArray(this.onChange))
-            this.onChange = [ this.onChange ];
-        this.addEventListener(`change`, function() {
-            thisClass.onChange.forEach(function(onChange) { onChange(); });
-        });
     }
     #paddingLeft = 75;
     #paddingBottom = 25;

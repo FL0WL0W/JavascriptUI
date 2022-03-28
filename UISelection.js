@@ -31,8 +31,6 @@ export default class UISelection extends HTMLDivElement {
         }
     }
 
-    onChange = [];
-
     #selectDisabled = false;
     get selectDisabled() {
         return this.#selectDisabled;
@@ -182,12 +180,7 @@ export default class UISelection extends HTMLDivElement {
         this.contextMenuElement.prepend(this.#selectElement)
         setElementOption(this.#selectElement, { Name: this.selectName, Disabled: this.selectDisabled, Value: this.selectValue });
         Object.assign(this, prop);
-        if(!Array.isArray(this.onChange))
-            this.onChange = [ this.onChange ];
         const thisClass = this;
-        this.addEventListener(`change`, function() {
-            thisClass.onChange.forEach(function(onChange) { onChange(); });
-        });
 
         let visible = false;
         this.selectedElement.addEventListener(`click`, function() {

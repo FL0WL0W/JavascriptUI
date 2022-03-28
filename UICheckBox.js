@@ -1,6 +1,4 @@
 export default class UICheckBox extends HTMLInputElement {
-    onChange = [];
-
     get value() {
         return this.checked;
     }
@@ -24,12 +22,6 @@ export default class UICheckBox extends HTMLInputElement {
         this.type = `checkbox`;
         this.class = `ui checkbox`;
         Object.assign(this, prop);
-        if(!Array.isArray(this.onChange))
-            this.onChange = [ this.onChange ];
-        const thisClass = this;
-        this.addEventListener(`change`, function() {
-            thisClass.onChange.forEach(function(onChange) { onChange(); });
-        });
     }
 }
 customElements.define('ui-checkbox', UICheckBox, { extends: 'input' });

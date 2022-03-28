@@ -152,8 +152,6 @@ export default class UIGraph3D extends UITableBase {
         this.#zAxisElement.update();
     }
 
-    //delete onchange and migrate to addEventListener(`change`)
-    onChange = [];
     constructor(prop) {
         super();
         this.class = `ui graph3d`;
@@ -225,12 +223,6 @@ export default class UIGraph3D extends UITableBase {
         Object.assign(this, prop);
         this.#createEventListeners();
         this.value = propValue;
-        //delete onchange and migrate to addEventListener(`change`)
-        if(!Array.isArray(this.onChange))
-            this.onChange = [ this.onChange ];
-        this.addEventListener(`change`, function() {
-            thisClass.onChange.forEach(function(onChange) { onChange(); });
-        });
         if(prop?.pitch === undefined)
             this.pitch = 17;
         if(prop?.yaw === undefined)

@@ -1,6 +1,4 @@
 export default class UITemplate extends HTMLDivElement {
-    onChange = [];
-
     constructor(prop) {
         super();
         this.style.display = `inline-block`;
@@ -10,12 +8,7 @@ export default class UITemplate extends HTMLDivElement {
 
     Setup(prop) {
         Object.assign(this, prop);
-        if(!Array.isArray(this.onChange))
-            this.onChange = [ this.onChange ];
         const thisClass = this;
-        this.addEventListener(`change`, function() {
-            thisClass.onChange.forEach(function(onChange) { onChange(); });
-        });
         var thisEntries = Object.entries(this);
         thisEntries.forEach(function([elementName, element]) {
             element?.addEventListener?.(`change`, function() {

@@ -1,6 +1,4 @@
 export default class UINumber extends HTMLInputElement {
-    onChange = [];
-
     get value() {
         return parseFloat(super.value);
     }
@@ -25,12 +23,6 @@ export default class UINumber extends HTMLInputElement {
         this.type = `number`;
         this.class = `ui number`;
         Object.assign(this, prop);
-        if(!Array.isArray(this.onChange))
-            this.onChange = [ this.onChange ];
-        const thisClass = this;
-        this.addEventListener(`change`, function() {
-            thisClass.onChange.forEach(function(onChange) { onChange(); });
-        });
     }
 }
 customElements.define('ui-number', UINumber, { extends: 'input' });
