@@ -7,7 +7,7 @@ export default class UICheckBox extends HTMLInputElement {
             return;
 
         this.checked = value;
-        super.dispatchEvent(new Event(`change`));
+        super.dispatchEvent(new Event(`change`, {bubbles: true}));
     }
 
     get saveValue() {

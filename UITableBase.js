@@ -18,7 +18,7 @@ export default class UITableBase extends HTMLDivElement {
             return;
         for(let i = 0; i < this._valueElement.children.length; i++)
             this._valueElement.children[i].value = value[i];
-        this.dispatchEvent(new Event(`change`));
+        this.dispatchEvent(new Event(`change`, {bubbles: true}));
     }
     get saveValue() {
         return {
@@ -89,7 +89,7 @@ export default class UITableBase extends HTMLDivElement {
             this._xResolutionElement.value = xResolution;
         this._resolutionChanged(this._xAxisElement, xResolution);
         this.value = newValue;
-        this.dispatchEvent(new Event(`change`));
+        this.dispatchEvent(new Event(`change`, {bubbles: true}));
     }
     get xAxis() {
         return [...this._xAxisElement.children].map(x => x.value);
@@ -101,7 +101,7 @@ export default class UITableBase extends HTMLDivElement {
         const thisClass = this;
         xAxis.forEach(function(xAxisValue, xAxisIndex) { const xAxisElement = thisClass._xAxisElement.children[xAxisIndex]; xAxisElement.value = xAxisValue; });
         ///*TODO*/interpolation
-        this.dispatchEvent(new Event(`change`));
+        this.dispatchEvent(new Event(`change`, {bubbles: true}));
     }
     get yResolution() {
         return Math.max(1, this._yAxisElement.children.length);
@@ -132,7 +132,7 @@ export default class UITableBase extends HTMLDivElement {
             this._yResolutionElement.value = yResolution;
         this._resolutionChanged(this._yAxisElement, yResolution);
         this.value = newValue;
-        this.dispatchEvent(new Event(`change`));
+        this.dispatchEvent(new Event(`change`, {bubbles: true}));
     }
     get yAxis() {
         return [...this._yAxisElement.children].map(x => x.value);
@@ -144,7 +144,7 @@ export default class UITableBase extends HTMLDivElement {
         const thisClass = this;
         yAxis.forEach(function(yAxisValue, yAxisIndex) { const yAxisElement = thisClass._yAxisElement.children[yAxisIndex]; yAxisElement.value = yAxisValue; });
         ///*TODO*/interpolation
-        this.dispatchEvent(new Event(`change`));
+        this.dispatchEvent(new Event(`change`, {bubbles: true}));
     }
 
     #selecting;

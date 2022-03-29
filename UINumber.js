@@ -8,7 +8,7 @@ export default class UINumber extends HTMLInputElement {
             return;
 
         super.value = value;
-        super.dispatchEvent(new Event(`change`));
+        super.dispatchEvent(new Event(`change`, {bubbles: true}));
     }
 
     get saveValue() {

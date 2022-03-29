@@ -628,7 +628,7 @@ export default class UIGraph3D extends UITableBase {
             if(dragValue) {
                 function mouseMove(event) {
                     dragValue.closestCircle.value = dragValue.value + (dragValue.pageY - event.pageY) * dragValue.mag 
-                    thisClass.dispatchEvent(new Event(`change`));
+                    thisClass.dispatchEvent(new Event(`change`, {bubbles: true}));
                 }
                 function mouseUp() {
                     document.removeEventListener(`mousemove`, mouseMove);

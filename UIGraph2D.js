@@ -412,7 +412,7 @@ export default class UIGraph2D extends UITableBase {
                     dragValue.axisElement.value = dragValue.axisValue + (event.pageX - dragValue.pageX) * dragValue.axisMag;
 
                     thisClass._boundAxis(dragValue.axisElement.parentElement);
-                    thisClass.dispatchEvent(new Event(`change`));
+                    thisClass.dispatchEvent(new Event(`change`, {bubbles: true}));
                 }
                 function mouseUp() {
                     document.removeEventListener(`mousemove`, mouseMove);

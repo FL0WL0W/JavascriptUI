@@ -12,7 +12,7 @@ export default class UITemplate extends HTMLDivElement {
         var thisEntries = Object.entries(this);
         thisEntries.forEach(function([elementName, element]) {
             element?.addEventListener?.(`change`, function() {
-                thisClass.dispatchEvent(new Event(`change`));
+                thisClass.dispatchEvent(new Event(`change`, {bubbles: true}));
             });
         });
 

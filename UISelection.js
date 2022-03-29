@@ -159,7 +159,7 @@ export default class UISelection extends HTMLDivElement {
         selectedElement.type = typeof value;
         selectedElement.value = UISelection.ParseValue(`string`, value);
         this.#updateSelectElement();
-        this.dispatchEvent(new Event(`change`));
+        this.dispatchEvent(new Event(`change`, {bubbles: true}));
     }
 
     get saveValue() {

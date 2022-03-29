@@ -594,7 +594,7 @@ export default class UITable extends UITableBase {
             }
             event.preventDefault();
             thisClass._boundAxis(element);
-            thisClass.dispatchEvent(new Event(`change`));
+            thisClass.dispatchEvent(new Event(`change`, {bubbles: true}));
         });
 
         this.#tableElement.addEventListener(`dragstart`, function(event) {
@@ -817,7 +817,7 @@ export default class UITable extends UITableBase {
             });
 
             thisClass._boundAxis(element);
-            thisClass.dispatchEvent(new Event(`change`));
+            thisClass.dispatchEvent(new Event(`change`, {bubbles: true}));
         }
         function blur() {
             thisClass.#modifyAddElement.hidden      = false;
@@ -895,7 +895,7 @@ export default class UITable extends UITableBase {
                     element.value = xAxis[xMin] + xMag * (x-xMin);
                 });
             }
-            thisClass.dispatchEvent(new Event(`change`));
+            thisClass.dispatchEvent(new Event(`change`, {bubbles: true}));
         };
         function interpolateY() {
             let selectedElements = thisClass._valueElement.querySelectorAll(`.selected`);
@@ -936,7 +936,7 @@ export default class UITable extends UITableBase {
                     element.value = yAxis[yMin] + yMag * (y-yMin);
                 });
             }
-            thisClass.dispatchEvent(new Event(`change`));
+            thisClass.dispatchEvent(new Event(`change`, {bubbles: true}));
         };
         this.#interpolateXYElement.addEventListener(`click`, function() {
             const selectedElements = thisClass._valueElement.querySelectorAll(`.selected`);
