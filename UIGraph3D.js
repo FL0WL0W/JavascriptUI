@@ -251,8 +251,11 @@ export default class UIGraph3D extends UITableBase {
         if(!transformPrecalc)
             transformPrecalc = UIGraph3D.transformPrecalc();
         let x=(transformPrecalc.cosYaw*point[0]+transformPrecalc.sinYaw*point[2])*transformPrecalc.zoom+transformPrecalc.offsetX;
+        if(isNaN(x)) x = 0;
         let y=(transformPrecalc.sinPitchSinYaw*point[0]+transformPrecalc.cosPitch*point[1]+transformPrecalc.nSinPitchCosYaw*point[2])*transformPrecalc.zoom+transformPrecalc.offsetY;
+        if(isNaN(y)) y = 0;
         let depth=(transformPrecalc.nCosPitchSinYaw*point[0]+transformPrecalc.sinPitch*point[1])*transformPrecalc.zoom;
+        if(isNaN(depth)) depth = 0;
         return [x,y,depth];
     }
     #cellToPoint(x, y, value) {

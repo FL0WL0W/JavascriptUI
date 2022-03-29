@@ -138,9 +138,10 @@ export default class UIGraph2D extends UITableBase {
         const axisIndex = this.xResolution < 2? y : x;
         const axisMax = axis[axis.length - 1];
         const axisMin = axis[0];
-        const axisX = this.#paddingLeft + (this.width-this.#paddingLeft-this.#paddingRight) * (axis[axisIndex] - axisMin)/(axisMax-axisMin);
-
-        const valueY = this.height - (this.#paddingBottom + (this.height-this.#paddingBottom-this.#paddingTop) * (value - this._valueMin)/(this._valueMax-this._valueMin));
+        let axisX = this.#paddingLeft + (this.width-this.#paddingLeft-this.#paddingRight) * (axis[axisIndex] - axisMin)/(axisMax-axisMin);
+        if(isNaN(axisX)) axisX = 0;
+        let valueY = this.height - (this.#paddingBottom + (this.height-this.#paddingBottom-this.#paddingTop) * (value - this._valueMin)/(this._valueMax-this._valueMin));
+        if(isNaN(valueY)) valueY = 0;
         return [axisX, valueY];
     }
     #axisToLine(x, y) {
@@ -148,8 +149,8 @@ export default class UIGraph2D extends UITableBase {
         const axisIndex = x === undefined? y : x;
         const axisMax = axis[axis.length - 1];
         const axisMin = axis[0];
-        const axisX = this.#paddingLeft + (this.width-this.#paddingLeft-this.#paddingRight) * (axis[axisIndex] - axisMin)/(axisMax-axisMin);
-
+        let axisX = this.#paddingLeft + (this.width-this.#paddingLeft-this.#paddingRight) * (axis[axisIndex] - axisMin)/(axisMax-axisMin);
+        if(isNaN(axisX)) axisX = 0;
         const axisY1 = this.height-this.#paddingBottom;
         const axisY2 = this.#paddingTop;
 
