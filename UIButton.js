@@ -10,6 +10,7 @@ export default class UIButton extends HTMLDivElement {
     constructor(prop) {
         super();
         this.class = `ui button`;
+        Object.assign(this, prop);
     }
 }
 customElements.define('ui-button', UIButton, { extends: 'div' });

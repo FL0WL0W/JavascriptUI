@@ -31,7 +31,7 @@ export default class UITemplate extends HTMLDivElement {
         let saveValue = {};
 
         Object.entries(this).forEach(function([elementName, element]) {
-            if(element.saveValue !== undefined)
+            if(element?.saveValue !== undefined)
                 saveValue[elementName] = element.saveValue;
         });
 
@@ -56,7 +56,7 @@ export default class UITemplate extends HTMLDivElement {
         let value = {};
 
         Object.entries(this).forEach(function([elementName, element]) {
-            if(element.value !== undefined)
+            if(element?.value !== undefined)
                 value[elementName] = element.value;
         });
 
