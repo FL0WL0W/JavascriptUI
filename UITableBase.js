@@ -6,7 +6,7 @@ export default class UITableBase extends HTMLDivElement {
         if(value === undefined)
             return;
         if(value.length !== this.xResolution * this.yResolution)
-            throw `Value length does not match table length. Set xResolution and yResolution before setting value\ncurrent:${this.xResolution * this.yResolution}\nnew:${value.length}`;
+            return;
         let same = true;
         for(let i = 0; i < this._valueElement.children.length; i++){
             if((isNaN(this._valueElement.children[i].value) && isNaN(value[i])) || this._valueElement.children[i].value === value[i])
@@ -60,10 +60,10 @@ export default class UITableBase extends HTMLDivElement {
             this.value = saveValue.Value;
     }
     get xResolution() {
-        return Math.max(1,this._xAxisElement.children.length);
+        return Math.max(1, this._xAxisElement.children.length);
     }
     set xResolution(xResolution) {
-        if(isNaN(xResolution) || xResolution === this.xResolution)
+        if(isNaN(xResolution) || xResolution === this._xAxisElement.children.length)
             return;
 
         const oldValue = this.value;
@@ -107,7 +107,7 @@ export default class UITableBase extends HTMLDivElement {
         return Math.max(1, this._yAxisElement.children.length);
     }
     set yResolution(yResolution) {
-        if(isNaN(yResolution) || yResolution === this.yResolution)
+        if(isNaN(yResolution) || yResolution === this._yAxisElement.children.length)
             return;
 
         const oldValue = this.value;

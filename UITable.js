@@ -258,10 +258,12 @@ export default class UITable extends UITableBase {
         this.#yResolutionDragElement.class = `ydrag`;
         this.#yResolutionDragElement.colSpan = 2;
         this.#xyResolutionDragElement.class = `xydrag`;
-        const propValue = prop.value;
-        delete prop.value;
-        Object.assign(this, prop);
-        this.value = propValue;
+        if(prop) {
+            const propValue = prop.value;
+            delete prop.value;
+            Object.assign(this, prop);
+            this.value = propValue;
+        }
 
         this.#buildTableElement();
 
