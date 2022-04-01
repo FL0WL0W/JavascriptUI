@@ -78,7 +78,6 @@ export default class UIDialog extends HTMLDivElement {
                 let yDiff = mevent.pageY - state.pageY;
                 thisClass.#dialog.style.left = state.left + xDiff;
                 thisClass.#dialog.style.top = state.top + yDiff;
-                console.log(thisClass.#dialog.style.left);
             }
             function mouseUp() {
                 document.removeEventListener(`mousemove`, mouseMove);

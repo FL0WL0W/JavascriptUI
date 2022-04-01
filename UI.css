@@ -297,7 +297,8 @@
     font: var(--font);
     margin: 1px;
     padding: 1px 2px;
-    display: inline-block;    
+    display: inline-block;
+    box-sizing: border-box;
 }
 .ui.select .ui.selected {
     min-width: 200px;
