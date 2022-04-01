@@ -13,7 +13,6 @@
     --font: bold 1em Verdana,sans-serif;
     color: var(--text-color);
     font: var(--font);
-    display: inline-block;
 }
 
 .ui .toolbar {
@@ -454,13 +453,15 @@
     fill: var(--text-color);
 }
 
-.ui.dialog dialog {
+.ui.dialog {
+    position: absolute;
     background: var(--background-color);
     color: var(--text-color);
     padding: 0;
     border-radius: 6px;
     border: 2px solid var(--text-color);
     overflow: hidden;
+    z-index: 1000;
 }
 .ui.dialog .titlebar {
     position: absolute;
