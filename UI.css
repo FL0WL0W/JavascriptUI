@@ -321,6 +321,7 @@
     background-color: transparent;
     color: var(--text-color);
     border: none;
+    min-width: 2em;
 }
 .ui.select.measurement .ui.selected::after {
     float: right;
