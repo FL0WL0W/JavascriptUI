@@ -5,7 +5,7 @@ export default class UITable extends UITableBase {
         return super.selecting;
     }
     set selecting(selecting) {
-        if(JSON.stringify(this.selecting) === JSON.stringify(selecting))
+        if(objectTester(this.selecting, selecting))
             return;
         this.#tableElement.querySelectorAll(`input`)?.forEach(function(element) { element.parentElement.textContent = formatNumberForDisplay(element.parentElement.value); });
         let startElement = [...this._valueElement.children].find(element => element.x===selecting.startX && element.y===selecting.startY);
@@ -14,9 +14,8 @@ export default class UITable extends UITableBase {
         if(isNaN(selecting.startY))
             startElement = [...this._xAxisElement.children].find(element => element.x===selecting.startX);
         if(startElement && this.#valueInputElement.parentElement !== startElement) {
-            startElement.innerHTML = ``;
             this.#valueInputElement.value = startElement.value;
-            startElement.append(this.#valueInputElement);
+            startElement.replaceChildren(this.#valueInputElement);
         }
         super.selecting = selecting;
     }
@@ -66,9 +65,7 @@ export default class UITable extends UITableBase {
         if(this.#xLabel === xLabel)
             return;
         this.#xLabel = xLabel;
-        this.#xLabelElement.innerHTML = ``;
-        if(xLabel !== undefined)
-            this.#xLabelElement.append(xLabel);
+        this.#xLabelElement.replaceChildren(xLabel ?? ``);
     }
     get yLabel() {
         return this.#yLabel;
@@ -77,9 +74,7 @@ export default class UITable extends UITableBase {
         if(this.#yLabel === yLabel)
             return;
         this.#yLabel = yLabel;
-        this.#yLabelElement.innerHTML = ``;
-        if(yLabel !== undefined)
-            this.#yLabelElement.append(yLabel);
+        this.#yLabelElement.replaceChildren(yLabel ?? ``);
     }
     get zLabel() {
         return this.#zLabel;
@@ -88,9 +83,7 @@ export default class UITable extends UITableBase {
         if(this.#zLabel === zLabel)
             return;
         this.#zLabel = zLabel;
-        this.#zLabelElement.innerHTML = ``;
-        if(zLabel !== undefined)
-            this.#zLabelElement.append(zLabel);
+        this.#zLabelElement.replaceChildren(zLabel ?? ``);
     }
 
     //table entry number attributes
@@ -333,12 +326,13 @@ export default class UITable extends UITableBase {
     }
 
     #buildTableElement() {
-        this.#tableElement.innerHTML = ``;
+        let newChildren = [];
         const xResolution = this._xAxisElement.children.length;
         const yResolution = this._yAxisElement.children.length;
         //row 0
         if(xResolution > 1 && yResolution > 1) {
-            const row0          = this.#tableElement.appendChild(document.createElement(`tr`));
+            const row0          = document.createElement(`tr`);
+            newChildren.push(row0);
             const xLabelBlank   = row0.appendChild(document.createElement(`td`));
             xLabelBlank.colSpan = 3;
             const xLabelTd      = row0.appendChild(document.createElement(`td`));
@@ -346,7 +340,8 @@ export default class UITable extends UITableBase {
             xLabelTd.append(this.#xLabelElement);
         }
         //row1
-        const row1 = this.#tableElement.appendChild(document.createElement(`tr`));
+        const row1 = document.createElement(`tr`);
+        newChildren.push(row1);
         if(xResolution > 1) {
             const xzAxisLabel   = row1.appendChild(document.createElement(`td`));
             xzAxisLabel.class   = `xztrans`;
@@ -366,8 +361,10 @@ export default class UITable extends UITableBase {
             zlabelTd.append(this.#zLabelElement);
         }
         //row2/3
-        const row2 = this.#tableElement.appendChild(document.createElement(`tr`));
-        const row3 = this.#tableElement.appendChild(document.createElement(`tr`));
+        const row2 = document.createElement(`tr`);
+        newChildren.push(row2);
+        const row3 = document.createElement(`tr`);
+        newChildren.push(row3);
         if (yResolution > 1) {
             if(xResolution > 1) {
                 row2.appendChild(document.createElement(`td`)).style = `width: auto; min-width: 2em;`;//auto width to take up zlabel slack
@@ -384,11 +381,12 @@ export default class UITable extends UITableBase {
         } else if (xResolution > 1) {
             const xAxisLabel    = row2.appendChild(document.createElement(`td`));
             xAxisLabel.class    = `xztrans`
-            xAxisLabel.append(this.#xLabelElement);
+            xAxisLabel.append(this.#zLabelElement);
         }
         const valueTd = row2.appendChild(document.createElement(`td`));
         valueTd.append(this.#trailElement);
         valueTd.append(this._valueElement);
+        this.#tableElement.replaceChildren(...newChildren);
     }
 
     _resolutionChanged(axisElements, axisResolution) {
@@ -956,4 +954,4 @@ export default class UITable extends UITableBase {
         this.#interpolateYElement.addEventListener(`click`, interpolateY);
     }
 }
-customElements.define('ui-table', UITable, { extends: 'div' });
+customElements.define('ui-table', UITable, { extends: `div` });

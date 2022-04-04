@@ -1,5 +1,5 @@
 import UIButton from "./UIButton.js"
-export default class UIDialog extends HTMLDivElement {
+export default class UIDialog extends HTMLSpanElement {
     get value() { return undefined; }
     set value(value) { }
     get saveValue() { return undefined; }
@@ -28,10 +28,10 @@ export default class UIDialog extends HTMLDivElement {
     }
 
     get title() {
-        return this.#titleElement.innerHTML;
+        return this.#titleElement.innerText;
     }
     set title(title) {
-        this.#titleElement.innerHTML = title;
+        this.#titleElement.innerText = title;
     }
 
     constructor(prop) {
@@ -88,4 +88,4 @@ export default class UIDialog extends HTMLDivElement {
         })
     }
 }
-customElements.define('ui-dialog', UIDialog, { extends: 'div' });
+customElements.define('ui-dialog', UIDialog, { extends: `span` });

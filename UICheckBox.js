@@ -24,4 +24,4 @@ export default class UICheckBox extends HTMLInputElement {
         Object.assign(this, prop);
     }
 }
-customElements.define('ui-checkbox', UICheckBox, { extends: 'input' });
+customElements.define(`ui-checkbox`, UICheckBox, { extends: `input` });

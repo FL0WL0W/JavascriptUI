@@ -95,6 +95,7 @@ export default class UISelection extends HTMLDivElement {
 
     #updateSelectElement() {
         const selectedElement = this.selectedElement;
+        let nonePreviouslySelected = this.#selectElement.classList.contains(`selected`);
         let selected = false;
         [...this.contextMenuElement.children].forEach(function(element) { 
             [...element.children].forEach(function(element) { 
@@ -104,8 +105,11 @@ export default class UISelection extends HTMLDivElement {
             if(element.value !== selectedElement.value) element.classList.remove(`selected`);
             else { element.classList.add(`selected`); selected = true;}
         });
-        if(!selected) this.#selectElement.classList.add(`selected`);
-        selectedElement.textContent = this.selectedOption?.Name ?? this.selectName;
+        const selectedText = this.selectedOption?.Name ?? this.selectName;
+        if(selectedElement.textContent !== selectedText)
+            selectedElement.textContent = selectedText;
+        if(!selected)
+            this.#selectElement.classList.add(`selected`);
     }
 
     #options = [];
@@ -115,7 +119,8 @@ export default class UISelection extends HTMLDivElement {
     set options(options) {
         if(options === undefined)
             options = [];
-        
+        if(objectTester(this.#options, options))
+            return;
         this.#options = options;
 
         const thisClass = this;
@@ -215,8 +220,8 @@ function setElementOption(element, option) {
     if(option.Group) {
         delete element.type;
         delete element.value;
-        element.innerHTML = ``;
-        let selectGroupElement = element.appendChild(document.createElement(`div`));
+        let selectGroupElement = document.createElement(`div`);
+        element.replaceChildren(selectGroupElement);
         selectGroupElement.classList.add(`selectgroup`);
         selectGroupElement.textContent = option.Group;
         option.Options.forEach(function(option) {

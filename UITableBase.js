@@ -95,7 +95,7 @@ export default class UITableBase extends HTMLDivElement {
         return [...this._xAxisElement.children].map(x => x.value);
     }
     set xAxis(xAxis) {
-        if(JSON.stringify(xAxis) === JSON.stringify(this.xAxis))
+        if(objectTester(this.xAxis, xAxis))
             return;
         this.xResolution = xAxis.length;
         const thisClass = this;
@@ -138,7 +138,7 @@ export default class UITableBase extends HTMLDivElement {
         return [...this._yAxisElement.children].map(x => x.value);
     }
     set yAxis(yAxis) {
-        if(JSON.stringify(yAxis) === JSON.stringify(this.yAxis))
+        if(objectTester(this.yAxis, yAxis))
             return;
         this.yResolution = yAxis.length;
         const thisClass = this;

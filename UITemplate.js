@@ -1,7 +1,6 @@
-export default class UITemplate extends HTMLDivElement {
+export default class UITemplate extends HTMLSpanElement {
     constructor(prop) {
         super();
-        this.style.display = `inline-block`;
         if(prop)
             this.Setup(prop);
     }
@@ -77,4 +76,4 @@ export default class UITemplate extends HTMLDivElement {
         });
     }
 }
-customElements.define('ui-template', UITemplate, { extends: 'div' });
+customElements.define('ui-template', UITemplate, { extends: `span` });

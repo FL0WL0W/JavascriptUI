@@ -32,7 +32,7 @@ export default class UIGraph2D extends UITableBase {
         return super.selecting;
     }
     set selecting(selecting) {
-        if(JSON.stringify(this.selecting) === JSON.stringify(selecting))
+        if(objectTester(this.selecting, selecting))
             return;
         this.#valueLineElement.querySelectorAll(`.selected`).forEach(function(element) { element.classList.remove(`selected`) });
         if(selecting) {

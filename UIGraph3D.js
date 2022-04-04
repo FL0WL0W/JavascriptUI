@@ -21,7 +21,7 @@ export default class UIGraph3D extends UITableBase {
         return super.selecting;
     }
     set selecting(selecting) {
-        if(JSON.stringify(this.selecting) === JSON.stringify(selecting))
+        if(objectTester(this.selecting, selecting))
             return;
         this.#valuePathElement.querySelectorAll(`.selected`).forEach(function(element) { element.classList.remove(`selected`) });
         if(selecting) {
@@ -117,7 +117,7 @@ export default class UIGraph3D extends UITableBase {
         return this.#transformPrecalcPrivate;
     }
     set #transformPrecalc(transformPrecalc) {
-        if(JSON.stringify(this.#transformPrecalcPrivate) === JSON.stringify(transformPrecalc))
+        if(objectTester(this.#transformPrecalcPrivate, transformPrecalc))
             return;
         this.#transformPrecalcPrivate = transformPrecalc;
         const r = transformPrecalc.zoom/(7.5 * Math.max(this.xResolution, this.yResolution));

@@ -23,4 +23,4 @@ export default class UIText extends HTMLInputElement {
         Object.assign(this, prop);
     }
 }
-customElements.define('ui-text', UIText, { extends: 'input' });
+customElements.define(`ui-text`, UIText, { extends: `input` });

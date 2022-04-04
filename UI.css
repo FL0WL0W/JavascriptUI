@@ -342,6 +342,8 @@
 
 .ui.button {
     cursor: pointer;
+    width: fit-content;
+    block-size: fit-content;
 }
 
 .ui.text,
@@ -378,10 +380,11 @@
     border: 1px solid var(--input-background-color);
     min-width: 200px;
     max-height: 400px;
+    overflow: visible;
     overflow-y: auto;
     white-space: normal;
     inline-size: 200px;
-    z-index: 10;
+    z-index: 10000;
     display: block;
 }
 .ui.context-menu .selectgroup {
@@ -455,6 +458,9 @@
     fill: var(--text-color);
 }
 
+.ui.dialog-container {
+    position: relative;
+}
 .ui.dialog {
     position: absolute;
     background: var(--background-color);
@@ -462,7 +468,8 @@
     padding: 0;
     border-radius: 6px;
     border: 2px solid var(--text-color);
-    overflow: hidden;
+    width: fit-content;
+    block-size: fit-content;
     z-index: 1000;
 }
 .ui.dialog .titlebar {

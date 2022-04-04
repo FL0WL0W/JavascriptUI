@@ -25,4 +25,4 @@ export default class UINumber extends HTMLInputElement {
         Object.assign(this, prop);
     }
 }
-customElements.define('ui-number', UINumber, { extends: 'input' });
+customElements.define(`ui-number`, UINumber, { extends: `input` });

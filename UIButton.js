@@ -1,4 +1,4 @@
-export default class UIButton extends HTMLDivElement {
+export default class UIButton extends HTMLSpanElement {
     get value() { return undefined; }
     set value(value) { }
     get saveValue() { return undefined; }
@@ -13,4 +13,4 @@ export default class UIButton extends HTMLDivElement {
         Object.assign(this, prop);
     }
 }
-customElements.define('ui-button', UIButton, { extends: 'div' });
+customElements.define('ui-button', UIButton, { extends: `span` });
