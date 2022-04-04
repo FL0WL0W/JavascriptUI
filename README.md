@@ -5,6 +5,9 @@ A Javascript UI with the ability to save the state of the UI. It is very extensi
  - Number
  - Checkbox
  - Selction
+ - Button
+ - Dialog
+ - Template
  - Numeric table
    - Multi select and edit
    - Copy and paste compatible with excel
