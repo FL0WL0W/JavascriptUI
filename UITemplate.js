@@ -6,7 +6,16 @@ export default class UITemplate extends HTMLSpanElement {
     }
 
     Setup(prop) {
+        prop ??= {};
+        const propSaveValue = prop.saveValue;
+        const propValue = prop.value;
+        delete prop.saveValue;
+        delete prop.value;
         Object.assign(this, prop);
+        if(propSaveValue !== undefined)
+            this.saveValue = propSaveValue;
+        if(propValue !== undefined)
+            this.value = propValue;
         const thisClass = this;
         var thisEntries = Object.entries(this);
         thisEntries.forEach(function([elementName, element]) {
