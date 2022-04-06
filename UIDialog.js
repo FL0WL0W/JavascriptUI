@@ -54,8 +54,10 @@ export default class UIDialog extends HTMLSpanElement {
         const thisClass = this;
         this.#button.addEventListener(`click`, function() {
             thisClass.#dialog.show();
-            thisClass.#dialog.style.top = `0px`;
-            thisClass.#dialog.style.left = `0px`;
+            if(thisClass.#dialog.style.right == 0) {
+                thisClass.#dialog.style.top = `0px`;
+                thisClass.#dialog.style.left = `0px`;
+            }
         });
         this.#closeElement.addEventListener(`click`, function() {
             thisClass.#dialog.close();
