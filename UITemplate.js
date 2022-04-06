@@ -54,7 +54,7 @@ export default class UITemplate extends HTMLSpanElement {
             return;
 
         Object.entries(this).forEach(function([elementName, element]) {
-            if(saveValue[elementName] !== undefined && typeof element === `object`) {
+            if(saveValue[elementName] !== undefined && typeof element === `object` && Object.keys(element).indexOf(`saveValue`)) {
                 element.saveValue = saveValue[elementName];
             }
         });

@@ -38,7 +38,7 @@ export default class UISelection extends HTMLDivElement {
     set selectDisabled(selectDisabled) {
         this.#selectDisabled = selectDisabled;
         if(!this.selectNotVisible){
-            setElementOption(this.#selectElement, { Name: this.selectName, Disabled: this.selectDisabled, Value: this.selectValue });
+            setElementOption(this.#selectElement, { name: this.selectName, disabled: this.selectDisabled, value: this.selectValue });
         }
     }
 
@@ -54,7 +54,7 @@ export default class UISelection extends HTMLDivElement {
         if(this.selectedOption === undefined)
             this.selectedElement.textContent = this.selectName;
         if(!this.selectNotVisible){
-            setElementOption(this.#selectElement, { Name: this.selectName, Disabled: this.selectDisabled, Value: this.selectValue });
+            setElementOption(this.#selectElement, { name: this.selectName, disabled: this.selectDisabled, value: this.selectValue });
         }
     }
 
@@ -72,7 +72,7 @@ export default class UISelection extends HTMLDivElement {
             this.selectedElement.type = typeof selectValue;
         }
         if(!this.selectNotVisible){
-            setElementOption(this.#selectElement, { Name: this.selectName, Disabled: this.selectDisabled, Value: this.selectValue });
+            setElementOption(this.#selectElement, { name: this.selectName, disabled: this.selectDisabled, value: this.selectValue });
         }
     }
 
@@ -87,7 +87,7 @@ export default class UISelection extends HTMLDivElement {
 
         this.#selectNotVisible = selectNotVisible;
         if(!this.selectNotVisible){
-            setElementOption(this.#selectElement, { Name: this.selectName, Disabled: this.selectDisabled, Value: this.selectValue });
+            setElementOption(this.#selectElement, { name: this.selectName, disabled: this.selectDisabled, value: this.selectValue });
         } else if(this.contextMenuElement.children[0] !== undefined) {
             this.contextMenuElement.removeChild(this.contextMenuElement.children[0]);
         }
@@ -105,7 +105,7 @@ export default class UISelection extends HTMLDivElement {
             if(element.value !== selectedElement.value) element.classList.remove(`selected`);
             else { element.classList.add(`selected`); selected = true;}
         });
-        const selectedText = this.selectedOption?.Name ?? this.selectName;
+        const selectedText = this.selectedOption?.name ?? this.selectName;
         if(selectedElement.textContent !== selectedText)
             selectedElement.textContent = selectedText;
         if(!selected)
@@ -131,7 +131,7 @@ export default class UISelection extends HTMLDivElement {
             this.#selectElement = thisClass.contextMenuElement.children[0];
             if(this.#selectElement === undefined)
                 this.#selectElement = thisClass.contextMenuElement.appendChild(document.createElement(`div`));
-            setElementOption(this.#selectElement, { Name: thisClass.selectName, Disabled: thisClass.selectDisabled, Value: thisClass.selectValue });
+            setElementOption(this.#selectElement, { name: thisClass.selectName, disabled: thisClass.selectDisabled, value: thisClass.selectValue });
         }
         options.forEach(function(option, index) {
             let optionElement = thisClass.contextMenuElement.children[index + (thisClass.selectNotVisible? 0 : 1)];
@@ -144,13 +144,13 @@ export default class UISelection extends HTMLDivElement {
 
     get selectedOption() {
         const stringValue = this.selectedElement.value;
-        let selectedOption = this.options.find(x => UISelection.ParseValue(`string`, x.Value) === stringValue || x.Options?.findIndex(x => UISelection.ParseValue(`string`, x.Value) === stringValue) > -1)
-        if(selectedOption?.Group) 
-            selectedOption = selectedOption.Options.find(x => UISelection.ParseValue(`string`, x.Value) === stringValue);
+        let selectedOption = this.options.find(x => UISelection.ParseValue(`string`, x.value) === stringValue || x.options?.findIndex(x => UISelection.ParseValue(`string`, x.value) === stringValue) > -1)
+        if(selectedOption?.group) 
+            selectedOption = selectedOption.options.find(x => UISelection.ParseValue(`string`, x.value) === stringValue);
         return selectedOption;
     }
     set selectedOption(selectedOption) {
-        this.value = selectedOption.Value;
+        this.value = selectedOption.value;
     }
 
     get value() {
@@ -183,7 +183,7 @@ export default class UISelection extends HTMLDivElement {
         this.contextMenuElement.class = `ui context-menu`;
         this.#selectElement = document.createElement(`div`);
         this.contextMenuElement.prepend(this.#selectElement)
-        setElementOption(this.#selectElement, { Name: this.selectName, Disabled: this.selectDisabled, Value: this.selectValue });
+        setElementOption(this.#selectElement, { name: this.selectName, disabled: this.selectDisabled, value: this.selectValue });
         Object.assign(this, prop);
         const thisClass = this;
 
@@ -217,24 +217,24 @@ export default class UISelection extends HTMLDivElement {
 
 function setElementOption(element, option) {
     element.removeAttribute("class")
-    if(option.Group) {
+    if(option.group) {
         delete element.type;
         delete element.value;
         let selectGroupElement = document.createElement(`div`);
         element.replaceChildren(selectGroupElement);
         selectGroupElement.classList.add(`selectgroup`);
-        selectGroupElement.textContent = option.Group;
-        option.Options.forEach(function(option) {
+        selectGroupElement.textContent = option.group;
+        option.options.forEach(function(option) {
             let optionElement = element.appendChild(document.createElement(`div`));
             setElementOption(optionElement, option);
         });
     } else {
         element.classList.add(`selectoption`);
-        if(option.Disabled)
+        if(option.disabled)
             element.classList.add(`selectdisabled`)
-        element.type = typeof option.Value;
-        element.value =  UISelection.ParseValue(`string`, option.Value);
-        element.textContent = option.Name + (option.Info? ` ${option.Info}` : ``);
+        element.type = typeof option.value;
+        element.value =  UISelection.ParseValue(`string`, option.value);
+        element.textContent = option.name + (option.info? ` ${option.info}` : ``);
     }
 }
 customElements.define(`ui-selection`, UISelection, { extends: `div` });

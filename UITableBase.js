@@ -22,42 +22,46 @@ export default class UITableBase extends HTMLDivElement {
     }
     get saveValue() {
         return {
-            Value: this.value,
-            XAxis: this.xAxis,
-            XResolution: this.xResolutionModifiable? this.xResolution : undefined,
-            YAxis: this.yAxis,
-            YResolution: this.yResolutionModifiable? this.yResolution : undefined,
+            value: this.value,
+            xAxis: this.xAxis,
+            yAxis: this.yAxis,
         };
     }
     set saveValue(saveValue) {
         if(saveValue === undefined) 
             return;
 
-        const xResolution = saveValue.XResolution ?? saveValue.Resolution;
+        saveValue.value ??= saveValue.Value;
+        saveValue.xAxis ??= saveValue.XAxis;
+        saveValue.xResolution ??= saveValue.XResolution;
+        saveValue.yAxis ??= saveValue.YAxis;
+        saveValue.yResolution ??= saveValue.YResolution;
+
+        const xResolution = saveValue.xResolution ?? saveValue.Resolution;
         const maxX = saveValue.MaxX ?? saveValue.Max;
         const minX = saveValue.MinX ?? saveValue.Min;
         if(xResolution && maxX !== undefined && minX !== undefined && maxX !== null && minX !== null) {
-            saveValue.XAxis = new Array(xResolution);
+            saveValue.xAxis = new Array(xResolution);
             const xAxisAdd = (maxX - minX) / (xResolution - 1);
             for(let x=0; x<xResolution; x++){
-                saveValue.XAxis[x] = minX + xAxisAdd * x;
+                saveValue.xAxis[x] = minX + xAxisAdd * x;
             }
         }
-        if(saveValue.YResolution && saveValue.MaxY !== undefined && saveValue.MinY !== undefined && saveValue.MaxY !== null && saveValue.MinY !== null) {
-            saveValue.YAxis = new Array(saveValue.YResolution);
-            const yAxisAdd = (saveValue.MaxY - saveValue.MinY) / (saveValue.YResolution - 1);
-            for(let y=0; y<saveValue.YResolution; y++){
-                saveValue.YAxis[y] = saveValue.MinY + yAxisAdd * y;
+        if(saveValue.yResolution && saveValue.MaxY !== undefined && saveValue.MinY !== undefined && saveValue.MaxY !== null && saveValue.MinY !== null) {
+            saveValue.yAxis = new Array(saveValue.yResolution);
+            const yAxisAdd = (saveValue.MaxY - saveValue.MinY) / (saveValue.yResolution - 1);
+            for(let y=0; y<saveValue.yResolution; y++){
+                saveValue.yAxis[y] = saveValue.MinY + yAxisAdd * y;
             }
         }
 
-        if(saveValue.XAxis !== undefined)
-            this.xAxis = saveValue.XAxis;
-        if(saveValue.YAxis !== undefined)
-            this.yAxis = saveValue.YAxis;
+        if(saveValue.xAxis !== undefined)
+            this.xAxis = saveValue.xAxis;
+        if(saveValue.yAxis !== undefined)
+            this.yAxis = saveValue.yAxis;
 
-        if(saveValue.Value !== undefined && Array.isArray(saveValue.Value))
-            this.value = saveValue.Value;
+        if(saveValue.value !== undefined && Array.isArray(saveValue.value))
+            this.value = saveValue.value;
     }
     get xResolution() {
         return Math.max(1, this._xAxisElement.children.length);
