@@ -24,7 +24,7 @@ export default class UITemplate extends HTMLSpanElement {
             });
         });
 
-        const template = this.Template ?? this.constructor.Template;
+        const template = this.template ?? this.constructor.template;
         this.innerHTML = template;
         this.querySelectorAll(`[data-element]`).forEach(function(element){
             let found = thisEntries.find(function([elementName, e]) { return element.dataset.element === elementName; });
