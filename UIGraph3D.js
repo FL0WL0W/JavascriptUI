@@ -96,12 +96,14 @@ export default class UIGraph3D extends UITableBase {
     }
     set width(width) {
         this.#svgElement.setAttribute(`width`, parseFloat(width.toFixed(10)));
+        this.#transformPrecalc = UIGraph3D.transformPrecalc(this);
     }
     get height() {
         return this.#svgElement.getAttribute(`height`) ?? this.offsetHeight ?? 150;
     }
     set height(height) {
         this.#svgElement.setAttribute(`height`, parseFloat(height.toFixed(10)));
+        this.#transformPrecalc = UIGraph3D.transformPrecalc(this);
     }
 
     #floorElement       = document.createElementNS('http://www.w3.org/2000/svg','g');
