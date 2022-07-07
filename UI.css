@@ -316,14 +316,14 @@
     border-color: var(--border-hover-color);
 }
 
-.ui.select.measurement .ui.selected {
+.ui.select.unit .ui.selected {
     min-width: 0px;
     background-color: transparent;
     color: var(--text-color);
     border: none;
     min-width: 2em;
 }
-.ui.select.measurement .ui.selected::after {
+.ui.select.unit .ui.selected::after {
     float: right;
     content: "";
 }

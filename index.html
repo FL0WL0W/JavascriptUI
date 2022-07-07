@@ -6,9 +6,9 @@
         </style>
         <script src="UIUtils.js"></script>
         <script type="module">
-            import UIText from "./UIText.js";
-            import UINumber from "./UINumber.js";
-            import UICheckBox from "./UICheckBox.js";
+            import UIText from "./UIText.js"
+            import UINumber from "./UINumber.js"
+            import UICheckBox from "./UICheckBox.js"
             import UITemplate from "./UITemplate.js"
             import UISelection from "./UISelection.js"
             import UITable from "./UITable.js"
@@ -24,7 +24,7 @@
                     yAxis: [ 1, 2, 3, 4 ],
                     width: 640,
                     height: 480
-                });
+                })
             window.template = new UITemplate({
                 template: `<div data-element="text"></div><hr/><div data-element="number"></div><hr/><div data-element="checkbox"></div><hr/><div data-element="graph2D"></div><hr/><div data-element="graph3D"></div><hr/><div data-element="table2D"></div>`,
                 text: new UIText({
@@ -73,15 +73,15 @@
                     width: 640,
                     height: 480
                 }),
-            });
-            window.template.graph3D.content.append(graph3D);
-            window.template.table2D.attachToTable(graph3D);
-            graph3D.attachToTable(window.template.table2D);
-            window.template.table2D.attachToTable(window.template.graph2D);
-            window.template.graph2D.attachToTable(window.template.table2D);
+            })
+            window.template.graph3D.content.append(graph3D)
+            window.template.table2D.attachToTable(graph3D)
+            graph3D.attachToTable(window.template.table2D)
+            window.template.table2D.attachToTable(window.template.graph2D)
+            window.template.graph2D.attachToTable(window.template.table2D)
             window.addEventListener(`load`, function() {
                 document.body.appendChild(window.template)
-            });
+            })
         </script>
     </head>
     <body>
