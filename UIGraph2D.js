@@ -36,8 +36,8 @@ export default class UIGraph2D extends UITableBase {
             return;
         this.#valueLineElement.querySelectorAll(`.selected`).forEach(function(element) { element.classList.remove(`selected`) });
         if(selecting) {
-            if( selecting.startX !== undefined && selecting.endX !== undefined &&
-                selecting.startY !== undefined && selecting.endY !== undefined) {
+            if( selecting.startX != undefined && selecting.endX != undefined &&
+                selecting.startY != undefined && selecting.endY != undefined) {
                 for(let i=0; i<this.#valueLineElement.children.length; i++) {
                     let element = this.#valueLineElement.children[i];
                     if( Math.min(selecting.endX, selecting.startX) > parseInt(element.x1) ||
@@ -145,8 +145,8 @@ export default class UIGraph2D extends UITableBase {
         return [axisX, valueY];
     }
     #axisToLine(x, y) {
-        const axis = x === undefined? this.yAxis : this.xAxis;
-        const axisIndex = x === undefined? y : x;
+        const axis = x == undefined? this.yAxis : this.xAxis;
+        const axisIndex = x == undefined? y : x;
         const axisMax = axis[axis.length - 1];
         const axisMin = axis[0];
         let axisX = this.#paddingLeft + (this.width-this.#paddingLeft-this.#paddingRight) * (axis[axisIndex] - axisMin)/(axisMax-axisMin);
@@ -194,7 +194,7 @@ export default class UIGraph2D extends UITableBase {
             const axisMinus1 = axisElements.children[i-1]?.value;
             const axisMinus2 = axisElements.children[i-2]?.value;
             let axisMinus0 = 0;
-            if(axisMinus1 !== undefined && axisMinus2 !== undefined) 
+            if(axisMinus1 != undefined && axisMinus2 != undefined) 
                 axisMinus0 = axisMinus1 + (axisMinus1 - axisMinus2);
             axisElement.value = axisMinus0;
             if(axisElements === this._xAxisElement)
@@ -379,7 +379,7 @@ export default class UIGraph2D extends UITableBase {
                 let l = element.p[0] - relX;
                 let w = element.p[1] - relY;
                 element.dist = Math.sqrt(l*l+w*w);
-                if(closestCircle === undefined || element.dist < closestCircle.dist)
+                if(closestCircle == undefined || element.dist < closestCircle.dist)
                     closestCircle = element;
             });
             if(closestCircle && event.button === 0) {

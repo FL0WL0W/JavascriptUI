@@ -25,8 +25,8 @@ export default class UIGraph3D extends UITableBase {
             return;
         this.#valuePathElement.querySelectorAll(`.selected`).forEach(function(element) { element.classList.remove(`selected`) });
         if(selecting) {
-            if( selecting.startX !== undefined && selecting.endX !== undefined &&
-                selecting.startY !== undefined && selecting.endY !== undefined) {
+            if( selecting.startX != undefined && selecting.endX != undefined &&
+                selecting.startY != undefined && selecting.endY != undefined) {
                 for(let i=0; i<this.#valuePathElement.children.length; i++) {
                     let element = this.#valuePathElement.children[i];
                     if( Math.min(selecting.endX, selecting.startX) > parseInt(element.x1) ||
@@ -225,9 +225,9 @@ export default class UIGraph3D extends UITableBase {
         Object.assign(this, prop);
         this.#createEventListeners();
         this.value = propValue;
-        if(prop?.pitch === undefined)
+        if(prop?.pitch == undefined)
             this.pitch = 17;
-        if(prop?.yaw === undefined)
+        if(prop?.yaw == undefined)
             this.yaw = 30;
     }
     static transformPrecalc({width = 0, height = 0, pitch = 0, yaw = 0, cameraX = 0, cameraY = 0, zoom = 1} = {}) {
@@ -291,13 +291,13 @@ export default class UIGraph3D extends UITableBase {
         const yMax = yAxisElements[yAxisElements.length -1]?.value;
         const yVal = yAxisElements[y]?.value;
         y = this.yResolution-y-1;
-        if(x === undefined || isNaN(x))
+        if(x == undefined || isNaN(x))
             x = this.#transformPrecalc?.sinYaw > 0? 0 : 1;
         else
             x = (xVal-xMin)/(xMax-xMin);
         if(isNaN(x))
             x = 0;
-        if(y === undefined || isNaN(y))
+        if(y == undefined || isNaN(y))
             y = this.#transformPrecalc?.cosYaw > 0? 1 : 0;
         else
             y = (yVal-yMin)/(yMax-yMin);
@@ -339,7 +339,7 @@ export default class UIGraph3D extends UITableBase {
                 const axisMinus1 = axisElements.children[i-1]?.value;
                 const axisMinus2 = axisElements.children[i-2]?.value;
                 let axisMinus0 = 0;
-                if(axisMinus1 !== undefined && axisMinus2 !== undefined) 
+                if(axisMinus1 != undefined && axisMinus2 != undefined) 
                     axisMinus0 = axisMinus1 + (axisMinus1 - axisMinus2);
                 axisElement.value = axisMinus0;
                 if(axisElements === this._xAxisElement)
@@ -357,7 +357,7 @@ export default class UIGraph3D extends UITableBase {
                 this.children[0].setAttribute(`y2`, line[1][1].toFixed(10));
 
                 const textSize = this.textSize * thisClass.#transformPrecalc.zoom;
-                const scalextext = Math.abs(this.x !== undefined? thisClass.#transformPrecalc.cosYaw : thisClass.#transformPrecalc.sinYaw);
+                const scalextext = Math.abs(this.x != undefined? thisClass.#transformPrecalc.cosYaw : thisClass.#transformPrecalc.sinYaw);
                 const scaleytext = Math.abs(thisClass.#transformPrecalc.cosPitch);
                 let xoffset = 0;
                 if(this.x === 0)
@@ -527,7 +527,7 @@ export default class UIGraph3D extends UITableBase {
                     set: function(p) {
                         if(!p) 
                             return;
-                        if(this.pp === undefined || this.pp[0] !== p[0] || this.pp[1] !== p[1]) {
+                        if(this.pp == undefined || this.pp[0] !== p[0] || this.pp[1] !== p[1]) {
                             if(this.vp1) { this.vp1.p1 = p; this.vp1.v1 = this.value; }
                             if(this.vp2) { this.vp2.p2 = p; this.vp2.v2 = this.value; }
                             if(this.vp3) { this.vp3.p3 = p; this.vp3.v3 = this.value; }
@@ -590,7 +590,7 @@ export default class UIGraph3D extends UITableBase {
                 let l = element.p[0] - relX;
                 let w = element.p[1] - relY;
                 element.dist = Math.sqrt(l*l+w*w);
-                if(closestCircle === undefined || element.dist < closestCircle.dist)
+                if(closestCircle == undefined || element.dist < closestCircle.dist)
                     closestCircle = element;
             });
             if(closestCircle && event.button === 0) {

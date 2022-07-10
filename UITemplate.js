@@ -12,9 +12,9 @@ export default class UITemplate extends HTMLSpanElement {
         delete prop.saveValue
         delete prop.value
         Object.assign(this, prop)
-        if(propSaveValue !== undefined)
+        if(propSaveValue != undefined)
             this.saveValue = propSaveValue
-        if(propValue !== undefined)
+        if(propValue != undefined)
             this.value = propValue
         const thisClass = this
         var thisEntries = Object.entries(this)
@@ -39,7 +39,7 @@ export default class UITemplate extends HTMLSpanElement {
         let saveValue = {}
 
         Object.entries(this).forEach(function([elementName, element]) {
-            if(element?.saveValue !== undefined)
+            if(element?.saveValue != undefined)
                 saveValue[elementName] = element.saveValue
         })
 
@@ -50,11 +50,11 @@ export default class UITemplate extends HTMLSpanElement {
     }
 
     set saveValue(saveValue) {
-        if(saveValue === undefined)
+        if(saveValue == undefined)
             return
 
         Object.entries(this).forEach(function([elementName, element]) {
-            if(saveValue[elementName] !== undefined && typeof element === `object` && Object.keys(element).indexOf(`saveValue`)) {
+            if(saveValue[elementName] != undefined && typeof element === `object` && Object.keys(element).indexOf(`saveValue`)) {
                 element.saveValue = saveValue[elementName]
             }
         })
@@ -64,7 +64,7 @@ export default class UITemplate extends HTMLSpanElement {
         let value = {}
 
         Object.entries(this).forEach(function([elementName, element]) {
-            if(element?.value !== undefined)
+            if(element?.value != undefined)
                 value[elementName] = element.value
         })
 
@@ -75,11 +75,11 @@ export default class UITemplate extends HTMLSpanElement {
     }
 
     set value(value) {
-        if(value === undefined)
+        if(value == undefined)
             return
 
         Object.entries(this).forEach(function([elementName, element]) {
-            if(value[elementName] !== undefined && typeof element === `object`) {
+            if(value[elementName] != undefined && typeof element === `object`) {
                 element.value = value[elementName]
             }
         })

@@ -51,7 +51,7 @@ export default class UISelection extends HTMLDivElement {
             return
 
         this.#selectName = selectName
-        if(this.selectedOption === undefined)
+        if(this.selectedOption == undefined)
             this.selectedElement.textContent = this.selectName
         if(!this.selectNotVisible){
             setElementOption(this.#selectElement, { name: this.selectName, disabled: this.selectDisabled, value: this.selectValue })
@@ -67,7 +67,7 @@ export default class UISelection extends HTMLDivElement {
             return
             
         this.#selectValue = selectValue
-        if(this.selectedOption === undefined) {
+        if(this.selectedOption == undefined) {
             this.selectedElement.value = UISelection.ParseValue(`string`, selectValue)
             this.selectedElement.type = typeof selectValue
         }
@@ -88,7 +88,7 @@ export default class UISelection extends HTMLDivElement {
         this.#selectNotVisible = selectNotVisible
         if(!this.selectNotVisible){
             setElementOption(this.#selectElement, { name: this.selectName, disabled: this.selectDisabled, value: this.selectValue })
-        } else if(this.contextMenuElement.children[0] !== undefined) {
+        } else if(this.contextMenuElement.children[0] != undefined) {
             this.contextMenuElement.removeChild(this.contextMenuElement.children[0])
         }
     }
@@ -117,7 +117,7 @@ export default class UISelection extends HTMLDivElement {
         return this.#options
     }
     set options(options) {
-        if(options === undefined)
+        if(options == undefined)
             options = []
         if(objectTester(this.#options, options))
             return
@@ -129,13 +129,13 @@ export default class UISelection extends HTMLDivElement {
         }
         if(!thisClass.selectNotVisible){
             this.#selectElement = thisClass.contextMenuElement.children[0]
-            if(this.#selectElement === undefined)
+            if(this.#selectElement == undefined)
                 this.#selectElement = thisClass.contextMenuElement.appendChild(document.createElement(`div`))
             setElementOption(this.#selectElement, { name: thisClass.selectName, disabled: thisClass.selectDisabled, value: thisClass.selectValue })
         }
         options.forEach(function(option, index) {
             let optionElement = thisClass.contextMenuElement.children[index + (thisClass.selectNotVisible? 0 : 1)]
-            if(optionElement === undefined)
+            if(optionElement == undefined)
                 optionElement = thisClass.contextMenuElement.appendChild(document.createElement(`div`))
             setElementOption(optionElement, option)
         })

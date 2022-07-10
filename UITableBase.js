@@ -3,7 +3,7 @@ export default class UITableBase extends HTMLDivElement {
         return [...this._valueElement.children].map(x => x.value)
     }
     set value(value) {
-        if(value === undefined)
+        if(value == undefined)
             return
         if(value.length !== this.xResolution * this.yResolution)
             return
@@ -28,7 +28,7 @@ export default class UITableBase extends HTMLDivElement {
         }
     }
     set saveValue(saveValue) {
-        if(saveValue === undefined) 
+        if(saveValue == undefined) 
             return
 
         saveValue.value ??= saveValue.Value
@@ -40,14 +40,14 @@ export default class UITableBase extends HTMLDivElement {
         const xResolution = saveValue.xResolution ?? saveValue.Resolution
         const maxX = saveValue.MaxX ?? saveValue.Max
         const minX = saveValue.MinX ?? saveValue.Min
-        if(xResolution && maxX !== undefined && minX !== undefined && maxX !== null && minX !== null) {
+        if(xResolution && maxX != undefined && minX != undefined && maxX !== null && minX !== null) {
             saveValue.xAxis = new Array(xResolution)
             const xAxisAdd = (maxX - minX) / (xResolution - 1)
             for(let x=0; x<xResolution; x++){
                 saveValue.xAxis[x] = minX + xAxisAdd * x
             }
         }
-        if(saveValue.yResolution && saveValue.MaxY !== undefined && saveValue.MinY !== undefined && saveValue.MaxY !== null && saveValue.MinY !== null) {
+        if(saveValue.yResolution && saveValue.MaxY != undefined && saveValue.MinY != undefined && saveValue.MaxY !== null && saveValue.MinY !== null) {
             saveValue.yAxis = new Array(saveValue.yResolution)
             const yAxisAdd = (saveValue.MaxY - saveValue.MinY) / (saveValue.yResolution - 1)
             for(let y=0; y<saveValue.yResolution; y++){
@@ -55,12 +55,12 @@ export default class UITableBase extends HTMLDivElement {
             }
         }
 
-        if(saveValue.xAxis !== undefined)
+        if(saveValue.xAxis != undefined)
             this.xAxis = saveValue.xAxis
-        if(saveValue.yAxis !== undefined)
+        if(saveValue.yAxis != undefined)
             this.yAxis = saveValue.yAxis
 
-        if(saveValue.value !== undefined && Array.isArray(saveValue.value))
+        if(saveValue.value != undefined && Array.isArray(saveValue.value))
             this.value = saveValue.value
     }
     get xResolution() {

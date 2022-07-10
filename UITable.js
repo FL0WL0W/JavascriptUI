@@ -397,7 +397,7 @@ export default class UITable extends UITableBase {
             const axisMinus1 = axisElements.children[i-1]?.value;
             const axisMinus2 = axisElements.children[i-2]?.value;
             let axisMinus0 = 0;
-            if(axisMinus1 !== undefined && axisMinus2 !== undefined)
+            if(axisMinus1 != undefined && axisMinus2 != undefined)
                 axisMinus0 = axisMinus1 + (axisMinus1 - axisMinus2);
             axisElement.value = axisMinus0;
             if(axisElements === this._xAxisElement)
@@ -505,10 +505,10 @@ export default class UITable extends UITableBase {
             thisClass.#tableElement.querySelectorAll(`.selected`).forEach(function(element) {
                 if(isNaN(parseFloat(element.value)))
                     return;
-                if(element.y === undefined && element.x === undefined)
+                if(element.y == undefined && element.x == undefined)
                     return;
                 let y = parseInt(element.y ?? -1);
-                if(currentY !== undefined) {
+                if(currentY != undefined) {
                     if(currentY !== y) {
                         copyData += `\n`;
                     } else {
@@ -664,7 +664,7 @@ export default class UITable extends UITableBase {
             dragX = false;
             dragY = false;
             if(selecting) {
-                const targetIsDataValue = selecting.startElement.x !== undefined || selecting.startElement.y !== undefined;
+                const targetIsDataValue = selecting.startElement.x != undefined || selecting.startElement.y != undefined;
                 if(addSelectNumber) {
                     if(targetIsDataValue) {
                         thisClass.#valueInputElement.select();
@@ -681,8 +681,8 @@ export default class UITable extends UITableBase {
 
         function down(event) {
             addSelectNumber = false;
-            const targetIsDataValue = event.target.x !== undefined || event.target.y !== undefined;
-            const parentIsDataValue = event.target.parentElement.x !== undefined || event.target.parentElement.y !== undefined;
+            const targetIsDataValue = event.target.x != undefined || event.target.y != undefined;
+            const parentIsDataValue = event.target.parentElement.x != undefined || event.target.parentElement.y != undefined;
             if(targetIsDataValue || parentIsDataValue) {
                 selecting = { startElement: targetIsDataValue? event.target : event.target.parentElement, selectOnMove: parentIsDataValue };
                 selecting.startX = parseInt(selecting.startElement.x);
@@ -787,9 +787,9 @@ export default class UITable extends UITableBase {
                 return;
             
             let element = thisClass._valueElement;
-            if(thisClass.#valueInputElement.parentElement.x === undefined)
+            if(thisClass.#valueInputElement.parentElement.x == undefined)
                 element = thisClass._yAxisElement;
-            if(thisClass.#valueInputElement.parentElement.y === undefined)
+            if(thisClass.#valueInputElement.parentElement.y == undefined)
                 element = thisClass._xAxisElement;
             element.querySelectorAll(`.selected`).forEach(function(selectedElement) {
                 switch(operation) {
