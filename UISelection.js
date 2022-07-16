@@ -37,7 +37,7 @@ export default class UISelection extends HTMLDivElement {
     }
     set selectDisabled(selectDisabled) {
         this.#selectDisabled = selectDisabled
-        if(!this.selectNotVisible){
+        if(!this.selectHidden){
             setElementOption(this.#selectElement, { name: this.selectName, disabled: this.selectDisabled, value: this.selectValue })
         }
     }
@@ -53,7 +53,7 @@ export default class UISelection extends HTMLDivElement {
         this.#selectName = selectName
         if(this.selectedOption == undefined)
             this.selectedElement.textContent = this.selectName
-        if(!this.selectNotVisible){
+        if(!this.selectHidden){
             setElementOption(this.#selectElement, { name: this.selectName, disabled: this.selectDisabled, value: this.selectValue })
         }
     }
@@ -71,22 +71,22 @@ export default class UISelection extends HTMLDivElement {
             this.selectedElement.value = UISelection.ParseValue(`string`, selectValue)
             this.selectedElement.type = typeof selectValue
         }
-        if(!this.selectNotVisible){
+        if(!this.selectHidden){
             setElementOption(this.#selectElement, { name: this.selectName, disabled: this.selectDisabled, value: this.selectValue })
         }
     }
 
     #selectElement
-    #selectNotVisible = false
-    get selectNotVisible() {
-        return this.#selectNotVisible
+    #selectHidden = false
+    get selectHidden() {
+        return this.#selectHidden
     }
-    set selectNotVisible(selectNotVisible) {
-        if(this.#selectNotVisible === selectNotVisible)
+    set selectHidden(selectHidden) {
+        if(this.#selectHidden === selectHidden)
             return
 
-        this.#selectNotVisible = selectNotVisible
-        if(!this.selectNotVisible){
+        this.#selectHidden = selectHidden
+        if(!this.selectHidden){
             setElementOption(this.#selectElement, { name: this.selectName, disabled: this.selectDisabled, value: this.selectValue })
         } else if(this.contextMenuElement.children[0] != undefined) {
             this.contextMenuElement.removeChild(this.contextMenuElement.children[0])
@@ -124,17 +124,17 @@ export default class UISelection extends HTMLDivElement {
         this.#options = options
 
         const thisClass = this
-        for(let i = options.length + (thisClass.selectNotVisible? 0 : 1); i < thisClass.contextMenuElement.children.length; i++){
+        for(let i = options.length + (thisClass.selectHidden? 0 : 1); i < thisClass.contextMenuElement.children.length; i++){
             thisClass.contextMenuElement.removeChild(thisClass.contextMenuElement.children[i])
         }
-        if(!thisClass.selectNotVisible){
+        if(!thisClass.selectHidden){
             this.#selectElement = thisClass.contextMenuElement.children[0]
             if(this.#selectElement == undefined)
                 this.#selectElement = thisClass.contextMenuElement.appendChild(document.createElement(`div`))
             setElementOption(this.#selectElement, { name: thisClass.selectName, disabled: thisClass.selectDisabled, value: thisClass.selectValue })
         }
         options.forEach(function(option, index) {
-            let optionElement = thisClass.contextMenuElement.children[index + (thisClass.selectNotVisible? 0 : 1)]
+            let optionElement = thisClass.contextMenuElement.children[index + (thisClass.selectHidden? 0 : 1)]
             if(optionElement == undefined)
                 optionElement = thisClass.contextMenuElement.appendChild(document.createElement(`div`))
             setElementOption(optionElement, option)
@@ -191,7 +191,7 @@ export default class UISelection extends HTMLDivElement {
         this.selectedElement.addEventListener(`click`, function() {
             if(visible) 
                 return
-            if(thisClass.selectNotVisible && thisClass.options.length < 2)
+            if(thisClass.selectHidden && thisClass.options.length < 2)
                 return
 
             function clickHandler() {
