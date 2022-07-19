@@ -1,13 +1,14 @@
 export default class UIText extends HTMLInputElement {
+    #value = ``
     get value() {
-        return super.value
+        return this.#value
     }
     set value(value) {
-        if(super.value === value)
+        if(this.#value === value)
             return
 
-        super.value = value
-        this.dispatchEvent(new Event(`change`, {bubbles: true}))
+        super.value = this.#value = value
+        super.dispatchEvent(new Event(`change`, {bubbles: true}))
     }
 
     get saveValue() {

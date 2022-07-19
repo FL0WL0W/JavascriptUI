@@ -1,13 +1,14 @@
 export default class UINumber extends HTMLInputElement {
+    #value
     get value() {
-        return parseFloat(super.value)
+        return parseFloat(this.#value)
     }
     set value(value) {
         value = parseFloat(value)
-        if(parseFloat(super.value) === value)
+        if(parseFloat(this.#value) === value)
             return
 
-        super.value = value
+        super.value = this.#value = value
         super.dispatchEvent(new Event(`change`, {bubbles: true}))
     }
 

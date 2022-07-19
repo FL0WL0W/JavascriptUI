@@ -708,7 +708,7 @@ export default class UITable extends UITableBase {
         this.#tableElement.addEventListener(`mousedown`, function(event) {
             if(event.button === 2) {
                 down(event);
-                event.target.select();
+                event.target.select?.();
                 up(event);
                 event.preventDefault();
             } else if(event.button == 0) {

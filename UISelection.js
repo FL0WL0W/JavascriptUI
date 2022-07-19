@@ -95,7 +95,6 @@ export default class UISelection extends HTMLDivElement {
 
     #updateSelectElement() {
         const selectedElement = this.selectedElement;
-        let nonePreviouslySelected = this.#selectElement.classList.contains(`selected`);
         let selected = false;
         [...this.contextMenuElement.children].forEach(function(element) { 
             [...element.children].forEach(function(element) { 
