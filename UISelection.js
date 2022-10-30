@@ -96,7 +96,7 @@ export default class UISelection extends HTMLDivElement {
     collapse = 20
     #updateSelectElement() {
         const selectedElement = this.selectedElement;
-        const collapseUnSelected = this.contextMenuElement.querySelectorAll(`.selectoption, .selectgroup`).length >= collapse && collapse > 0
+        const collapseUnSelected = this.contextMenuElement.querySelectorAll(`.selectoption, .selectgroup`).length >= this.collapse && this.collapse > 0
         if(collapseUnSelected) this.contextMenuElement.classList.add(`collapsible`)
         else this.contextMenuElement.classList.remove(`collapsible`)
         let selected = false;
