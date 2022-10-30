@@ -520,7 +520,7 @@ export default class UITable extends UITableBase {
             })
 
             event.clipboardData.setData(`text/plain`, copyData);
-            event.preventDefault();
+            event.preventDefault()
         });
 
         this.#valueInputElement.addEventListener(`paste`, function(event){
@@ -592,13 +592,13 @@ export default class UITable extends UITableBase {
                 endX: x + val.split(`\n`)[0].split(`\t`).length - 1,
                 endY: y + val.split(`\n`).length - 1
             }
-            event.preventDefault();
+            event.preventDefault()
             thisClass._boundAxis(element);
             thisClass.dispatchEvent(new Event(`change`, {bubbles: true}));
         });
 
         this.#tableElement.addEventListener(`dragstart`, function(event) {
-            event.preventDefault();
+            event.preventDefault()
         });
 
         let dragX = false;
@@ -710,14 +710,14 @@ export default class UITable extends UITableBase {
                 down(event);
                 event.target.select?.();
                 up(event);
-                event.preventDefault();
+                event.preventDefault()
             } else if(event.button == 0) {
                 down(event);
             }
         });
         this.#tableElement.addEventListener(`contextmenu`, function(event) {
             down(event);
-            event.preventDefault();
+            event.preventDefault()
         });
 
         this.#xyResolutionDragElement.addEventListener(`mousedown`, function(event) {
@@ -740,13 +740,13 @@ export default class UITable extends UITableBase {
         this.#valueInputElement.addEventListener(`keypress`, function(event){
             //plus
             if(event.key === `+`) {
-                event.preventDefault();
+                event.preventDefault()
                 thisClass.#modifyValueElement.select();
                 thisClass.#modifyAddElement.classList.add(`selected`)
             }
             //minus
             if(event.key === `-`) {
-                event.preventDefault();
+                event.preventDefault()
                 thisClass.#modifyAddElement.hidden = true;
                 thisClass.#modifySubtractElement.hidden = false;
                 thisClass.#modifyValueElement.select();
@@ -754,13 +754,13 @@ export default class UITable extends UITableBase {
             }
             //aterisk
             if(event.key === `*`) {
-                event.preventDefault();
+                event.preventDefault()
                 thisClass.#modifyValueElement.select();
                 thisClass.#modifyMultiplyElement.classList.add(`selected`)
             }
             //forward slash
             if(event.key === `/`) {
-                event.preventDefault();
+                event.preventDefault()
                 thisClass.#modifyMultiplyElement.hidden = true;
                 thisClass.#modifyDivideElement.hidden = false;
                 thisClass.#modifyValueElement.select();
@@ -768,7 +768,7 @@ export default class UITable extends UITableBase {
             }
             //percent
             if(event.key === `%`) {
-                event.preventDefault();
+                event.preventDefault()
                 thisClass.#modifyMultiplyElement.hidden = true;
                 thisClass.#modifyPercentElement.hidden = false;
                 thisClass.#modifyValueElement.select();
@@ -776,7 +776,7 @@ export default class UITable extends UITableBase {
             }
             //equals
             if(event.key === `=`) {
-                event.preventDefault();
+                event.preventDefault()
                 thisClass.#modifyValueElement.select();
                 thisClass.#modifyEqualElement.classList.add(`selected`)
             }

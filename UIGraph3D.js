@@ -570,12 +570,12 @@ export default class UIGraph3D extends UITableBase {
             else{
                 thisClass.zoom *= 0.9;
             }
-            event.preventDefault();
+            event.preventDefault()
             event.stopPropagation()
             return false;
         }, {passive: false});
         this.#svgElement.addEventListener('contextmenu', function(event) {
-            event.preventDefault();
+            event.preventDefault()
         });
         this.#svgElement.addEventListener('mousedown', function(event){
             var rect = thisClass.#svgElement.getBoundingClientRect();
@@ -615,7 +615,7 @@ export default class UIGraph3D extends UITableBase {
                     cameraX: thisClass.cameraX,
                     cameraY: thisClass.cameraY
                 }
-                event.preventDefault();
+                event.preventDefault()
             } else if(event.button === 2) {
                 rotate = {
                     pageX: event.pageX,
@@ -623,7 +623,7 @@ export default class UIGraph3D extends UITableBase {
                     yaw: thisClass.yaw,
                     pitch: thisClass.pitch
                 };
-                event.preventDefault();
+                event.preventDefault()
             }
 
             //dragValue

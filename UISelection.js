@@ -93,14 +93,21 @@ export default class UISelection extends HTMLDivElement {
         }
     }
 
+    collapse = 20
     #updateSelectElement() {
         const selectedElement = this.selectedElement;
+        const collapseUnSelected = this.contextMenuElement.querySelectorAll(`.selectoption, .selectgroup`).length >= collapse && collapse > 0
+        if(collapseUnSelected) this.contextMenuElement.classList.add(`collapsible`)
+        else this.contextMenuElement.classList.remove(`collapsible`)
         let selected = false;
         [...this.contextMenuElement.children].forEach(function(element) { 
+            let selectedInThisGroup = false;
             [...element.children].forEach(function(element) { 
                 if(element.value !== selectedElement.value) element.classList.remove(`selected`);
-                else { element.classList.add(`selected`); selected = true;}
+                else { element.classList.add(`selected`); selected = true; selectedInThisGroup = true; }
             });
+            if(!selectedInThisGroup) element.classList.add(`collapsed`)
+            else element.classList.remove(`collapsed`)
             if(element.value !== selectedElement.value) element.classList.remove(`selected`);
             else { element.classList.add(`selected`); selected = true;}
         });
@@ -187,6 +194,7 @@ export default class UISelection extends HTMLDivElement {
         const thisClass = this
 
         let visible = false
+        let collapsingClick = false
         this.selectedElement.addEventListener(`click`, function() {
             if(visible) 
                 return
@@ -194,6 +202,8 @@ export default class UISelection extends HTMLDivElement {
                 return
 
             function clickHandler() {
+                if(collapsingClick)
+                    return collapsingClick = false
                 if(!visible) 
                     return
                 thisClass.removeChild(thisClass.contextMenuElement)
@@ -206,6 +216,12 @@ export default class UISelection extends HTMLDivElement {
         this.contextMenuElement.addEventListener(`click`, function(event) {
             if(event.target.classList.contains(`selectdisabled`))
                 return
+            if(event.target.classList.contains(`selectgroup`) && thisClass.contextMenuElement.classList.contains(`collapsible`)) {
+                if(event.target.parentElement.classList.contains(`collapsed`)) event.target.parentElement.classList.remove(`collapsed`) 
+                else event.target.parentElement.classList.add(`collapsed`)
+                collapsingClick = true
+                return
+            }
             if(!event.target.classList.contains(`selectoption`))
                 return
             

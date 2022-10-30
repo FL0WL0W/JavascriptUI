@@ -327,6 +327,18 @@
     float: right;
     content: "";
 }
+.ui.select .collapsible .collapsed div {
+    display: none;
+}
+.ui.select .collapsible .collapsed div.selectgroup {
+    display: block;
+}
+.ui.select .collapsible .collapsed div.selectgroup::before {
+    content: "►"
+}
+.ui.select .collapsible div.selectgroup::before {
+    content: "▼"
+}
 
 .ui.button,
 .ui.text,
