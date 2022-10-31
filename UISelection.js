@@ -111,7 +111,7 @@ export default class UISelection extends HTMLDivElement {
             if(element.value !== selectedElement.value) element.classList.remove(`selected`);
             else { element.classList.add(`selected`); selected = true;}
         });
-        const selectedText = this.selectedOption?.name ?? this.selectName;
+        const selectedText = this.selectedOption?.selectedName ?? this.selectedOption?.name ?? this.selectName;
         if(selectedElement.textContent !== selectedText)
             selectedElement.textContent = selectedText;
         if(!selected)
@@ -130,9 +130,9 @@ export default class UISelection extends HTMLDivElement {
         this.#options = options
 
         const thisClass = this
-        for(let i = options.length + (thisClass.selectHidden? 0 : 1); i < thisClass.contextMenuElement.children.length; i++){
-            thisClass.contextMenuElement.removeChild(thisClass.contextMenuElement.children[i])
-        }
+        const newLen = options.length + (thisClass.selectHidden? 0 : 1)
+        while(newLen < thisClass.contextMenuElement.children.length)
+            thisClass.contextMenuElement.removeChild(thisClass.contextMenuElement.children[newLen])
         if(!thisClass.selectHidden){
             this.#selectElement = thisClass.contextMenuElement.children[0]
             if(this.#selectElement == undefined)
