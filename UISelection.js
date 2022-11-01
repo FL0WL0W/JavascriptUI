@@ -103,7 +103,7 @@ export default class UISelection extends HTMLDivElement {
         [...this.contextMenuElement.children].forEach(function(element) { 
             let selectedInThisGroup = false;
             [...element.children].forEach(function(element) { 
-                if(element.value !== selectedElement.value) element.classList.remove(`selected`);
+                if(selectedElement.value == undefined || element.value !== selectedElement.value) element.classList.remove(`selected`);
                 else { element.classList.add(`selected`); selected = true; selectedInThisGroup = true; }
             });
             if(!selectedInThisGroup) element.classList.add(`collapsed`)
