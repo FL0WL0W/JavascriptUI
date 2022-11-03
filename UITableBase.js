@@ -8,8 +8,9 @@ export default class UITableBase extends HTMLDivElement {
         if(value.length !== this.xResolution * this.yResolution)
             return
         let same = true
-        for(let i = 0; i < this._valueElement.children.length; i++){
-            if((isNaN(this._valueElement.children[i].value) && isNaN(value[i])) || this._valueElement.children[i].value === value[i])
+        const oldValue = this.value
+        for(let i = 0; i < oldValue.length; i++){
+            if(oldValue[i] === value[i] || (isNaN(oldValue[i]) && isNaN(value[i])))
                 continue
             same = false
             break

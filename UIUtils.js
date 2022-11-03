@@ -27,10 +27,12 @@ Object.defineProperty(HTMLElement.prototype, 'class', {
     }
 })
 function formatNumberForDisplay(value, precision = 6) {
-    let formattedVaue = parseFloat(parseFloat(parseFloat(value).toFixed(precision -1)).toPrecision(precision))
-    if(isNaN(formattedVaue))
-        formattedVaue = `&nbsp;`
-    return formattedVaue
+    value = parseFloat(value)
+    if(isNaN(value))
+        return `&nbsp;`
+    if(Math.abs(value) < 1)
+        return parseFloat(value.toFixed(precision -1))
+    return parseFloat(value.toPrecision(precision))
 }
 
 function calculateMinMaxValue(array, minDiff = 1) {

@@ -272,8 +272,8 @@ export default class UITable extends UITableBase {
                 return;
             this._value = value;
             this.style.setProperty(`--data-value`, value);
-            const inputElement = this.querySelector(`input`);
-            if(inputElement) inputElement.value = value;
+            const inputElement = this.children[0]
+            if(inputElement?.tagName === `INPUT`) inputElement.value = value
             else {
                 this.textContent = formatNumberForDisplay(value);
             }
