@@ -163,7 +163,7 @@ export default class UISelection extends HTMLDivElement {
         return UISelection.ParseValue(this.selectedElement.type, this.selectedElement.value)
     }
     set value(value) {
-        if(this.value === value)
+        if(objectTester(this.value, value))
             return
             
         const selectedElement = this.selectedElement
