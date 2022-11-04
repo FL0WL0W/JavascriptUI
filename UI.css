@@ -41,7 +41,6 @@
     position: absolute; 
     top: -1em; 
     left: 0px;
-    z-index:1;
 }
 .ui .container.resolution::before { content: "TableSize"; }
 .ui .container.paste::before { content: "Paste Options"; }
@@ -111,7 +110,6 @@
 .ui .paste-button.subtract:after { position: absolute; content: "-"; }
 .ui .paste-button.multiply:after { position: absolute; content: "x"; }
 .ui .paste-button.multiplyP:after { position: absolute; content: "%"; }
-.ui .paste-button span {z-index: 1;}
 .ui .paste-button sub,
 .ui .paste-button sup {font-size:75%;line-height:0;position:relative;vertical-align:baseline}
 .ui .paste-button sub {bottom:-0.25em}
