@@ -51,37 +51,36 @@ export default class UIDialog extends HTMLSpanElement {
         this.#closeElement.class = `close`
         this.#titleBarElement.append(this.#closeElement)
         Object.assign(this, prop)
-        const thisClass = this
-        this.#button.addEventListener(`click`, function() {
-            thisClass.#dialog.show()
-            if(thisClass.#dialog.style.right == 0) {
-                thisClass.#dialog.style.top = `0px`
-                thisClass.#dialog.style.left = `0px`
+        this.#button.addEventListener(`click`, () => {
+            this.#dialog.show()
+            if(this.#dialog.style.right == 0) {
+                this.#dialog.style.top = `0px`
+                this.#dialog.style.left = `0px`
             }
         })
-        this.#closeElement.addEventListener(`click`, function() {
-            thisClass.#dialog.close()
-            delete thisClass.#dialog.style.top
-            delete thisClass.#dialog.style.left
+        this.#closeElement.addEventListener(`click`, () => {
+            this.#dialog.close()
+            delete this.#dialog.style.top
+            delete this.#dialog.style.left
         })
-        this.#titleBarElement.addEventListener(`mousedown`, function(event) {
-            thisClass.#dialog.style.left = thisClass.#dialog.offsetLeft
-            thisClass.#dialog.style.right = `auto`
-            thisClass.#dialog.style.top = thisClass.#dialog.offsetTop
-            thisClass.#dialog.style.bottom = `auto`
+        this.#titleBarElement.addEventListener(`mousedown`, () => {
+            this.#dialog.style.left = this.#dialog.offsetLeft
+            this.#dialog.style.right = `auto`
+            this.#dialog.style.top = this.#dialog.offsetTop
+            this.#dialog.style.bottom = `auto`
             let state = {
-                pageX: event.pageX,
-                pageY: event.pageY,
-                left: parseFloat(thisClass.#dialog.style.left),
-                top: parseFloat(thisClass.#dialog.style.top)
+                pageX: e.pageX,
+                pageY: e.pageY,
+                left: parseFloat(this.#dialog.style.left),
+                top: parseFloat(this.#dialog.style.top)
             }
-            function mouseMove(mevent) {
-                let xDiff = mevent.pageX - state.pageX
-                let yDiff = mevent.pageY - state.pageY
-                thisClass.#dialog.style.left = state.left + xDiff
-                thisClass.#dialog.style.top = state.top + yDiff
+            const mouseMove = event => {
+                let xDiff = event.pageX - state.pageX
+                let yDiff = event.pageY - state.pageY
+                this.#dialog.style.left = state.left + xDiff
+                this.#dialog.style.top = state.top + yDiff
             }
-            function mouseUp() {
+            const mouseUp = () => {
                 document.removeEventListener(`mousemove`, mouseMove)
                 document.removeEventListener(`mouseup`, mouseUp)
             }

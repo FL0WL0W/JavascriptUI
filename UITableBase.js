@@ -103,8 +103,7 @@ export default class UITableBase extends HTMLDivElement {
         if(objectTester(this.xAxis, xAxis))
             return
         this.xResolution = xAxis.length
-        const thisClass = this
-        xAxis.forEach(function(xAxisValue, xAxisIndex) { thisClass._xAxisElement.children[xAxisIndex].value = xAxisValue })
+        xAxis.forEach((xAxisValue, xAxisIndex) => { this._xAxisElement.children[xAxisIndex].value = xAxisValue })
         ///*TODO*/interpolation
         this.dispatchEvent(new Event(`change`, {bubbles: true}))
     }
@@ -146,8 +145,7 @@ export default class UITableBase extends HTMLDivElement {
         if(objectTester(this.yAxis, yAxis))
             return
         this.yResolution = yAxis.length
-        const thisClass = this
-        yAxis.forEach(function(yAxisValue, yAxisIndex) { thisClass._yAxisElement.children[yAxisIndex].value = yAxisValue })
+        yAxis.forEach((yAxisValue, yAxisIndex) => { this._yAxisElement.children[yAxisIndex].value = yAxisValue })
         ///*TODO*/interpolation
         this.dispatchEvent(new Event(`change`, {bubbles: true}))
     }
@@ -158,9 +156,9 @@ export default class UITableBase extends HTMLDivElement {
     }
     set selecting(selecting) {
         this.#selecting = selecting
-        this._valueElement.querySelectorAll(`.selected`).forEach(function(element) { element.classList.remove(`selected`) })
-        this._xAxisElement.querySelectorAll(`.selected`).forEach(function(element) { element.classList.remove(`selected`) })
-        this._yAxisElement.querySelectorAll(`.selected`).forEach(function(element) { element.classList.remove(`selected`) })
+        this._valueElement.querySelectorAll(`.selected`).forEach(element => { element.classList.remove(`selected`) })
+        this._xAxisElement.querySelectorAll(`.selected`).forEach(element => { element.classList.remove(`selected`) })
+        this._yAxisElement.querySelectorAll(`.selected`).forEach(element => { element.classList.remove(`selected`) })
         if(selecting) {
             let elementArray = this._valueElement.children
             if(isNaN(selecting.startX))
@@ -233,14 +231,13 @@ export default class UITableBase extends HTMLDivElement {
     }
 
     attachToTable(table) {
-        const thisClass = this
-        table.addEventListener(`change`, function(){
-            thisClass.xAxis = table.xAxis
-            thisClass.yAxis = table.yAxis
-            thisClass.value = table.value
+        table.addEventListener(`change`, () => {
+            this.xAxis = table.xAxis
+            this.yAxis = table.yAxis
+            this.value = table.value
         })
-        table.addEventListener(`select`, function() {
-            thisClass.selecting = table.selecting
+        table.addEventListener(`select`, () => {
+            this.selecting = table.selecting
         })
     }
 }

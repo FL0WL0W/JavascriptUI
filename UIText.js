@@ -21,7 +21,7 @@ export default class UIText extends HTMLInputElement {
     constructor(prop) {
         super()
         this.class = `ui text`
-        this.addEventListener(`change`, e => {
+        this.addEventListener(`change`, () => {
             this.#value = super.value
         })
         Object.assign(this, prop)

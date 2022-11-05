@@ -7,7 +7,7 @@ export default class UITable extends UITableBase {
     set selecting(selecting) {
         if(objectTester(this.selecting, selecting))
             return;
-        this.#tableElement.querySelectorAll(`input`)?.forEach(function(element) { element.parentElement.textContent = formatNumberForDisplay(element.parentElement.value); });
+        this.#tableElement.querySelectorAll(`input`)?.forEach(element => { element.parentElement.textContent = formatNumberForDisplay(element.parentElement.value); });
         let startElement = [...this._valueElement.children].find(element => element.x===selecting.startX && element.y===selecting.startY);
         if(isNaN(selecting.startX))
             startElement = [...this._yAxisElement.children].find(element => element.y===selecting.startY);
@@ -317,11 +317,10 @@ export default class UITable extends UITableBase {
         ellipse.setAttribute(`cx`, x);
         ellipse.setAttribute(`cy`, y);
 
-        const thisClass = this;
-        setTimeout(function() {
-            let last = thisClass.#trailElement.lastChild;
+        setTimeout(() => {
+            let last = this.#trailElement.lastChild;
             if(last)
-                thisClass.#trailElement.removeChild(last);
+                this.#trailElement.removeChild(last);
         }, this.trailTime);
     }
 
@@ -439,43 +438,42 @@ export default class UITable extends UITableBase {
 
     //event listeners
     #constructTableEventListeners() {
-        const thisClass = this;
-        function minmax() {
-            const minmax = calculateMinMaxValue(thisClass.value);
-            thisClass._valueMin = minmax[0];
-            thisClass._valueMax = minmax[1];
+        const minmax = () => {
+            const minmax = calculateMinMaxValue(this.value);
+            this._valueMin = minmax[0];
+            this._valueMax = minmax[1];
         }
         this.addEventListener(`change`, minmax);
         minmax();
-        this.#pasteOptionsElement.addEventListener(`click`, function(event) {
+        this.#pasteOptionsElement.addEventListener(`click`, event => {
             let target = event.target;
             for(let i=0; i < 2; i++) if(!target.value) target = target.parentElement;
             if(target.value) {
-                thisClass.#pasteOptionsElement.querySelectorAll(`.selected`).forEach(function(element) { element.classList.remove(`selected`) });
+                this.#pasteOptionsElement.querySelectorAll(`.selected`).forEach(element => { element.classList.remove(`selected`) });
                 target.classList.add(`selected`);
             }
         });
-        this._xResolutionElement.addEventListener(`change`, function(event) {
-            thisClass.xResolution = parseInt(event.target.value);
+        this._xResolutionElement.addEventListener(`change`, event => {
+            this.xResolution = parseInt(event.target.value);
         });
-        this._yResolutionElement.addEventListener(`change`, function(event) {
-            thisClass.yResolution = parseInt(event.target.value);
+        this._yResolutionElement.addEventListener(`change`, event => {
+            this.yResolution = parseInt(event.target.value);
         });
-        function valueInputChange(){
-            if(!thisClass.#valueInputElement.parentElement)
+        const valueInputChange = () => {
+            if(!this.#valueInputElement.parentElement)
                 return;
-            let x = parseInt(thisClass.#valueInputElement.parentElement.x);
-            let y = parseInt(thisClass.#valueInputElement.parentElement.y);
-            const oldVal = parseFloat(thisClass.#valueInputElement.parentElement.value);
-            let value = parseFloat(thisClass.#valueInputElement.value);
+            let x = parseInt(this.#valueInputElement.parentElement.x);
+            let y = parseInt(this.#valueInputElement.parentElement.y);
+            const oldVal = parseFloat(this.#valueInputElement.parentElement.value);
+            let value = parseFloat(this.#valueInputElement.value);
             if(isNaN(value) || value === oldVal || (x==undefined && y==undefined))
                 return;
             
-            let element = thisClass._valueElement;
+            let element = this._valueElement;
             if(isNaN(y))
-                element = thisClass._xAxisElement;
+                element = this._xAxisElement;
             else if(isNaN(x))
-                element = thisClass._yAxisElement;
+                element = this._yAxisElement;
 
             let operation = `equal`;
             // if(value - oldVal === Math.floor(oldVal+1) - oldVal) {
@@ -485,7 +483,7 @@ export default class UITable extends UITableBase {
             //     operation = `decrement`;
             //     value = oldVal - 1;
             // }
-            element.querySelectorAll(`.selected`).forEach(function(selectedElement) {
+            element.querySelectorAll(`.selected`).forEach(selectedElement => {
                 if(operation === `increment`)
                     selectedElement.value = parseFloat(selectedElement.value) + 1
                 else if(operation === `decrement`)
@@ -494,15 +492,15 @@ export default class UITable extends UITableBase {
                     selectedElement.value = value;
             });
 
-            thisClass._boundAxis(element);
+            this._boundAxis(element);
         }
         this.#valueInputElement.addEventListener(`change`, valueInputChange); 
 
-        this.#valueInputElement.addEventListener(`copy`, function(event){
+        this.#valueInputElement.addEventListener(`copy`, event => {
             let copyData = ``;
 
             let currentY;
-            thisClass.#tableElement.querySelectorAll(`.selected`).forEach(function(element) {
+            this.#tableElement.querySelectorAll(`.selected`).forEach(element => {
                 if(isNaN(parseFloat(element.value)))
                     return;
                 if(element.y == undefined && element.x == undefined)
@@ -523,37 +521,37 @@ export default class UITable extends UITableBase {
             event.preventDefault()
         });
 
-        this.#valueInputElement.addEventListener(`paste`, function(event){
+        this.#valueInputElement.addEventListener(`paste`, event => {
             var val = event.clipboardData.getData(`text/plain`);
             const lines = val.split(`\n`).length;
             const cols = val.split(`\t`).length;
             let x = parseInt(event.target.parentElement.x);
             let y = parseInt(event.target.parentElement.y);
-            let element = thisClass._valueElement;
+            let element = this._valueElement;
             if(isNaN(x)) {
                 if(cols > 1)
                     return;
                 x = 0;
-                element = thisClass._yAxisElement;
+                element = this._yAxisElement;
             }
             if(isNaN(y)) {
                 if(lines > 1)
                     return;
                 y = 0;
-                element = thisClass._xAxisElement;
+                element = this._xAxisElement;
             }
 
-            let special = thisClass.#pasteOptionsElement.querySelector(`.selected`)?.value;
+            let special = this.#pasteOptionsElement.querySelector(`.selected`)?.value;
 
-            val.split(`\n`).forEach(function(val, yIndex) {
+            val.split(`\n`).forEach((val, yIndex) => {
                 var yPos = y + yIndex;
-                if(yPos > thisClass.yResolution - 1)
+                if(yPos > this.yResolution - 1)
                     return;
-                if(element === thisClass._valueElement)
-                    yPos *= thisClass.xResolution;
-                val.split(`\t`).forEach(function(val, xIndex) {
+                if(element === this._valueElement)
+                    yPos *= this.xResolution;
+                val.split(`\t`).forEach((val, xIndex) => {
                     var xPos = x + xIndex;
-                    if(xPos > thisClass.xResolution - 1)
+                    if(xPos > this.xResolution - 1)
                         return;
 
                     var v = parseFloat(val);
@@ -586,18 +584,18 @@ export default class UITable extends UITableBase {
                     }
                 });
             });
-            thisClass.selecting = {
+            this.selecting = {
                 startX: x,
                 startY: y,
                 endX: x + val.split(`\n`)[0].split(`\t`).length - 1,
                 endY: y + val.split(`\n`).length - 1
             }
             event.preventDefault()
-            thisClass._boundAxis(element);
-            thisClass.dispatchEvent(new Event(`change`, {bubbles: true}));
+            this._boundAxis(element);
+            this.dispatchEvent(new Event(`change`, {bubbles: true}));
         });
 
-        this.#tableElement.addEventListener(`dragstart`, function(event) {
+        this.#tableElement.addEventListener(`dragstart`, event => {
             event.preventDefault()
         });
 
@@ -605,34 +603,34 @@ export default class UITable extends UITableBase {
         let dragY = false;
         let selecting = false;
 
-        function mouseMoveEvent(event) {
+        const mouseMoveEvent = event => {
             move(event.pageX, event.pageY);
         }
-        function touchMoveEvent(event) {
+        const touchMoveEvent = event => {
             var touch = event.touches[event.touches.length - 1];
             move(touch.pageX, touch.pageY);
         }
 
-        function move(pageX, pageY) {
+        const move = (pageX, pageY) => {
             if(dragX) {
-                var width = thisClass._xAxisElement.firstChild.offsetWidth;
+                var width = this._xAxisElement.firstChild.offsetWidth;
                 let diff = (pageX-dragX.startPageX)/width;
                 const polarity = diff / Math.abs(diff);
                 diff = parseInt((Math.abs(diff) + 1/2) * polarity);
                 let xResolution = dragX.startXResolution + diff;
                 if(xResolution < 2)
                     xResolution = 2;
-                thisClass.xResolution = xResolution;
+                this.xResolution = xResolution;
             }
             if(dragY) {
-                var height = thisClass._yAxisElement.firstChild.offsetHeight;
+                var height = this._yAxisElement.firstChild.offsetHeight;
                 let diff = (pageY-dragY.startPageY)/height;
                 const polarity = diff / Math.abs(diff);
                 diff = parseInt((Math.abs(diff) + 1/2) * polarity);
                 let yResolution = dragY.startYResolution + diff;
                 if(yResolution < 2)
                     yResolution = 2;
-                thisClass.yResolution = yResolution;
+                this.yResolution = yResolution;
             }
             if(selecting) {
                 var rect = selecting.startElement.getBoundingClientRect();
@@ -644,12 +642,12 @@ export default class UITable extends UITableBase {
                     yDiff -= rect.height;
                 xDiff = parseInt(xDiff/rect.width);
                 yDiff = parseInt(yDiff/rect.height);
-                selecting.endX = Math.min(thisClass.xResolution-1, Math.max(0, selecting.startX + xDiff));
-                selecting.endY = Math.min(thisClass.yResolution-1, Math.max(0, selecting.startY + yDiff));
+                selecting.endX = Math.min(this.xResolution-1, Math.max(0, selecting.startX + xDiff));
+                selecting.endY = Math.min(this.yResolution-1, Math.max(0, selecting.startY + yDiff));
                 if(Math.abs(xDiff) > 0 || Math.abs(yDiff) > 0)
                     selecting.selectOnMove = false;
                 if(!selecting.selectOnMove) {
-                    thisClass.selecting = {
+                    this.selecting = {
                         startX: selecting.startX,
                         startY: selecting.startY,
                         endX: selecting.endX,
@@ -660,14 +658,14 @@ export default class UITable extends UITableBase {
         }
 
         let addSelectNumber = false;
-        function up() {
+        const up = () => {
             dragX = false;
             dragY = false;
             if(selecting) {
                 const targetIsDataValue = selecting.startElement.x != undefined || selecting.startElement.y != undefined;
                 if(addSelectNumber) {
                     if(targetIsDataValue) {
-                        thisClass.#valueInputElement.select();
+                        this.#valueInputElement.select();
                     }
                 }
             }
@@ -679,7 +677,7 @@ export default class UITable extends UITableBase {
         document.addEventListener(`mouseup`, up);
         document.addEventListener(`touchend`, up);
 
-        function down(event) {
+        const down = event => {
             addSelectNumber = false;
             const targetIsDataValue = event.target.x != undefined || event.target.y != undefined;
             const parentIsDataValue = event.target.parentElement.x != undefined || event.target.parentElement.y != undefined;
@@ -690,7 +688,7 @@ export default class UITable extends UITableBase {
                 if(targetIsDataValue) {
                     valueInputChange();
                     if(!selecting.selectOnMove) {
-                        thisClass.selecting = {
+                        this.selecting = {
                             startX: selecting.startX,
                             startY: selecting.startY,
                             endX: selecting.startX,
@@ -705,7 +703,7 @@ export default class UITable extends UITableBase {
             document.addEventListener(`touchmove`, touchMoveEvent);
             document.addEventListener(`mousemove`, mouseMoveEvent);
         }
-        this.#tableElement.addEventListener(`mousedown`, function(event) {
+        this.#tableElement.addEventListener(`mousedown`, event => {
             if(event.button === 2) {
                 down(event);
                 event.target.select?.();
@@ -715,83 +713,82 @@ export default class UITable extends UITableBase {
                 down(event);
             }
         });
-        this.#tableElement.addEventListener(`contextmenu`, function(event) {
+        this.#tableElement.addEventListener(`contextmenu`, event => {
             down(event);
             event.preventDefault()
         });
 
-        this.#xyResolutionDragElement.addEventListener(`mousedown`, function(event) {
-            dragX = { startPageX: event.pageX, startXResolution: thisClass.xResolution };
-            dragY = { startPageY: event.pageY, startYResolution: thisClass.yResolution };
+        this.#xyResolutionDragElement.addEventListener(`mousedown`, event => {
+            dragX = { startPageX: event.pageX, startXResolution: this.xResolution };
+            dragY = { startPageY: event.pageY, startYResolution: this.yResolution };
             document.addEventListener(`mousemove`, mouseMoveEvent);
         });
-        this.#xResolutionDragElement.addEventListener(`mousedown`, function(event) {
-            dragX = { startPageX: event.pageX, startXResolution: thisClass.xResolution };
+        this.#xResolutionDragElement.addEventListener(`mousedown`, event => {
+            dragX = { startPageX: event.pageX, startXResolution: this.xResolution };
             document.addEventListener(`mousemove`, mouseMoveEvent);
         });
-        this.#yResolutionDragElement.addEventListener(`mousedown`, function(event) {
-            dragY = { startPageY: event.pageY, startYResolution: thisClass.yResolution };
+        this.#yResolutionDragElement.addEventListener(`mousedown`, event => {
+            dragY = { startPageY: event.pageY, startYResolution: this.yResolution };
             document.addEventListener(`mousemove`, mouseMoveEvent);
         });
 
     }
     #constructModifyEventListeners() {
-        const thisClass = this;
-        this.#valueInputElement.addEventListener(`keypress`, function(event){
+        this.#valueInputElement.addEventListener(`keypress`, event => {
             //plus
             if(event.key === `+`) {
                 event.preventDefault()
-                thisClass.#modifyValueElement.select();
-                thisClass.#modifyAddElement.classList.add(`selected`)
+                this.#modifyValueElement.select();
+                this.#modifyAddElement.classList.add(`selected`)
             }
             //minus
             if(event.key === `-`) {
                 event.preventDefault()
-                thisClass.#modifyAddElement.hidden = true;
-                thisClass.#modifySubtractElement.hidden = false;
-                thisClass.#modifyValueElement.select();
-                thisClass.#modifySubtractElement.classList.add(`selected`)
+                this.#modifyAddElement.hidden = true;
+                this.#modifySubtractElement.hidden = false;
+                this.#modifyValueElement.select();
+                this.#modifySubtractElement.classList.add(`selected`)
             }
             //aterisk
             if(event.key === `*`) {
                 event.preventDefault()
-                thisClass.#modifyValueElement.select();
-                thisClass.#modifyMultiplyElement.classList.add(`selected`)
+                this.#modifyValueElement.select();
+                this.#modifyMultiplyElement.classList.add(`selected`)
             }
             //forward slash
             if(event.key === `/`) {
                 event.preventDefault()
-                thisClass.#modifyMultiplyElement.hidden = true;
-                thisClass.#modifyDivideElement.hidden = false;
-                thisClass.#modifyValueElement.select();
-                thisClass.#modifyDivideElement.classList.add(`selected`)
+                this.#modifyMultiplyElement.hidden = true;
+                this.#modifyDivideElement.hidden = false;
+                this.#modifyValueElement.select();
+                this.#modifyDivideElement.classList.add(`selected`)
             }
             //percent
             if(event.key === `%`) {
                 event.preventDefault()
-                thisClass.#modifyMultiplyElement.hidden = true;
-                thisClass.#modifyPercentElement.hidden = false;
-                thisClass.#modifyValueElement.select();
-                thisClass.#modifyPercentElement.classList.add(`selected`)
+                this.#modifyMultiplyElement.hidden = true;
+                this.#modifyPercentElement.hidden = false;
+                this.#modifyValueElement.select();
+                this.#modifyPercentElement.classList.add(`selected`)
             }
             //equals
             if(event.key === `=`) {
                 event.preventDefault()
-                thisClass.#modifyValueElement.select();
-                thisClass.#modifyEqualElement.classList.add(`selected`)
+                this.#modifyValueElement.select();
+                this.#modifyEqualElement.classList.add(`selected`)
             }
         });
-        function modify(operation) {
-            const value = parseFloat(thisClass.#modifyValueElement.value);
+        const modify = operation => {
+            const value = parseFloat(this.#modifyValueElement.value);
             if(isNaN(value))
                 return;
             
-            let element = thisClass._valueElement;
-            if(thisClass.#valueInputElement.parentElement.x == undefined)
-                element = thisClass._yAxisElement;
-            if(thisClass.#valueInputElement.parentElement.y == undefined)
-                element = thisClass._xAxisElement;
-            element.querySelectorAll(`.selected`).forEach(function(selectedElement) {
+            let element = this._valueElement;
+            if(this.#valueInputElement.parentElement.x == undefined)
+                element = this._yAxisElement;
+            if(this.#valueInputElement.parentElement.y == undefined)
+                element = this._xAxisElement;
+            element.querySelectorAll(`.selected`).forEach(selectedElement => {
                 switch(operation) {
                     case `equal`:
                         selectedElement.value = value;
@@ -816,68 +813,67 @@ export default class UITable extends UITableBase {
                 }
             });
 
-            thisClass._boundAxis(element);
-            thisClass.dispatchEvent(new Event(`change`, {bubbles: true}));
+            this._boundAxis(element);
+            this.dispatchEvent(new Event(`change`, {bubbles: true}));
         }
-        function blur() {
-            thisClass.#modifyAddElement.hidden      = false;
-            thisClass.#modifySubtractElement.hidden = true;
-            thisClass.#modifyMultiplyElement.hidden = false;
-            thisClass.#modifyDivideElement.hidden   = true;
-            thisClass.#modifyPercentElement.hidden   = true;
-            for(let i=0; i<thisClass.#modifyElement.children.length; i++) thisClass.#modifyElement.children[i].classList.remove(`selected`);
+        const blur = () => {
+            this.#modifyAddElement.hidden      = false;
+            this.#modifySubtractElement.hidden = true;
+            this.#modifyMultiplyElement.hidden = false;
+            this.#modifyDivideElement.hidden   = true;
+            this.#modifyPercentElement.hidden   = true;
+            for(let i=0; i<this.#modifyElement.children.length; i++) this.#modifyElement.children[i].classList.remove(`selected`);
         }
         this.#modifyValueElement.addEventListener(`blur`, blur);
-        this.#modifyValueElement.addEventListener(`keypress`, function(event) {
+        this.#modifyValueElement.addEventListener(`keypress`, event => {
             if(event.key !== `Enter`)
                 return;
-            thisClass.#modifyElement.querySelector(`.selected`)?.dispatchEvent(new Event(`click`));
+            this.#modifyElement.querySelector(`.selected`)?.dispatchEvent(new Event(`click`));
             blur();
-            thisClass.#valueInputElement.select();
+            this.#valueInputElement.select();
         });
-        this.#modifyEqualElement.addEventListener(`click`, function() {
+        this.#modifyEqualElement.addEventListener(`click`, () => {
             modify(`equal`);
         });
-        this.#modifyAddElement.addEventListener(`click`, function() {
+        this.#modifyAddElement.addEventListener(`click`, () => {
             modify(`add`);
         });
-        this.#modifySubtractElement.addEventListener(`click`, function() {
+        this.#modifySubtractElement.addEventListener(`click`, () => {
             modify(`subtract`);
         });
-        this.#modifyMultiplyElement.addEventListener(`click`, function() {
+        this.#modifyMultiplyElement.addEventListener(`click`, () => {
             modify(`multiply`);
         });
-        this.#modifyDivideElement.addEventListener(`click`, function() {
+        this.#modifyDivideElement.addEventListener(`click`, () => {
             modify(`divide`);
         });
-        this.#modifyPercentElement.addEventListener(`click`, function() {
+        this.#modifyPercentElement.addEventListener(`click`, () => {
             modify(`percent`);
         });
     }
     #constructInterpolateEventListeners() {
-        const thisClass = this;
-        function interpolateX() {
-            let selectedElements = thisClass._valueElement.querySelectorAll(`.selected`);
+        const interpolateX = () => {
+            let selectedElements = this._valueElement.querySelectorAll(`.selected`);
             if(selectedElements.length < 3) {
-                selectedElements = thisClass._xAxisElement.querySelectorAll(`.selected`);
+                selectedElements = this._xAxisElement.querySelectorAll(`.selected`);
                 if(selectedElements.length < 3)
                     return;
             }
             let xMin = 18000000000000000000;
             let xMax = -9000000000000000000;
-            selectedElements.forEach(function(element) {
+            selectedElements.forEach(element => {
                 const x = parseInt(element.x);
                 if(x < xMin)
                     xMin = x;
                 if(x > xMax)
                     xMax = x;
             });
-            const xAxis = thisClass.xAxis;
+            const xAxis = this.xAxis;
             const xDiff = xAxis[xMax] - xAxis[xMin];
             if(!isNaN(selectedElements[0].y)) {
-                const xResolution = thisClass.xResolution;
-                const tableValue = thisClass.value;
-                selectedElements.forEach(function(element) {
+                const xResolution = this.xResolution;
+                const tableValue = this.value;
+                selectedElements.forEach(element => {
                     const x = parseInt(element.x);
                     const y = parseInt(element.y);
                     if(!isNaN(x) && !isNaN(y)) {
@@ -890,35 +886,35 @@ export default class UITable extends UITableBase {
                 });
             } else {
                 const xMag = xDiff / (xMax - xMin);
-                selectedElements.forEach(function(element) {
+                selectedElements.forEach(element => {
                     const x = parseInt(element.x);
                     element.value = xAxis[xMin] + xMag * (x-xMin);
                 });
             }
-            thisClass.dispatchEvent(new Event(`change`, {bubbles: true}));
+            this.dispatchEvent(new Event(`change`, {bubbles: true}));
         };
-        function interpolateY() {
-            let selectedElements = thisClass._valueElement.querySelectorAll(`.selected`);
+        const interpolateY = () => {
+            let selectedElements = this._valueElement.querySelectorAll(`.selected`);
             if(selectedElements.length < 3) {
-                selectedElements = thisClass._yAxisElement.querySelectorAll(`.selected`);
+                selectedElements = this._yAxisElement.querySelectorAll(`.selected`);
                 if(selectedElements.length < 3)
                     return;
             }
             let yMin = 18000000000000000000;
             let yMax = -9000000000000000000;
-            selectedElements.forEach(function(element) {
+            selectedElements.forEach(element => {
                 const y = parseInt(element.y);
                 if(y < yMin)
                     yMin = y;
                 if(y > yMax)
                     yMax = y;
             });
-            const yAxis = thisClass.yAxis;
+            const yAxis = this.yAxis;
             const yDiff = yAxis[yMax] - yAxis[yMin];
             if(!isNaN(selectedElements[0].x)) {
-                const xResolution = thisClass.xResolution;
-                const tableValue = thisClass.value;
-                selectedElements.forEach(function(element) {
+                const xResolution = this.xResolution;
+                const tableValue = this.value;
+                selectedElements.forEach(element => {
                     const x = parseInt(element.x);
                     const y = parseInt(element.y);
                     if(!isNaN(x) && !isNaN(y)) {
@@ -931,19 +927,19 @@ export default class UITable extends UITableBase {
                 });
             } else {
                 const yMag = yDiff / (yMax - yMin);
-                selectedElements.forEach(function(element) {
+                selectedElements.forEach(element => {
                     const y = parseInt(element.y);
                     element.value = yAxis[yMin] + yMag * (y-yMin);
                 });
             }
-            thisClass.dispatchEvent(new Event(`change`, {bubbles: true}));
+            this.dispatchEvent(new Event(`change`, {bubbles: true}));
         };
-        this.#interpolateXYElement.addEventListener(`click`, function() {
-            const selectedElements = thisClass._valueElement.querySelectorAll(`.selected`);
+        this.#interpolateXYElement.addEventListener(`click`, () => {
+            const selectedElements = this._valueElement.querySelectorAll(`.selected`);
             if(selectedElements.length < 5) {
-                if(thisClass._xAxisElement.querySelectorAll(`.selected`).length > 2)
+                if(this._xAxisElement.querySelectorAll(`.selected`).length > 2)
                     interpolateX();
-                if(thisClass._yAxisElement.querySelectorAll(`.selected`).length > 2)
+                if(this._yAxisElement.querySelectorAll(`.selected`).length > 2)
                     interpolateY();
                 return;
             }

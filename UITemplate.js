@@ -16,18 +16,17 @@ export default class UITemplate extends HTMLSpanElement {
             this.saveValue = propSaveValue
         if(propValue != undefined)
             this.value = propValue
-        const thisClass = this
         var thisEntries = Object.entries(this)
-        thisEntries.forEach(function([elementName, element]) {
-            element?.addEventListener?.(`change`, function() {
-                thisClass.dispatchEvent(new Event(`change`, {bubbles: true}))
+        thisEntries.forEach(([elementName, element]) => {
+            element?.addEventListener?.(`change`, () => {
+                this.dispatchEvent(new Event(`change`, {bubbles: true}))
             })
         })
 
         const template = this.template ?? this.constructor.template
         this.innerHTML = template
-        this.querySelectorAll(`[data-element]`).forEach(function(element){
-            let found = thisEntries.find(function([elementName, e]) { return element.dataset.element === elementName })
+        this.querySelectorAll(`[data-element]`).forEach(element => {
+            let found = thisEntries.find(([elementName, e]) => { return element.dataset.element === elementName })
             if(!found)
                 return
             let [matchingUIName, matchingUI] = found
@@ -38,7 +37,7 @@ export default class UITemplate extends HTMLSpanElement {
     get saveValue() {
         let saveValue = {}
 
-        Object.entries(this).forEach(function([elementName, element]) {
+        Object.entries(this).forEach(([elementName, element]) => {
             if(element?.saveValue != undefined)
                 saveValue[elementName] = element.saveValue
         })
@@ -53,7 +52,7 @@ export default class UITemplate extends HTMLSpanElement {
         if(saveValue == undefined)
             return
 
-        Object.entries(this).forEach(function([elementName, element]) {
+        Object.entries(this).forEach(([elementName, element]) => {
             if(saveValue[elementName] != undefined && typeof element === `object` && Object.keys(element).indexOf(`saveValue`)) {
                 element.saveValue = saveValue[elementName]
             }
@@ -63,7 +62,7 @@ export default class UITemplate extends HTMLSpanElement {
     get value() {
         let value = {}
 
-        Object.entries(this).forEach(function([elementName, element]) {
+        Object.entries(this).forEach(([elementName, element]) => {
             if(element?.value != undefined)
                 value[elementName] = element.value
         })
@@ -78,7 +77,7 @@ export default class UITemplate extends HTMLSpanElement {
         if(value == undefined)
             return
 
-        Object.entries(this).forEach(function([elementName, element]) {
+        Object.entries(this).forEach(([elementName, element]) => {
             if(value[elementName] != undefined && typeof element === `object`) {
                 element.value = value[elementName]
             }

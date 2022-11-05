@@ -22,8 +22,7 @@ Object.defineProperty(SVGElement.prototype, 'hidden', hiddenGetterSetter)
 Object.defineProperty(HTMLElement.prototype, 'class', {
     enumerable: true,
     set: function(pclass) {
-        const thisClass = this
-        pclass.split(` `).forEach(function(pclass) { thisClass.classList.add(pclass) })
+        pclass.split(` `).forEach(pclass => { this.classList.add(pclass) })
     }
 })
 function formatNumberForDisplay(value, precision = 6) {

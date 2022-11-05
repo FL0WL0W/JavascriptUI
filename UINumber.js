@@ -25,9 +25,8 @@ export default class UINumber extends HTMLInputElement {
         this.type = `number`
         this.class = `ui number`
         Object.assign(this, prop)
-        const thisClass = this
-        this.addEventListener(`change`, function() { 
-            delete thisClass._value
+        this.addEventListener(`change`, () => { 
+            delete this._value
         });
     }
 }

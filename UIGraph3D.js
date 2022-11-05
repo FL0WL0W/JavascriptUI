@@ -23,7 +23,7 @@ export default class UIGraph3D extends UITableBase {
     set selecting(selecting) {
         if(objectTester(this.selecting, selecting))
             return;
-        this.#valuePathElement.querySelectorAll(`.selected`).forEach(function(element) { element.classList.remove(`selected`) });
+        this.#valuePathElement.querySelectorAll(`.selected`).forEach(element => { element.classList.remove(`selected`) });
         if(selecting) {
             if( selecting.startX != undefined && selecting.endX != undefined &&
                 selecting.startY != undefined && selecting.endY != undefined) {
@@ -123,7 +123,7 @@ export default class UIGraph3D extends UITableBase {
             return;
         this.#transformPrecalcPrivate = transformPrecalc;
         const r = transformPrecalc.zoom/(7.5 * Math.max(this.xResolution, this.yResolution));
-        [...this._valueElement.children].forEach(function(element) { element.setAttribute(`r`, r.toFixed(10)); });
+        [...this._valueElement.children].forEach(element => { element.setAttribute(`r`, r.toFixed(10)); });
         this._valueElement.update();
         this.#valuePathElement.updateWithDepth();
         this._xAxisElement.update();
@@ -166,12 +166,12 @@ export default class UIGraph3D extends UITableBase {
         this.#svgElement.append(this.#valuePathElement);
         this.#svgElement.append(this._valueElement);
         function update() {
-            [...this.children].forEach(function(element) { element.update(); });
+            [...this.children].forEach(element => { element.update(); });
         }
         function updateWithDepth() {
             const children = [...this.children];
-            children.forEach(function(element) { element.update(); });
-            children.sort(function(a, b) { return b.depth-a.depth; }).forEach(element => this.append(element));
+            children.forEach(element => { element.update(); });
+            children.sort((a, b) => { return b.depth-a.depth; }).forEach(element => this.append(element));
         }
         this._xAxisElement.update = update;
         this._yAxisElement.update = update;
@@ -198,11 +198,11 @@ export default class UIGraph3D extends UITableBase {
                 UIGraph3D.transformPoint([-0.5, -(z-0.5)*Math.max(1,thisClass.height)/(Math.max(1, thisClass.width)), y-0.5], thisClass.#transformPrecalc),
                 UIGraph3D.transformPoint([ 0.5, -(z-0.5)*Math.max(1,thisClass.height)/(Math.max(1, thisClass.width)), y-0.5], thisClass.#transformPrecalc)
             ]];
-            lines[0] = lines[0].sort(function(a,b) { return a[0]-b[0]});
+            lines[0] = lines[0].sort((a,b) => { return a[0]-b[0]});
             lines[0][2] = Math.abs(thisClass.#transformPrecalc.sinYaw);
-            lines[1] = lines[1].sort(function(a,b) { return a[0]-b[0]});
+            lines[1] = lines[1].sort((a,b) => { return a[0]-b[0]});
             lines[1][2] = Math.abs(thisClass.#transformPrecalc.cosYaw);
-            lines = lines.sort(function(a,b) { return a[0][0]-b[0][0]});
+            lines = lines.sort((a,b) => { return a[0][0]-b[0][0]});
             this.children[1].setAttribute(`x1`, lines[0][0][0].toFixed(10));
             this.children[1].setAttribute(`y1`, lines[0][0][1].toFixed(10));
             this.children[1].setAttribute(`x2`, lines[0][1][0].toFixed(10));
@@ -407,11 +407,11 @@ export default class UIGraph3D extends UITableBase {
                     if(this.z === (this.zResolution-1))
                         zValue = thisClass._valueMax;
                     let lines = thisClass.#zAxisToLines(zValue);
-                    lines[0] = lines[0].sort(function(a,b) { return a[0]-b[0]});
+                    lines[0] = lines[0].sort((a,b) => { return a[0]-b[0]});
                     lines[0][2] = Math.abs(thisClass.#transformPrecalc.sinYaw);
-                    lines[1] = lines[1].sort(function(a,b) { return a[0]-b[0]});
+                    lines[1] = lines[1].sort((a,b) => { return a[0]-b[0]});
                     lines[1][2] = Math.abs(thisClass.#transformPrecalc.cosYaw);
-                    lines = lines.sort(function(a,b) { return a[0][0]-b[0][0]});
+                    lines = lines.sort((a,b) => { return a[0][0]-b[0][0]});
                     this.children[0].setAttribute(`x1`, lines[0][0][0].toFixed(10));
                     this.children[0].setAttribute(`y1`, lines[0][0][1].toFixed(10));
                     this.children[0].setAttribute(`x2`, lines[0][1][0].toFixed(10));
@@ -497,7 +497,7 @@ export default class UIGraph3D extends UITableBase {
             valuePathElement.x2 = valuePathElement.x3 = valuePathElement.x1 + 1;
             valuePathElement.y3 = valuePathElement.y4 = valuePathElement.y1 + 1;
         }
-        const valuePathElements = [...thisClass.#valuePathElement.children];
+        const valuePathElements = [...this.#valuePathElement.children];
         while(this.xResolution * this.yResolution < this._valueElement.children.length) { this._valueElement.removeChild(this._valueElement.lastChild); }
         for(let i = 0; i < this.xResolution * this.yResolution; i++) { 
             let valueElement = this._valueElement.children[i] 
@@ -555,38 +555,37 @@ export default class UIGraph3D extends UITableBase {
     }
 
     #createEventListeners() {
-        const thisClass = this;
-        function minmax() {
-            const minmax = calculateMinMaxValue(thisClass.value);
-            thisClass._valueMin = minmax[0];
-            thisClass._valueMax = minmax[1];
+        const minmax = () => {
+            const minmax = calculateMinMaxValue(this.value);
+            this._valueMin = minmax[0];
+            this._valueMax = minmax[1];
         }
         this.addEventListener(`change`, minmax);
         minmax();
-        this.#svgElement.addEventListener('wheel', function(event){
+        this.#svgElement.addEventListener('wheel', event => {
             if(event.wheelDelta /120 > 0) {
-                thisClass.zoom *= 1.1;
+                this.zoom *= 1.1;
             }
             else{
-                thisClass.zoom *= 0.9;
+                this.zoom *= 0.9;
             }
             event.preventDefault()
             event.stopPropagation()
             return false;
         }, {passive: false});
-        this.#svgElement.addEventListener('contextmenu', function(event) {
+        this.#svgElement.addEventListener('contextmenu', event => {
             event.preventDefault()
         });
-        this.#svgElement.addEventListener('mousedown', function(event){
-            var rect = thisClass.#svgElement.getBoundingClientRect();
+        this.#svgElement.addEventListener('mousedown', event => {
+            var rect = this.#svgElement.getBoundingClientRect();
             var relX = event.pageX - rect.left;
             var relY = event.pageY - rect.top;
-            let circles = [...thisClass._valueElement.children].sort(function(a, b) { return a.depth-b.depth; });
+            let circles = [...this._valueElement.children].sort((a, b) => { return a.depth-b.depth; });
             let closestCircle = undefined;
             let rotate;
             let move;
             let dragValue;
-            circles.forEach(function(element, index) {
+            circles.forEach((element, index) => {
                 let l = element.p[0] - relX;
                 let w = element.p[1] - relY;
                 element.dist = Math.sqrt(l*l+w*w);
@@ -596,7 +595,7 @@ export default class UIGraph3D extends UITableBase {
             if(closestCircle && event.button === 0) {
                 const x = closestCircle.x;
                 const y = closestCircle.y;
-                thisClass.selecting = {
+                this.selecting = {
                     startX: x,
                     startY: y,
                     endX: x,
@@ -606,33 +605,33 @@ export default class UIGraph3D extends UITableBase {
                     pageY: event.pageY,
                     closestCircle,
                     value: closestCircle.value,
-                    mag: (thisClass._valueMax - thisClass._valueMin) / thisClass.height, 
+                    mag: (this._valueMax - this._valueMin) / this.height, 
                 }
             } else  if(event.button === 1) {
                 move={
                     pageX: event.pageX,
                     pageY: event.pageY,
-                    cameraX: thisClass.cameraX,
-                    cameraY: thisClass.cameraY
+                    cameraX: this.cameraX,
+                    cameraY: this.cameraY
                 }
                 event.preventDefault()
             } else if(event.button === 2) {
                 rotate = {
                     pageX: event.pageX,
                     pageY: event.pageY,
-                    yaw: thisClass.yaw,
-                    pitch: thisClass.pitch
+                    yaw: this.yaw,
+                    pitch: this.pitch
                 };
                 event.preventDefault()
             }
 
             //dragValue
             if(dragValue) {
-                function mouseMove(event) {
+                const mouseMove = event => {
                     dragValue.closestCircle.value = dragValue.value + (dragValue.pageY - event.pageY) * dragValue.mag 
-                    thisClass.dispatchEvent(new Event(`change`, {bubbles: true}));
+                    this.dispatchEvent(new Event(`change`, {bubbles: true}));
                 }
-                function mouseUp() {
+                const mouseUp = () => {
                     document.removeEventListener(`mousemove`, mouseMove);
                     document.removeEventListener(`mouseup`, mouseUp);
                 }
@@ -642,11 +641,11 @@ export default class UIGraph3D extends UITableBase {
 
             //move
             if(move) {
-                function mouseMove(event) {
-                    thisClass.cameraX = move.cameraX + move.pageX - event.pageX;
-                    thisClass.cameraY = move.cameraY + move.pageY - event.pageY;
+                const mouseMove = event => {
+                    this.cameraX = move.cameraX + move.pageX - event.pageX;
+                    this.cameraY = move.cameraY + move.pageY - event.pageY;
                 }
-                function mouseUp() {
+                const mouseUp = () => {
                     document.removeEventListener(`mousemove`, mouseMove);
                     document.removeEventListener(`mouseup`, mouseUp);
                 }
@@ -656,17 +655,17 @@ export default class UIGraph3D extends UITableBase {
 
             //rotate
             if(rotate) {
-                function mouseMove(event) {
+                const mouseMove = event => {
                     let yaw = rotate.yaw + rotate.pageX - event.pageX;
                     let pitch = Math.max(-90,Math.min(90,rotate.pitch + event.pageY - rotate.pageY));
-                    if(yaw === thisClass.yaw && pitch === thisClass.pitch)
+                    if(yaw === this.yaw && pitch === this.pitch)
                         return;
 
-                    thisClass.#yaw = yaw;
-                    thisClass.#pitch = pitch;
-                    thisClass.#transformPrecalc = UIGraph3D.transformPrecalc(thisClass);
+                    this.#yaw = yaw;
+                    this.#pitch = pitch;
+                    this.#transformPrecalc = UIGraph3D.transformPrecalc(this);
                 }
-                function mouseUp() {
+                const mouseUp = () => {
                     document.removeEventListener(`mousemove`, mouseMove);
                     document.removeEventListener(`mouseup`, mouseUp);
                 }

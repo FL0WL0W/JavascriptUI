@@ -100,9 +100,9 @@ export default class UISelection extends HTMLDivElement {
         if(collapseUnSelected) this.contextMenuElement.classList.add(`collapsible`)
         else this.contextMenuElement.classList.remove(`collapsible`)
         let selected = false;
-        [...this.contextMenuElement.children].forEach(function(element) { 
+        [...this.contextMenuElement.children].forEach(element => { 
             let selectedInThisGroup = false;
-            [...element.children].forEach(function(element) { 
+            [...element.children].forEach(element => { 
                 if(selectedElement.value == undefined || element.value !== selectedElement.value) element.classList.remove(`selected`);
                 else { element.classList.add(`selected`); selected = true; selectedInThisGroup = true; }
             });
@@ -129,20 +129,19 @@ export default class UISelection extends HTMLDivElement {
             return
         this.#options = options
 
-        const thisClass = this
-        const newLen = options.length + (thisClass.selectHidden? 0 : 1)
-        while(newLen < thisClass.contextMenuElement.children.length)
-            thisClass.contextMenuElement.removeChild(thisClass.contextMenuElement.children[newLen])
-        if(!thisClass.selectHidden){
-            this.#selectElement = thisClass.contextMenuElement.children[0]
+        const newLen = options.length + (this.selectHidden? 0 : 1)
+        while(newLen < this.contextMenuElement.children.length)
+            this.contextMenuElement.removeChild(this.contextMenuElement.children[newLen])
+        if(!this.selectHidden){
+            this.#selectElement = this.contextMenuElement.children[0]
             if(this.#selectElement == undefined)
-                this.#selectElement = thisClass.contextMenuElement.appendChild(document.createElement(`div`))
-            setElementOption(this.#selectElement, { name: thisClass.selectName, disabled: thisClass.selectDisabled, value: thisClass.selectValue })
+                this.#selectElement = this.contextMenuElement.appendChild(document.createElement(`div`))
+            setElementOption(this.#selectElement, { name: this.selectName, disabled: this.selectDisabled, value: this.selectValue })
         }
-        options.forEach(function(option, index) {
-            let optionElement = thisClass.contextMenuElement.children[index + (thisClass.selectHidden? 0 : 1)]
+        options.forEach((option, index) => {
+            let optionElement = this.contextMenuElement.children[index + (this.selectHidden? 0 : 1)]
             if(optionElement == undefined)
-                optionElement = thisClass.contextMenuElement.appendChild(document.createElement(`div`))
+                optionElement = this.contextMenuElement.appendChild(document.createElement(`div`))
             setElementOption(optionElement, option)
         })
         this.#updateSelectElement()
@@ -191,32 +190,31 @@ export default class UISelection extends HTMLDivElement {
         this.contextMenuElement.prepend(this.#selectElement)
         setElementOption(this.#selectElement, { name: this.selectName, disabled: this.selectDisabled, value: this.selectValue })
         Object.assign(this, prop)
-        const thisClass = this
 
         let visible = false
         let collapsingClick = false
-        this.selectedElement.addEventListener(`click`, function() {
+        this.selectedElement.addEventListener(`click`, () => {
             if(visible) 
                 return
-            if(thisClass.selectHidden && thisClass.options.length < 2)
+            if(this.selectHidden && this.options.length < 2)
                 return
 
-            function clickHandler() {
+            const clickHandler = () => {
                 if(collapsingClick)
                     return collapsingClick = false
                 if(!visible) 
                     return
-                thisClass.removeChild(thisClass.contextMenuElement)
+                this.removeChild(this.contextMenuElement)
                 document.removeEventListener(`click`, clickHandler)
                 visible = false
             }
             document.addEventListener(`click`, clickHandler)
-            window.setTimeout(function() { thisClass.append(thisClass.contextMenuElement); visible = true; }, 1)
+            window.setTimeout(() => { this.append(this.contextMenuElement); visible = true; }, 1)
         })
-        this.contextMenuElement.addEventListener(`click`, function(event) {
+        this.contextMenuElement.addEventListener(`click`, event => {
             if(event.target.classList.contains(`selectdisabled`))
                 return
-            if(event.target.classList.contains(`selectgroup`) && thisClass.contextMenuElement.classList.contains(`collapsible`)) {
+            if(event.target.classList.contains(`selectgroup`) && this.contextMenuElement.classList.contains(`collapsible`)) {
                 if(event.target.parentElement.classList.contains(`collapsed`)) event.target.parentElement.classList.remove(`collapsed`) 
                 else event.target.parentElement.classList.add(`collapsed`)
                 collapsingClick = true
@@ -225,7 +223,7 @@ export default class UISelection extends HTMLDivElement {
             if(!event.target.classList.contains(`selectoption`))
                 return
             
-            thisClass.value = UISelection.ParseValue(event.target.type, event.target.value)
+            this.value = UISelection.ParseValue(event.target.type, event.target.value)
         })
     }
 }
@@ -239,7 +237,7 @@ function setElementOption(element, option) {
         element.replaceChildren(selectGroupElement)
         selectGroupElement.classList.add(`selectgroup`)
         selectGroupElement.textContent = option.group
-        option.options.forEach(function(option) {
+        option.options.forEach(option => {
             let optionElement = element.appendChild(document.createElement(`div`))
             setElementOption(optionElement, option)
         })

@@ -34,7 +34,7 @@ export default class UIGraph2D extends UITableBase {
     set selecting(selecting) {
         if(objectTester(this.selecting, selecting))
             return;
-        this.#valueLineElement.querySelectorAll(`.selected`).forEach(function(element) { element.classList.remove(`selected`) });
+        this.#valueLineElement.querySelectorAll(`.selected`).forEach(element => { element.classList.remove(`selected`) });
         if(selecting) {
             if( selecting.startX != undefined && selecting.endX != undefined &&
                 selecting.startY != undefined && selecting.endY != undefined) {
@@ -63,20 +63,20 @@ export default class UIGraph2D extends UITableBase {
         this.#paddingBottom = r + textSize;
         this.#paddingTop = r;
         this.#paddingRight = r;
-        [...this._valueElement.children].forEach(function(element) { element.textSize = textSize; element.setAttribute(`r`, r.toFixed(10)); element.update(); });
-        [...this._xAxisElement.children].forEach(function(element) { element.textSize = textSize; element.r = r; element.update(); });
-        [...this._yAxisElement.children].forEach(function(element) { element.textSize = textSize; element.r = r; element.update(); });
-        [...this.#zAxisElement.children].forEach(function(element) { element.textSize = textSize; element.r = r; element.update(); });
+        [...this._valueElement.children].forEach(element => { element.textSize = textSize; element.setAttribute(`r`, r.toFixed(10)); element.update(); });
+        [...this._xAxisElement.children].forEach(element => { element.textSize = textSize; element.r = r; element.update(); });
+        [...this._yAxisElement.children].forEach(element => { element.textSize = textSize; element.r = r; element.update(); });
+        [...this.#zAxisElement.children].forEach(element => { element.textSize = textSize; element.r = r; element.update(); });
     }
     get height() {
         return this.#svgElement.getAttribute(`height`) ?? this.offsetHeight ?? 150;
     }
     set height(height) {
         this.#svgElement.setAttribute(`height`, height);
-        [...this._valueElement.children].forEach(function(element) { element.update(); });
-        [...this._xAxisElement.children].forEach(function(element) { element.update(); });
-        [...this._yAxisElement.children].forEach(function(element) { element.update(); });
-        [...this.#zAxisElement.children].forEach(function(element) { element.update(); });
+        [...this._valueElement.children].forEach(element => { element.update(); });
+        [...this._xAxisElement.children].forEach(element => { element.update(); });
+        [...this._yAxisElement.children].forEach(element => { element.update(); });
+        [...this.#zAxisElement.children].forEach(element => { element.update(); });
     }
 
     #zAxisElement       = document.createElementNS('http://www.w3.org/2000/svg','g');
@@ -114,7 +114,7 @@ export default class UIGraph2D extends UITableBase {
         this.#svgElement.append(this.#valueLineElement);
         this.#svgElement.append(this._valueElement);
         function update() {
-            [...this.children].forEach(function(element) { element.update(); });
+            [...this.children].forEach(element => { element.update(); });
         }
         this._xAxisElement.update = update;
         this._yAxisElement.update = update;
@@ -305,7 +305,7 @@ export default class UIGraph2D extends UITableBase {
                 valueLineElement.xp2++;
             valueLineElement.yp1 = valueLineElement.yp2 = Math.trunc(i/(this.xResolution-1));
         }
-        const valueLineElements = [...thisClass.#valueLineElement.children];
+        const valueLineElements = [...this.#valueLineElement.children];
         while(this.xResolution * this.yResolution < this._valueElement.children.length) { this._valueElement.removeChild(this._valueElement.lastChild); }
         for(let i = 0; i < this.xResolution * this.yResolution; i++) { 
             let valueElement = this._valueElement.children[i] 
@@ -360,22 +360,21 @@ export default class UIGraph2D extends UITableBase {
     }
 
     #createEventListeners() {
-        const thisClass = this;
-        function minmax() {
-            const minmax = calculateMinMaxValue(thisClass.value);
-            thisClass._valueMin = minmax[0];
-            thisClass._valueMax = minmax[1];
+        const minmax = () => {
+            const minmax = calculateMinMaxValue(this.value);
+            this._valueMin = minmax[0];
+            this._valueMax = minmax[1];
         }
         this.addEventListener(`change`, minmax);
         minmax();
-        this.#svgElement.addEventListener('mousedown', function(event){
-            var rect = thisClass.#svgElement.getBoundingClientRect();
+        this.#svgElement.addEventListener('mousedown', event => {
+            var rect = this.#svgElement.getBoundingClientRect();
             var relX = event.pageX - rect.left;
             var relY = event.pageY - rect.top;
-            let circles = [...thisClass._valueElement.children].sort(function(a, b) { return a.depth-b.depth; });
+            let circles = [...this._valueElement.children].sort((a, b) => { return a.depth-b.depth; });
             let closestCircle = undefined;
             let dragValue;
-            circles.forEach(function(element, index) {
+            circles.forEach((element, index) => {
                 let l = element.p[0] - relX;
                 let w = element.p[1] - relY;
                 element.dist = Math.sqrt(l*l+w*w);
@@ -385,36 +384,36 @@ export default class UIGraph2D extends UITableBase {
             if(closestCircle && event.button === 0) {
                 const x = closestCircle.x;
                 const y = closestCircle.y;
-                thisClass.selecting = {
+                this.selecting = {
                     startX: x,
                     startY: y,
                     endX: x,
                     endY: y
                 }
-                const axis = thisClass.axis;
-                const axisElement = thisClass.xResolution < 2? thisClass._yAxisElement.children[closestCircle.y] : thisClass._xAxisElement.children[closestCircle.x];
+                const axis = this.axis;
+                const axisElement = this.xResolution < 2? this._yAxisElement.children[closestCircle.y] : this._xAxisElement.children[closestCircle.x];
                 dragValue = {
                     pageX: event.pageX,
                     pageY: event.pageY,
                     closestCircle,
                     value: closestCircle.value,
-                    mag: (thisClass._valueMax - thisClass._valueMin) / (thisClass.height - thisClass.#paddingTop - thisClass.#paddingBottom), 
+                    mag: (this._valueMax - this._valueMin) / (this.height - this.#paddingTop - this.#paddingBottom), 
                     axisElement,
                     axisValue: axisElement.value,
-                    axisMag: (axis[axis.length - 1] - axis[0]) / (thisClass.width - thisClass.#paddingLeft - thisClass.#paddingRight)
+                    axisMag: (axis[axis.length - 1] - axis[0]) / (this.width - this.#paddingLeft - this.#paddingRight)
                 }
             }
 
             //dragValue
             if(dragValue) {
-                function mouseMove(event) {
+                const mouseMove = event => {
                     dragValue.closestCircle.value = dragValue.value + (dragValue.pageY - event.pageY) * dragValue.mag;
                     dragValue.axisElement.value = dragValue.axisValue + (event.pageX - dragValue.pageX) * dragValue.axisMag;
 
-                    thisClass._boundAxis(dragValue.axisElement.parentElement);
-                    thisClass.dispatchEvent(new Event(`change`, {bubbles: true}));
+                    this._boundAxis(dragValue.axisElement.parentElement);
+                    this.dispatchEvent(new Event(`change`, {bubbles: true}));
                 }
-                function mouseUp() {
+                const mouseUp = () => {
                     document.removeEventListener(`mousemove`, mouseMove);
                     document.removeEventListener(`mouseup`, mouseUp);
                 }
