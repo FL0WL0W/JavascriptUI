@@ -222,14 +222,15 @@
     margin: 0px;
     padding: 0px;
 }
-.ui table.numerictable tr td div.value div.selected,
+.ui table.numerictable tr td div.value div.selected{
+    border-color: var(--border-selected-color) !important;
+}
 .ui table.numerictable tr td div.yaxis div.selected,
 .ui table.numerictable tr td div.xaxis div.selected {
     border-color: var(--border-selected-color) !important;
+    background-color: var(--background-selected-color) !important;
 }
-.ui table.numerictable tr td div.value div.selected::before,
-.ui table.numerictable tr td div.xaxis div.selected::before,
-.ui table.numerictable tr td div.yaxis div.selected::before {
+.ui table.numerictable tr td div.value div.selected::before {
     z-index: -1;
     border-color: var(--border-selected-color) !important;
     background-color: var(--background-selected-color) !important;
