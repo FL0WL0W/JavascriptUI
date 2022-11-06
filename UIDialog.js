@@ -63,14 +63,14 @@ export default class UIDialog extends HTMLSpanElement {
             delete this.#dialog.style.top
             delete this.#dialog.style.left
         })
-        this.#titleBarElement.addEventListener(`mousedown`, () => {
+        this.#titleBarElement.addEventListener(`mousedown`, event => {
             this.#dialog.style.left = this.#dialog.offsetLeft
             this.#dialog.style.right = `auto`
             this.#dialog.style.top = this.#dialog.offsetTop
             this.#dialog.style.bottom = `auto`
             let state = {
-                pageX: e.pageX,
-                pageY: e.pageY,
+                pageX: event.pageX,
+                pageY: event.pageY,
                 left: parseFloat(this.#dialog.style.left),
                 top: parseFloat(this.#dialog.style.top)
             }
