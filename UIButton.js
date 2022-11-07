@@ -4,7 +4,7 @@ export default class UIButton extends HTMLSpanElement {
     get saveValue() { return undefined }
     set saveValue(saveValue){ }
 
-    get label() { this.textContent }
+    get label() { return this.textContent }
     set label(label) { this.textContent = label }
 
     constructor(prop) {
