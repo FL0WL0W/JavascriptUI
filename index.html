@@ -15,7 +15,6 @@
             import UIGraph3D from "./UIGraph3D.js"
             import UIGraph2D from "./UIGraph2D.js"
             import UIDialog from "./UIDialog.js"
-            import UIGauge from "./UIGauge.js"
             let graph3D = new UIGraph3D({
                     value: [ 0.0000234, 2, 3, 4, 5,
                              2, 3, 4, 5, 6,
@@ -27,7 +26,7 @@
                     height: 480
                 })
             window.template = new UITemplate({
-                template: `<div data-element="text"></div><hr/><div data-element="number"></div><hr/><div data-element="checkbox"></div><hr/><div data-element="gauge"></div><hr/><div data-element="graph2D"></div><hr/><div data-element="graph3D"></div><hr/><div data-element="table2D"></div>`,
+                template: `<div data-element="text"></div><hr/><div data-element="number"></div><hr/><div data-element="checkbox"></div><hr/><div data-element="graph2D"></div><hr/><div data-element="graph3D"></div><hr/><div data-element="table2D"></div>`,
                 text: new UIText({
                     value: `text`
                 }),
@@ -73,13 +72,7 @@
                     yAxis: [ 1, 2, 3, 4 ],
                     width: 640,
                     height: 480
-                }),
-                gauge: new UIGauge({
-                    min: 0,
-                    max: 8,
-                    step: 1,
-                    value: 3
-                }),
+                })
             })
             window.template.graph3D.content.append(graph3D)
             window.template.table2D.attachToTable(graph3D)
