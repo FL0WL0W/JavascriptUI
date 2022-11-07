@@ -6,10 +6,16 @@ export default class UINumber extends HTMLInputElement {
     }
     set value(value) {
         value = parseFloat(value)
-        if(parseFloat(this._value) === value)
+        if(parseFloat(this.value) === value)
             return
 
-        super.value = this._value = value
+
+        const prevValue = this.value
+        super.value = value
+        this._value = undefined
+        if(prevValue === this.value || (isNaN(prevValue) && isNaN(this.value)))
+            return
+
         super.dispatchEvent(new Event(`change`, {bubbles: true}))
     }
 
