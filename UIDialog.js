@@ -34,6 +34,19 @@ export default class UIDialog extends HTMLSpanElement {
         this.#titleElement.innerText = title
     }
 
+    show() {
+        this.#dialog.show()
+        if(this.#dialog.style.right == 0) {
+            this.#dialog.style.top = `0px`
+            this.#dialog.style.left = `0px`
+        }
+    }
+    close() {
+        this.#dialog.close()
+        delete this.#dialog.style.top
+        delete this.#dialog.style.left
+    }
+
     constructor(prop) {
         super()
         this.title = `Dialog`
@@ -52,16 +65,10 @@ export default class UIDialog extends HTMLSpanElement {
         this.#titleBarElement.append(this.#closeElement)
         Object.assign(this, prop)
         this.#button.addEventListener(`click`, () => {
-            this.#dialog.show()
-            if(this.#dialog.style.right == 0) {
-                this.#dialog.style.top = `0px`
-                this.#dialog.style.left = `0px`
-            }
+            this.show()
         })
         this.#closeElement.addEventListener(`click`, () => {
-            this.#dialog.close()
-            delete this.#dialog.style.top
-            delete this.#dialog.style.left
+            this.close()
         })
         this.#titleBarElement.addEventListener(`mousedown`, event => {
             this.#dialog.style.left = this.#dialog.offsetLeft

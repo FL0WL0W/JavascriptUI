@@ -300,6 +300,7 @@
     box-sizing: border-box;
 }
 .ui.select .ui.selected {
+    margin-right: 1em;
     min-width: 200px;
     text-decoration: none;
     background-color: var(--input-background-color);
@@ -315,27 +316,16 @@
     border-color: var(--border-hover-color);
 }
 
-.ui.select.unit .ui.selected {
-    min-width: 0px;
-    background-color: transparent;
-    color: var(--text-color);
-    border: none;
-    min-width: 2em;
-}
-.ui.select.unit .ui.selected::after {
-    float: right;
-    content: "";
-}
-.ui.select .collapsible .collapsed div {
+.ui.context-menu.collapsible .collapsed div {
     display: none;
 }
-.ui.select .collapsible .collapsed div.selectgroup {
+.ui.context-menu.collapsible .collapsed div.selectgroup {
     display: block;
 }
-.ui.select .collapsible .collapsed div.selectgroup::before {
+.ui.context-menu.collapsible .collapsed div.selectgroup::before {
     content: "►"
 }
-.ui.select .collapsible div.selectgroup::before {
+.ui.context-menu.collapsible div.selectgroup::before {
     content: "▼"
 }
 
