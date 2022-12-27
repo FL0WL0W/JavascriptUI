@@ -9,7 +9,6 @@ export default class UINumber extends HTMLInputElement {
         if(parseFloat(this.value) === value)
             return
 
-
         const prevValue = this.value
         super.value = value
         this._value = undefined
@@ -17,6 +16,20 @@ export default class UINumber extends HTMLInputElement {
             return
 
         super.dispatchEvent(new Event(`change`, {bubbles: true}))
+    }
+
+    get min() { return super.min }
+    set min(min) { 
+        super.min = min 
+        if(min != undefined && this.value != undefined && this.value < parseFloat(min))
+            this.value = min
+    }
+
+    get max() { return super.max }
+    set max(max) { 
+        super.max = max
+        if(max != undefined && this.value != undefined && this.value > parseFloat(max))
+            this.value = max
     }
 
     get saveValue() {
