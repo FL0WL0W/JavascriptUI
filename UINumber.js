@@ -1,8 +1,8 @@
 export default class UINumber extends HTMLInputElement {
     get value() {
         if(this._value == undefined)
-            this._value = super.value
-        return parseFloat(this._value)
+            this._value = parseFloat(super.value)
+        return this._value
     }
     set value(value) {
         value = parseFloat(value)
@@ -10,7 +10,7 @@ export default class UINumber extends HTMLInputElement {
             return
 
         const prevValue = this.value
-        super.value = value
+        super.value = isNaN(value)? `` : value
         this._value = undefined
         if(prevValue === this.value || (isNaN(prevValue) && isNaN(this.value)))
             return
