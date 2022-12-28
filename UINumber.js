@@ -1,8 +1,7 @@
 export default class UINumber extends HTMLInputElement {
+    #value
     get value() {
-        if(this._value == undefined)
-            this._value = parseFloat(super.value)
-        return this._value
+        return this.#value
     }
     set value(value) {
         value = parseFloat(value)
@@ -11,7 +10,7 @@ export default class UINumber extends HTMLInputElement {
 
         const prevValue = this.value
         super.value = isNaN(value)? `` : value
-        this._value = undefined
+        this.#value = value
         if(prevValue === this.value || (isNaN(prevValue) && isNaN(this.value)))
             return
 
@@ -45,7 +44,13 @@ export default class UINumber extends HTMLInputElement {
         this.class = `ui number`
         Object.assign(this, prop)
         this.addEventListener(`change`, () => { 
-            delete this._value
+            this.#value = parseFloat(super.value)
+            const min = parseFloat(super.min)
+            const max = parseFloat(super.max)
+            if(!isNaN(this.#value) && !isNaN(min) && this.#value < min)
+                super.value = min
+            if(!isNaN(this.#value) && !isNaN(max) && this.#value > max)
+                super.value = max
         });
     }
 }
