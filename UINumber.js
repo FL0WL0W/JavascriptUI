@@ -48,9 +48,9 @@ export default class UINumber extends HTMLInputElement {
             const min = parseFloat(super.min)
             const max = parseFloat(super.max)
             if(!isNaN(this.#value) && !isNaN(min) && this.#value < min)
-                super.value = min
+                this.#value = min
             if(!isNaN(this.#value) && !isNaN(max) && this.#value > max)
-                super.value = max
+                this.#value = max
         });
     }
 }
