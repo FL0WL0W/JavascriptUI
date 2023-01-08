@@ -162,6 +162,8 @@ export default class UISelection extends HTMLDivElement {
         return UISelection.ParseValue(this.selectedElement.type, this.selectedElement.value)
     }
     set value(value) {
+        if(this.selectHidden && this.value == undefined && this.options.length === 1)
+            value = this.options[0].value
         if(objectTester(this.value, value))
             return
             
@@ -225,6 +227,7 @@ export default class UISelection extends HTMLDivElement {
             
             this.value = UISelection.ParseValue(event.target.type, event.target.value)
         })
+        this.#updateSelectElement()
     }
 }
 
