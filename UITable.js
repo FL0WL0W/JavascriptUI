@@ -742,7 +742,7 @@ export default class UITable extends UITableBase {
                 this.#modifyAddElement.classList.add(`selected`)
             }
             //minus
-            if(event.key === `-`) {
+            if(event.shiftKey && (event.key === `-` || event.key === `_`)) {
                 event.preventDefault()
                 this.#modifyAddElement.hidden = true;
                 this.#modifySubtractElement.hidden = false;
