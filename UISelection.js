@@ -95,7 +95,7 @@ export default class UISelection extends HTMLDivElement {
 
     collapse = 20
     #updateSelectElement() {
-        const selectedElement = this.selectedElement;
+        const selectedElement = this.selectedElement
         const collapseUnSelected = this.contextMenuElement.querySelectorAll(`.selectoption, .selectgroup`).length >= this.collapse && this.collapse > 0
         if(collapseUnSelected) this.contextMenuElement.classList.add(`collapsible`)
         else this.contextMenuElement.classList.remove(`collapsible`)
@@ -103,19 +103,23 @@ export default class UISelection extends HTMLDivElement {
         [...this.contextMenuElement.children].forEach(element => { 
             let selectedInThisGroup = false;
             [...element.children].forEach(element => { 
-                if(selectedElement.value == undefined || element.value !== selectedElement.value) element.classList.remove(`selected`);
-                else { element.classList.add(`selected`); selected = true; selectedInThisGroup = true; }
-            });
+                if(selectedElement.value == undefined || element.value !== selectedElement.value) element.classList.remove(`selected`)
+                else { element.classList.add(`selected`); selected = true; selectedInThisGroup = true }
+            })
             if(!selectedInThisGroup) element.classList.add(`collapsed`)
             else element.classList.remove(`collapsed`)
-            if(element.value !== selectedElement.value) element.classList.remove(`selected`);
-            else { element.classList.add(`selected`); selected = true;}
-        });
-        const selectedText = this.selectedOption?.selectedName ?? this.selectedOption?.name ?? this.selectName;
+            if(element.value !== selectedElement.value) element.classList.remove(`selected`)
+            else { element.classList.add(`selected`); selected = true }
+        })
+        const selectedText = this.selectedOption?.selectedName ?? this.selectedOption?.name ?? this.selectName
         if(selectedElement.textContent !== selectedText)
-            selectedElement.textContent = selectedText;
+            selectedElement.textContent = selectedText
         if(!selected)
-            this.#selectElement.classList.add(`selected`);
+            this.#selectElement.classList.add(`selected`)
+        if(this.options.map(option => option.options?.length ?? 1).reduce((partionSum, a) => partionSum + a, 0)  < (this.selectHidden? 2 : 1))
+            selectedElement.classList.add(`single`)
+        else
+            selectedElement.classList.remove(`single`)
     }
 
     #options = []
@@ -196,9 +200,12 @@ export default class UISelection extends HTMLDivElement {
         let visible = false
         let collapsingClick = false
         this.selectedElement.addEventListener(`click`, () => {
+            this.#updateSelectElement()
             if(visible) 
                 return
             if(this.selectHidden && this.options.length < 2)
+                return
+            if(this.selectedElement.classList.contains(`single`))
                 return
 
             const clickHandler = () => {
@@ -211,7 +218,7 @@ export default class UISelection extends HTMLDivElement {
                 visible = false
             }
             document.addEventListener(`click`, clickHandler)
-            window.setTimeout(() => { this.append(this.contextMenuElement); visible = true; }, 1)
+            window.setTimeout(() => { this.append(this.contextMenuElement); visible = true }, 1)
         })
         this.contextMenuElement.addEventListener(`click`, event => {
             if(event.target.classList.contains(`selectdisabled`))

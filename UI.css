@@ -312,6 +312,12 @@
     float: right;
     content: "▼";
 }
+.ui.select .ui.selected.single::after {
+    content: "";
+}
+.ui.select .ui.selected.single:hover {
+    border-color: var(--border-color);
+}
 .ui.select .ui.selected:hover {
     border-color: var(--border-hover-color);
 }
