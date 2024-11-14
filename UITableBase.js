@@ -1,3 +1,5 @@
+import { objectTester } from "./UIUtils.js";
+
 export default class UITableBase extends HTMLDivElement {
     get value() {
         return [...this._valueElement.children].map(x => x.value)

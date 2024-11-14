@@ -1,31 +1,34 @@
-let hiddenGetterSetter = {
-    enumerable: true,
-    get: function() {
-        return this.style.display === `none`
-    },
-    set: function(hidden) {
-        if(hidden && this.style.display !== `none`) {
-            if(this.style.display)
-                this._previousDisplayValue = this.style.display
-            this.style.display = `none`
-        } else if(!hidden && this.style.display === `none`) {
-            if(this._previousDisplayValue)
-                this.style.display = this._previousDisplayValue
-            else 
-                this.style.display = null
-            delete this._previousDisplayValue
+export default (function() {
+    let hiddenGetterSetter = {
+        enumerable: true,
+        get: function() {
+            return this.style.display === `none`
+        },
+        set: function(hidden) {
+            if(hidden && this.style.display !== `none`) {
+                if(this.style.display)
+                    this._previousDisplayValue = this.style.display
+                this.style.display = `none`
+            } else if(!hidden && this.style.display === `none`) {
+                if(this._previousDisplayValue)
+                    this.style.display = this._previousDisplayValue
+                else 
+                    this.style.display = null
+                delete this._previousDisplayValue
+            }
         }
     }
-}
-Object.defineProperty(HTMLElement.prototype, 'hidden', hiddenGetterSetter)
-Object.defineProperty(SVGElement.prototype, 'hidden', hiddenGetterSetter)
-Object.defineProperty(HTMLElement.prototype, 'class', {
-    enumerable: true,
-    set: function(pclass) {
-        pclass.split(` `).forEach(pclass => { this.classList.add(pclass) })
-    }
-})
-function formatNumberForDisplay(value, precision = 6) {
+    if(!('hidden' in HTMLElement.prototype)) Object.defineProperty(HTMLElement.prototype, 'hidden', hiddenGetterSetter)
+    if(!('hidden' in SVGElement.prototype)) Object.defineProperty(SVGElement.prototype, 'hidden', hiddenGetterSetter)
+    if(!('class' in HTMLElement.prototype)) Object.defineProperty(HTMLElement.prototype, 'class', {
+        enumerable: true,
+        set: function(pclass) {
+            pclass.split(` `).forEach(pclass => { this.classList.add(pclass) })
+        }
+    })
+})();
+
+export function formatNumberForDisplay(value, precision = 6) {
     value = parseFloat(value)
     if(isNaN(value))
         return `&nbsp;`
@@ -34,7 +37,7 @@ function formatNumberForDisplay(value, precision = 6) {
     return parseFloat(value.toPrecision(precision))
 }
 
-function calculateMinMaxValue(array, minDiff = 1) {
+export function calculateMinMaxValue(array, minDiff = 1) {
     let valueMin = 18000000000000000000
     let valueMax = -9000000000000000000
     for(let i = 0; i < array.length; i++) {
@@ -54,7 +57,7 @@ function calculateMinMaxValue(array, minDiff = 1) {
 ** @returns {boolean} - true if a and b are the object or same primitive value or
 **                      have the same properties with the same values
 */
-function objectTester(a, b) {
+export function objectTester(a, b) {
   
     // If a and b reference the same value, return true
     if (a === b) return true
@@ -112,30 +115,3 @@ function objectTester(a, b) {
 function getClass(obj) {
     return Object.prototype.toString.call(obj)
 }
-
-function throttle(cb, delay = 100) {
-    let shouldWait = false
-    let waitingArgs
-    const timeoutFunc = () => {
-      if (waitingArgs == null) {
-        shouldWait = false
-      } else {
-        cb(...waitingArgs)
-        waitingArgs = null
-        setTimeout(timeoutFunc, delay)
-      }
-    }
-  
-    return (...args) => {
-      if (shouldWait) {
-        waitingArgs = args
-        return
-      }
-  
-      cb(...args)
-      shouldWait = true
-  
-      setTimeout(timeoutFunc, delay)
-    }
-  }
-  

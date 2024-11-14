@@ -1,3 +1,5 @@
+import { objectTester } from "./UIUtils.js";
+
 export default class UISelection extends HTMLDivElement {
     static ParseValue(type, value) {
         switch(type) {

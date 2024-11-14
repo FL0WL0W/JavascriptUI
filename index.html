@@ -4,7 +4,6 @@
         <style> 
             body {background-color: #222629; color: #eee; font-weight:bold;}
         </style>
-        <script src="UIUtils.js"></script>
         <script type="module">
             import UIText from "./UIText.js"
             import UINumber from "./UINumber.js"
@@ -15,72 +14,72 @@
             import UIGraph3D from "./UIGraph3D.js"
             import UIGraph2D from "./UIGraph2D.js"
             import UIDialog from "./UIDialog.js"
-            let graph3D = new UIGraph3D({
-                    value: [ 0.0000234, 2, 3, 4, 5,
-                             2, 3, 4, 5, 6,
-                             3, 4, 5, 6, 7,
-                             4, 5, 6, 7, 8],
-                    xAxis: [ 1, 2, 3, 4, 5 ],
-                    yAxis: [ 1, 2, 3, 4 ],
-                    width: 640,
-                    height: 480
-                })
-            window.template = new UITemplate({
-                template: `<div data-element="text"></div><hr/><div data-element="number"></div><hr/><div data-element="checkbox"></div><hr/><div data-element="graph2D"></div><hr/><div data-element="graph3D"></div><hr/><div data-element="table2D"></div>`,
-                text: new UIText({
-                    value: `text`
-                }),
-                number: new UINumber({
-                    value: 123,
-                    min: 1,
-                    max: 200,
-                    step: 2
-                }),
-                checkbox: new UICheckBox({
-                    value: true
-                }),
-                table2D: new UITable({
-                    value: [ 0.0000234, 2, 3, 4, 5,
-                             2, 3, 4, 5, 6,
-                             3, 4, 5, 6, 7,
-                             4, 5, 6, 7, 8],
-                    xAxis: [ 1, 2, 3, 4, 5 ],
-                    yAxis: [ 1, 2, 3, 4 ],
-                    yLabel: new UISelection({
-                        options: [
-                            { name: `Selection label Test`, value: 1 },
-                            { name: `Selection label Test1`, value: 2 },
-                            { name: `Selection label Test2`, value: 3 },
-                            { name: `Selection label Test3`, value: 4 },
-                            { name: `Selection label Test4`, value: 5 },
-                            { name: `Selection label Test5`, value: 6 }
-                        ]
+            addEventListener(`load`, function() {
+                let graph3D = new UIGraph3D({
+                        value: [ 0.0000234, 2, 3, 4, 5,
+                                2, 3, 4, 5, 6,
+                                3, 4, 5, 6, 7,
+                                4, 5, 6, 7, 8],
+                        xAxis: [ 1, 2, 3, 4, 5 ],
+                        yAxis: [ 1, 2, 3, 4 ],
+                        width: 640,
+                        height: 480
+                    })
+                let template = new UITemplate({
+                    template: `<div data-element="text"></div><hr/><div data-element="number"></div><hr/><div data-element="checkbox"></div><hr/><div data-element="graph2D"></div><hr/><div data-element="graph3D"></div><hr/><div data-element="table2D"></div>`,
+                    text: new UIText({
+                        value: `text`
                     }),
-                    xLabel: `xLabel`,
-                    zLabel: `zLabel`
-                }),
-                graph3D: new UIDialog({
-                    buttonLabel: `Open 3D Graph`,
-                    title: `3D Graph`
-                }),
-                graph2D: new UIGraph2D({
-                    value: [ 0.0000234, 2, 3, 4, 5,
-                             2, 3, 4, 5, 6,
-                             3, 4, 5, 6, 7,
-                             4, 5, 6, 7, 8],
-                    xAxis: [ 1, 2, 3, 4, 5 ],
-                    yAxis: [ 1, 2, 3, 4 ],
-                    width: 640,
-                    height: 480
+                    number: new UINumber({
+                        value: 123,
+                        min: 1,
+                        max: 200,
+                        step: 2
+                    }),
+                    checkbox: new UICheckBox({
+                        value: true
+                    }),
+                    table2D: new UITable({
+                        value: [ 0.0000234, 2, 3, 4, 5,
+                                2, 3, 4, 5, 6,
+                                3, 4, 5, 6, 7,
+                                4, 5, 6, 7, 8],
+                        xAxis: [ 1, 2, 3, 4, 5 ],
+                        yAxis: [ 1, 2, 3, 4 ],
+                        yLabel: new UISelection({
+                            options: [
+                                { name: `Selection label Test`, value: 1 },
+                                { name: `Selection label Test1`, value: 2 },
+                                { name: `Selection label Test2`, value: 3 },
+                                { name: `Selection label Test3`, value: 4 },
+                                { name: `Selection label Test4`, value: 5 },
+                                { name: `Selection label Test5`, value: 6 }
+                            ]
+                        }),
+                        xLabel: `xLabel`,
+                        zLabel: `zLabel`
+                    }),
+                    graph3D: new UIDialog({
+                        buttonLabel: `Open 3D Graph`,
+                        title: `3D Graph`
+                    }),
+                    graph2D: new UIGraph2D({
+                        value: [ 0.0000234, 2, 3, 4, 5,
+                                2, 3, 4, 5, 6,
+                                3, 4, 5, 6, 7,
+                                4, 5, 6, 7, 8],
+                        xAxis: [ 1, 2, 3, 4, 5 ],
+                        yAxis: [ 1, 2, 3, 4 ],
+                        width: 640,
+                        height: 480
+                    })
                 })
-            })
-            window.template.graph3D.content.append(graph3D)
-            window.template.table2D.attachToTable(graph3D)
-            graph3D.attachToTable(window.template.table2D)
-            window.template.table2D.attachToTable(window.template.graph2D)
-            window.template.graph2D.attachToTable(window.template.table2D)
-            window.addEventListener(`load`, function() {
-                document.body.appendChild(window.template)
+                template.graph3D.content.append(graph3D)
+                template.table2D.attachToTable(graph3D)
+                graph3D.attachToTable(template.table2D)
+                template.table2D.attachToTable(template.graph2D)
+                template.graph2D.attachToTable(template.table2D)
+                document.body.appendChild(template)
             })
         </script>
     </head>

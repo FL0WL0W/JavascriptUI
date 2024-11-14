@@ -1,4 +1,5 @@
 import UITableBase from "./UITableBase.js"
+import { objectTester, calculateMinMaxValue, formatNumberForDisplay } from "./UIUtils.js";
 
 export default class UIGraph2D extends UITableBase {
     get xAxis() { return super.xAxis; }

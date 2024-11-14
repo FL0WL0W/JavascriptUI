@@ -1,3 +1,5 @@
+import "./UIUtils.js";
+
 export default class UIButton extends HTMLSpanElement {
     get value() { return undefined }
     set value(value) { }

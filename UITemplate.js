@@ -1,3 +1,5 @@
+import "./UIUtils.js";
+
 export default class UITemplate extends HTMLSpanElement {
     constructor(prop) {
         super()
