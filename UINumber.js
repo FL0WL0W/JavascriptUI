@@ -1,5 +1,3 @@
-import "./UIUtils.js";
-
 export default class UINumber extends HTMLInputElement {
     #value
     get value() {

@@ -1,5 +1,3 @@
-import "./UIUtils.js";
-
 export default class UITextArea extends HTMLTextAreaElement {
     #value = ``
     get value() {

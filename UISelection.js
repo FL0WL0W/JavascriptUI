@@ -1,4 +1,4 @@
-import { objectTester } from "./UIUtils.js";
+import { objectTester } from "./UIUtils"
 
 export default class UISelection extends HTMLDivElement {
     static ParseValue(type, value) {

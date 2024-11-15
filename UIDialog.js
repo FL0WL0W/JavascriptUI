@@ -1,5 +1,4 @@
-import UIButton from "./UIButton.js"
-import "./UIUtils.js";
+import UIButton from "./UIButton"
 
 export default class UIDialog extends HTMLSpanElement {
     get value() { return undefined }

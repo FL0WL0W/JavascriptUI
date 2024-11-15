@@ -1,33 +1,3 @@
-export default (function() {
-    let hiddenGetterSetter = {
-        enumerable: true,
-        get: function() {
-            return this.style.display === `none`
-        },
-        set: function(hidden) {
-            if(hidden && this.style.display !== `none`) {
-                if(this.style.display)
-                    this._previousDisplayValue = this.style.display
-                this.style.display = `none`
-            } else if(!hidden && this.style.display === `none`) {
-                if(this._previousDisplayValue)
-                    this.style.display = this._previousDisplayValue
-                else 
-                    this.style.display = null
-                delete this._previousDisplayValue
-            }
-        }
-    }
-    if(!('hidden' in HTMLElement.prototype)) Object.defineProperty(HTMLElement.prototype, 'hidden', hiddenGetterSetter)
-    if(!('hidden' in SVGElement.prototype)) Object.defineProperty(SVGElement.prototype, 'hidden', hiddenGetterSetter)
-    if(!('class' in HTMLElement.prototype)) Object.defineProperty(HTMLElement.prototype, 'class', {
-        enumerable: true,
-        set: function(pclass) {
-            pclass.split(` `).forEach(pclass => { this.classList.add(pclass) })
-        }
-    })
-})();
-
 export function formatNumberForDisplay(value, precision = 6) {
     value = parseFloat(value)
     if(isNaN(value))

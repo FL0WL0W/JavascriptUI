@@ -1,5 +1,3 @@
-import "./UIUtils.js";
-
 export default class UICheckBox extends HTMLInputElement {
     #value = false
     get value() {
