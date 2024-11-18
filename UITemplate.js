@@ -17,17 +17,6 @@ export default class UITemplate extends HTMLSpanElement {
         if(propValue != undefined)
             this.value = propValue
         let thisEntries = Object.entries(this)
-        let attachChangeToElement = (element) => {
-            if(Array.isArray(element)) {
-                element.forEach(attachChangeToElement)
-            } else {
-                element?.addEventListener?.(`change`, () => {
-                    this.dispatchEvent(new Event(`change`, {bubbles: true}))
-                })
-            }
-        }
-        thisEntries.forEach(([elementName, element]) => attachChangeToElement(element))
-
         const template = this.template ?? this.constructor.template
         this.innerHTML = template
         this.querySelectorAll(`[data-element]`).forEach(element => {
