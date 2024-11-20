@@ -240,9 +240,9 @@ export default class UITable extends UITableBase {
         //table
         this.append(this.#tableElement);
         this.#tableElement.class  = `numerictable`;
-        this.#xLabelElement.class = `xlabel`;
-        this.#yLabelElement.class = `ylabel`;
-        this.#zLabelElement.class = `zlabel`;
+        this.#xLabelElement.class = `xLabel`;
+        this.#yLabelElement.class = `yLabel`;
+        this.#zLabelElement.class = `zLabel`;
         this._xAxisElement.class  = `xAxis`;
         this._yAxisElement.class  = `yAxis`;
         this._valueElement.class  = `value`;
@@ -355,10 +355,10 @@ export default class UITable extends UITableBase {
             xAxisTd.append(this._xAxisElement);
             row1.append(this.#xResolutionDragElement);
         } else if (yResolution > 1) {
-            const ylabelTd      = row1.appendChild(document.createElement(`td`));
-            ylabelTd.append(this.#yLabelElement);
-            const zlabelTd      = row1.appendChild(document.createElement(`td`));
-            zlabelTd.append(this.#zLabelElement);
+            const yLabelTd      = row1.appendChild(document.createElement(`td`));
+            yLabelTd.append(this.#yLabelElement);
+            const zLabelTd      = row1.appendChild(document.createElement(`td`));
+            zLabelTd.append(this.#zLabelElement);
         }
         //row2/3
         const row2 = document.createElement(`tr`);
@@ -367,14 +367,14 @@ export default class UITable extends UITableBase {
         newChildren.push(row3);
         if (yResolution > 1) {
             if(xResolution > 1) {
-                row2.appendChild(document.createElement(`td`)).style = `width: auto; min-width: 2em;`;//auto width to take up zlabel slack
+                row2.appendChild(document.createElement(`td`)).style = `width: auto; min-width: 2em;`;//auto width to take up zLabel slack
                 const yAxisLabel = row2.appendChild(document.createElement(`td`));
                 yAxisLabel.class = `ytrans`;
                 yAxisLabel.append(this.#yLabelElement);
                 row3.appendChild(document.createElement(`td`)).colSpan = 2;// pick up slack for ydrag
             }
             const yAxisTd = row2.appendChild(document.createElement(`td`));
-            yAxisTd.class = `yaxis`;
+            yAxisTd.class = `yAxis`;
             yAxisTd.append(this._yAxisElement)
             row3.append(this.#yResolutionDragElement);
             row3.append(this.#xyResolutionDragElement);
