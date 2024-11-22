@@ -36,16 +36,13 @@ export default class UIDialog extends HTMLSpanElement {
     }
 
     show() {
-        this.#dialog.show()
-        if(this.#dialog.style.right == 0) {
-            this.#dialog.style.top = `0px`
-            this.#dialog.style.left = `0px`
+        if(!this.#dialog.style.top) {
+            this.#dialog.style.top = `${this.#button.getBoundingClientRect().top + window.scrollY}px`
         }
+        this.#dialog.show()
     }
     close() {
         this.#dialog.close()
-        delete this.#dialog.style.top
-        delete this.#dialog.style.left
     }
 
     constructor(prop) {
@@ -54,7 +51,6 @@ export default class UIDialog extends HTMLSpanElement {
         this.buttonLabel - `Open`
         this.append(this.#button)
         this.#dialog.class = `ui dialog`
-        this.#dialog.style.bottom = `0px`
         document.getElementsByTagName(`body`)[0].append(this.#dialog)
         this.#titleBarElement.class = `titlebar`
         this.#dialog.append(this.#titleBarElement)
@@ -72,28 +68,33 @@ export default class UIDialog extends HTMLSpanElement {
             this.close()
         })
         this.#titleBarElement.addEventListener(`mousedown`, event => {
-            this.#dialog.style.left = this.#dialog.offsetLeft
-            this.#dialog.style.right = `auto`
-            this.#dialog.style.top = this.#dialog.offsetTop
-            this.#dialog.style.bottom = `auto`
+            // Ensure the dialog has a defined position before starting drag-and-drop
+            const computedStyle = window.getComputedStyle(this.#dialog);
+            console.log(computedStyle.left)
+            this.#dialog.style.left = computedStyle.left;
+            this.#dialog.style.top = computedStyle.top;
+        
             let state = {
                 pageX: event.pageX,
                 pageY: event.pageY,
                 left: parseFloat(this.#dialog.style.left),
                 top: parseFloat(this.#dialog.style.top)
-            }
+            };
+        
             const mouseMove = event => {
-                let xDiff = event.pageX - state.pageX
-                let yDiff = event.pageY - state.pageY
-                this.#dialog.style.left = state.left + xDiff
-                this.#dialog.style.top = state.top + yDiff
-            }
+                let xDiff = event.pageX - state.pageX;
+                let yDiff = event.pageY - state.pageY;
+                this.#dialog.style.left = `${state.left + xDiff}px`;
+                this.#dialog.style.top = `${state.top + yDiff}px`;
+            };
+        
             const mouseUp = () => {
-                document.removeEventListener(`mousemove`, mouseMove)
-                document.removeEventListener(`mouseup`, mouseUp)
-            }
-            document.addEventListener(`mousemove`, mouseMove)
-            document.addEventListener(`mouseup`, mouseUp)
+                document.removeEventListener(`mousemove`, mouseMove);
+                document.removeEventListener(`mouseup`, mouseUp);
+            };
+        
+            document.addEventListener(`mousemove`, mouseMove);
+            document.addEventListener(`mouseup`, mouseUp);
         })
     }
 }
