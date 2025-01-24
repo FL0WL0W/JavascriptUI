@@ -22,6 +22,9 @@ export default class UICheckBox extends HTMLInputElement {
         super()
         this.type = `checkbox`
         this.class = `ui checkbox`
+        this.addEventListener(`change`, () => {
+            this.#value = this.checked
+        })
         Object.assign(this, prop)
     }
 }
