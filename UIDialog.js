@@ -70,7 +70,6 @@ export default class UIDialog extends HTMLSpanElement {
         this.#titleBarElement.addEventListener(`mousedown`, event => {
             // Ensure the dialog has a defined position before starting drag-and-drop
             const computedStyle = window.getComputedStyle(this.#dialog);
-            console.log(computedStyle.left)
             this.#dialog.style.left = computedStyle.left;
             this.#dialog.style.top = computedStyle.top;
         
