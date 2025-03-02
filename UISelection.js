@@ -70,6 +70,7 @@ export default class UISelection extends HTMLDivElement {
         this.#selectValue = selectValue
         if(this.selectedOption == undefined) {
             this.selectedElement.value = UISelection.ParseValue(`string`, selectValue)
+            this.selectedElement.style.setProperty('--value', this.selectedElement.value);
             this.selectedElement.type = typeof selectValue
         }
         if(!this.selectHidden){
@@ -175,6 +176,7 @@ export default class UISelection extends HTMLDivElement {
         const selectedElement = this.selectedElement
         selectedElement.type = typeof value
         selectedElement.value = UISelection.ParseValue(`string`, value)
+        selectedElement.style.setProperty('--value', selectedElement.value);
         this.#updateSelectElement()
         this.dispatchEvent(new Event(`change`, {bubbles: true}))
     }
@@ -258,6 +260,7 @@ function setElementOption(element, option) {
             element.classList.add(`selectdisabled`)
         element.type = typeof option.value
         element.value =  UISelection.ParseValue(`string`, option.value)
+        element.style.setProperty('--value', element.value);
         element.textContent = option.name + (option.info? ` ${option.info}` : ``)
     }
 }
