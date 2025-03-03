@@ -53,7 +53,8 @@ export default class UISelection extends HTMLDivElement {
             return
 
         this.#selectName = selectName
-        this.selectedElement.textContent = this.selectName
+        if(this.selectedOption == undefined)
+            this.selectedElement.textContent = this.selectName
         if(!this.selectHidden){
             setElementOption(this.#selectElement, { name: this.selectName, disabled: this.selectDisabled, value: this.selectValue })
         }
@@ -114,8 +115,8 @@ export default class UISelection extends HTMLDivElement {
             else { element.classList.add(`selected`); selected = true }
         })
         const selectedText = this.selectedOption?.selectedName ?? this.selectedOption?.name ?? this.selectName
-        if(this.selectName !== selectedText)
-            this.selectName = selectedText
+        if(this.selectedElement.textContent !== selectedText)
+            this.selectedElement.textContent = selectedText
         if(!selected)
             this.#selectElement.classList.add(`selected`)
         if(this.options.map(option => option.options?.length ?? 1).reduce((partionSum, a) => partionSum + a, 0)  < (this.selectHidden? 2 : 1))
