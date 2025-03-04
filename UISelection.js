@@ -54,7 +54,7 @@ export default class UISelection extends HTMLDivElement {
 
         this.#selectName = selectName
         if(this.selectedOption == undefined)
-            this.selectedElement.textContent = this.selectName
+            this.selectedElementSpan.textContent = this.selectName
         if(!this.selectHidden){
             setElementOption(this.#selectElement, { name: this.selectName, disabled: this.selectDisabled, value: this.selectValue })
         }
@@ -115,8 +115,8 @@ export default class UISelection extends HTMLDivElement {
             else { element.classList.add(`selected`); selected = true }
         })
         const selectedText = this.selectedOption?.selectedName ?? this.selectedOption?.name ?? this.selectName
-        if(this.selectedElement.textContent !== selectedText)
-            this.selectedElement.textContent = selectedText
+        if(this.selectedElementSpan.textContent !== selectedText)
+            this.selectedElementSpan.textContent = selectedText
         if(!selected)
             this.#selectElement.classList.add(`selected`)
         if(this.options.map(option => option.options?.length ?? 1).reduce((partionSum, a) => partionSum + a, 0)  < (this.selectHidden? 2 : 1))
@@ -193,6 +193,7 @@ export default class UISelection extends HTMLDivElement {
         super()
         this.class = `ui select`
         this.selectedElement = this.appendChild(document.createElement(`div`))
+        this.selectedElementSpan = this.selectedElement.appendChild(document.createElement(`span`))
         this.selectedElement.class = `ui selected`
         this.contextMenuElement = document.createElement(`div`)
         this.contextMenuElement.class = `ui context-menu`

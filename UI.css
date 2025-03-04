@@ -300,16 +300,22 @@
     box-sizing: border-box;
 }
 .ui.select .ui.selected {
-    margin-right: 1em;
     min-width: 200px;
     text-decoration: none;
     background-color: var(--input-background-color);
     color: var(--text-color);
     border-radius: var(--border-radius);
     border: 2px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.ui.select .ui.selected span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .ui.select .ui.selected::after {
-    float: right;
     content: "▼";
 }
 .ui.select .ui.selected.single::after {
