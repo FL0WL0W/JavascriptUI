@@ -51,7 +51,7 @@ export default class UINumber extends HTMLInputElement {
                 this.#value = min
             if(!isNaN(this.#value) && !isNaN(max) && this.#value > max)
                 this.#value = max
-        });
+        })
     }
 }
 customElements.define(`ui-number`, UINumber, { extends: `input` })

@@ -69,31 +69,31 @@ export default class UIDialog extends HTMLSpanElement {
         })
         this.#titleBarElement.addEventListener(`mousedown`, event => {
             // Ensure the dialog has a defined position before starting drag-and-drop
-            const computedStyle = window.getComputedStyle(this.#dialog);
-            this.#dialog.style.left = computedStyle.left;
-            this.#dialog.style.top = computedStyle.top;
+            const computedStyle = window.getComputedStyle(this.#dialog)
+            this.#dialog.style.left = computedStyle.left
+            this.#dialog.style.top = computedStyle.top
         
             let state = {
                 pageX: event.pageX,
                 pageY: event.pageY,
                 left: parseFloat(this.#dialog.style.left),
                 top: parseFloat(this.#dialog.style.top)
-            };
+            }
         
             const mouseMove = event => {
-                let xDiff = event.pageX - state.pageX;
-                let yDiff = event.pageY - state.pageY;
-                this.#dialog.style.left = `${state.left + xDiff}px`;
-                this.#dialog.style.top = `${state.top + yDiff}px`;
-            };
+                let xDiff = event.pageX - state.pageX
+                let yDiff = event.pageY - state.pageY
+                this.#dialog.style.left = `${state.left + xDiff}px`
+                this.#dialog.style.top = `${state.top + yDiff}px`
+            }
         
             const mouseUp = () => {
-                document.removeEventListener(`mousemove`, mouseMove);
-                document.removeEventListener(`mouseup`, mouseUp);
-            };
+                document.removeEventListener(`mousemove`, mouseMove)
+                document.removeEventListener(`mouseup`, mouseUp)
+            }
         
-            document.addEventListener(`mousemove`, mouseMove);
-            document.addEventListener(`mouseup`, mouseUp);
+            document.addEventListener(`mousemove`, mouseMove)
+            document.addEventListener(`mouseup`, mouseUp)
         })
     }
 }
