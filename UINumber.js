@@ -1,15 +1,28 @@
 export default class UINumber extends HTMLInputElement {
     #value
+    #hex = false
+
+    get hex() { return this.#hex }
+    set hex(hex) {
+        this.#hex = hex
+        if(hex) {
+            this.type = `text`
+        } else {
+            this.type = `number`
+        }
+        super.value = isNaN(this.#value)? `` : hex ? `0x${this.#value.toString(16).toUpperCase()}` : this.#value
+    }
+
     get value() {
         return this.#value
     }
     set value(value) {
-        value = parseFloat(value)
-        if(parseFloat(this.value) === value)
+        value = this.#hex ? parseInt(value) : parseFloat(value)
+        if(this.value === value)
             return
 
         const prevValue = this.value
-        super.value = isNaN(value)? `` : value
+        super.value = isNaN(value)? `` : this.#hex ? `0x${value.toString(16).toUpperCase()}` : value
         this.#value = value
         if(prevValue === this.value || (isNaN(prevValue) && isNaN(this.value)))
             return
@@ -44,7 +57,7 @@ export default class UINumber extends HTMLInputElement {
         this.class = `ui number`
         Object.assign(this, prop)
         this.addEventListener(`change`, () => { 
-            this.#value = parseFloat(super.value)
+            this.#value = this.#hex ? parseInt(super.value) : parseFloat(super.value)
             const min = parseFloat(super.min)
             const max = parseFloat(super.max)
             if(!isNaN(this.#value) && !isNaN(min) && this.#value < min)
