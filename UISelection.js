@@ -106,7 +106,7 @@ export default class UISelection extends HTMLDivElement {
         const selectedText = this.selectedOption?.selectedName ?? this.selectedOption?.name ?? this.selectName
         if(this.selectedElementSpan.textContent !== selectedText)
             this.selectedElementSpan.textContent = selectedText
-        if(this.options.map(option => option.options?.length ?? 1).reduce((partionSum, a) => partionSum + a, 0) < (this.selectHidden? 2 : 1))
+        if(this.options.map(option => option.options?.length ?? 1).reduce((partionSum, a) => partionSum + a, 0) < 1)
             selectedElement.classList.add(`single`)
         else
             selectedElement.classList.remove(`single`)
@@ -141,8 +141,8 @@ export default class UISelection extends HTMLDivElement {
         return UISelection.ParseValue(this.selectedElement.type, this.selectedElement.value)
     }
     set value(value) {
-        if(this.selectHidden && this.value == undefined && this.options.length === 1)
-            value = this.options[0].value
+        if(this.options.map(option => option.options?.length ?? 1).reduce((partionSum, a) => partionSum + a, 0) < 1)
+            value = (this.options[0]?.options?.[0] ?? this.options[0])?.value
         if(objectTester(this.value, value))
             return
 
@@ -179,7 +179,7 @@ export default class UISelection extends HTMLDivElement {
             this.#updateSelectElement()
             if(this.contextMenu.visible)
                 return
-            if(this.selectHidden && this.options.length < 2)
+            if(this.options.map(option => option.options?.length ?? 1).reduce((partionSum, a) => partionSum + a, 0) < 1)
                 return
             if(this.selectedElement.classList.contains(`single`))
                 return
