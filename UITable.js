@@ -270,15 +270,23 @@ export default class UITable extends UITableBase {
     static #cellValueGetterSetter = {
         get: function() { return this._value },
         set: function(value) { 
-            value = parseFloat(value)
-            if(this._value === value)
-                return
-            this._value = value
-            this.style.setProperty(`--data-value`, value)
-            const inputElement = this.children[0]
-            if(inputElement?.tagName === `INPUT`) inputElement.value = value
-            else {
-                this.textContent = formatNumberForDisplay(value)
+            const valueFloat = parseFloat(value)
+            if(!isNaN(valueFloat)) {
+                if(this._value === valueFloat)
+                    return
+                this._value = valueFloat
+                this.style.setProperty(`--data-value`, valueFloat)
+                const inputElement = this.children[0]
+                if(inputElement?.tagName === `INPUT`) inputElement.value = valueFloat
+                else {
+                    this.textContent = formatNumberForDisplay(valueFloat)
+                }
+            } else {
+                if(this._value === value)
+                    return
+                this._value = value
+                this.style.removeProperty(`--data-value`)
+                this.textContent = value
             }
         }
     }
