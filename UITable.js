@@ -2,6 +2,12 @@ import { objectTester, calculateMinMaxValue, formatNumberForDisplay } from "./UI
 import UITableBase from "./UITableBase"
 
 export default class UITable extends UITableBase {
+    get interpolateEnabled() { return this.#interpolateElement.hidden === false }
+    set interpolateEnabled(interpolateEnabled) { this.#interpolateElement.hidden = !interpolateEnabled }
+    get modifyEnabled() { return this.#modifyElement.hidden === false }
+    set modifyEnabled(modifyEnabled) { this.#modifyElement.hidden = !modifyEnabled }
+    get pasteEnabled() { return this.#pasteOptionsElement.hidden === false }
+    set pasteEnabled(pasteEnabled) { this.#pasteOptionsElement.hidden = !pasteEnabled }
     get selecting() {
         return super.selecting
     }
@@ -508,6 +514,8 @@ export default class UITable extends UITableBase {
         this.#valueInputElement.addEventListener(`change`, valueInputChange)
 
         this.#valueInputElement.addEventListener(`copy`, event => {
+            if(this.pasteEnabled === false)
+                return
             let copyData = ``
 
             let currentY
@@ -533,6 +541,8 @@ export default class UITable extends UITableBase {
         })
 
         this.#valueInputElement.addEventListener(`paste`, event => {
+            if(this.pasteEnabled === false)
+                return
             var val = event.clipboardData.getData(`text/plain`)
             const lines = val.split(`\n`).length
             const cols = val.split(`\t`).length
