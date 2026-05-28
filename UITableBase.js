@@ -109,6 +109,14 @@ export default class UITableBase extends HTMLDivElement {
         ///*TODO*/interpolation
         this.dispatchEvent(new Event(`change`, {bubbles: true}))
     }
+    #xAxisModifiable = true
+    get xAxisModifiable() { return this.#xAxisModifiable }
+    set xAxisModifiable(xAxisModifiable) {
+        this.#xAxisModifiable = xAxisModifiable
+        if(!this.#xAxisModifiable && isNaN(this.selecting?.startY)) {
+            this.selecting = undefined
+        }
+    }
     get yResolution() {
         return Math.max(1, this._yAxisElement.children.length)
     }
@@ -151,6 +159,14 @@ export default class UITableBase extends HTMLDivElement {
         ///*TODO*/interpolation
         this.dispatchEvent(new Event(`change`, {bubbles: true}))
     }
+    #yAxisModifiable = true
+    get yAxisModifiable() { return this.#yAxisModifiable }
+    set yAxisModifiable(yAxisModifiable) {
+        this.#yAxisModifiable = yAxisModifiable
+        if(!this.#yAxisModifiable && isNaN(this.selecting?.startX)) {
+            this.selecting = undefined
+        }
+    }
 
     #selecting
     get selecting() {
@@ -163,9 +179,9 @@ export default class UITableBase extends HTMLDivElement {
         this._yAxisElement.querySelectorAll(`.selected`).forEach(element => { element.classList.remove(`selected`) })
         if(selecting) {
             let elementArray = this._valueElement.children
-            if(isNaN(selecting.startX))
+            if(isNaN(selecting.startX) && this.yAxisModifiable)
                 elementArray = this._yAxisElement.children
-            if(isNaN(selecting.startY))
+            if(isNaN(selecting.startY) && this.xAxisModifiable)
                 elementArray = this._xAxisElement.children
             for(let i=0; i<elementArray.length; i++) {
                 let element = elementArray[i]
@@ -206,7 +222,7 @@ export default class UITableBase extends HTMLDivElement {
         this.style.setProperty('--valuemax', valueMax)
     }
     _boundAxis(element) {
-        if(element !== this._xAxisElement && element !== this._yAxisElement)
+        if((element !== this._xAxisElement && element !== this._yAxisElement) || !this.selecting)
             return
         let amin
         let amax

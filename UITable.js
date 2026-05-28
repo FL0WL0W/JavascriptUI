@@ -9,14 +9,16 @@ export default class UITable extends UITableBase {
         if(objectTester(this.selecting, selecting))
             return
         this.#tableElement.querySelectorAll(`input`)?.forEach(element => { element.parentElement.textContent = formatNumberForDisplay(element.parentElement.value) })
-        let startElement = [...this._valueElement.children].find(element => element.x===selecting.startX && element.y===selecting.startY)
-        if(isNaN(selecting.startX))
-            startElement = [...this._yAxisElement.children].find(element => element.y===selecting.startY)
-        if(isNaN(selecting.startY))
-            startElement = [...this._xAxisElement.children].find(element => element.x===selecting.startX)
-        if(startElement && this.#valueInputElement.parentElement !== startElement) {
-            this.#valueInputElement.value = startElement.value
-            startElement.replaceChildren(this.#valueInputElement)
+        if(selecting) {
+            let startElement = [...this._valueElement.children].find(element => element.x===selecting.startX && element.y===selecting.startY)
+            if(isNaN(selecting.startX) && this.yAxisModifiable)
+                startElement = [...this._yAxisElement.children].find(element => element.y===selecting.startY)
+            if(isNaN(selecting.startY) && this.xAxisModifiable)
+                startElement = [...this._xAxisElement.children].find(element => element.x===selecting.startX)
+            if(startElement && this.#valueInputElement.parentElement !== startElement) {
+                this.#valueInputElement.value = startElement.value
+                startElement.replaceChildren(this.#valueInputElement)
+            }
         }
         super.selecting = selecting
     }
@@ -463,9 +465,9 @@ export default class UITable extends UITableBase {
         const valueInputChange = () => {
             if(!this.#valueInputElement.parentElement)
                 return
-            let x = parseInt(this.#valueInputElement.parentElement.x)
-            let y = parseInt(this.#valueInputElement.parentElement.y)
-            const oldVal = parseFloat(this.#valueInputElement.parentElement.value)
+            let x = parseInt(this.#valueInputElement.parentElement?.x)
+            let y = parseInt(this.#valueInputElement.parentElement?.y)
+            const oldVal = parseFloat(this.#valueInputElement.parentElement?.value)
             let value = parseFloat(this.#valueInputElement.value)
             if(isNaN(value) || value === oldVal || (x==undefined && y==undefined))
                 return
@@ -526,8 +528,8 @@ export default class UITable extends UITableBase {
             var val = event.clipboardData.getData(`text/plain`)
             const lines = val.split(`\n`).length
             const cols = val.split(`\t`).length
-            let x = parseInt(event.target.parentElement.x)
-            let y = parseInt(event.target.parentElement.y)
+            let x = parseInt(event.target.parentElement?.x)
+            let y = parseInt(event.target.parentElement?.y)
             let element = this._valueElement
             if(isNaN(x)) {
                 if(cols > 1)
@@ -681,7 +683,7 @@ export default class UITable extends UITableBase {
         const down = event => {
             addSelectNumber = false
             const targetIsDataValue = event.target.x != undefined || event.target.y != undefined
-            const parentIsDataValue = event.target.parentElement.x != undefined || event.target.parentElement.y != undefined
+            const parentIsDataValue = event.target.parentElement?.x != undefined || event.target.parentElement?.y != undefined
             if(targetIsDataValue || parentIsDataValue) {
                 selecting = { startElement: targetIsDataValue? event.target : event.target.parentElement, selectOnMove: parentIsDataValue }
                 selecting.startX = parseInt(selecting.startElement.x)
@@ -750,7 +752,7 @@ export default class UITable extends UITableBase {
                 this.#modifyValueElement.select()
                 this.#modifySubtractElement.classList.add(`selected`)
             }
-            //aterisk
+            //asterisk
             if(event.key === `*`) {
                 event.preventDefault()
                 this.#modifyValueElement.select()
@@ -785,9 +787,9 @@ export default class UITable extends UITableBase {
                 return
             
             let element = this._valueElement
-            if(this.#valueInputElement.parentElement.x == undefined)
+            if(this.#valueInputElement.parentElement?.x == undefined)
                 element = this._yAxisElement
-            if(this.#valueInputElement.parentElement.y == undefined)
+            if(this.#valueInputElement.parentElement?.y == undefined)
                 element = this._xAxisElement
             element.querySelectorAll(`.selected`).forEach(selectedElement => {
                 switch(operation) {
