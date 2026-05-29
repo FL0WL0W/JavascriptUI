@@ -1,5 +1,6 @@
 import { objectTester, calculateMinMaxValue, formatNumberForDisplay } from "./UIUtils"
 import UITableBase from "./UITableBase"
+import UISelection from "./UISelection"
 
 export default class UITable extends UITableBase {
     get interpolateEnabled() { return this.#interpolateElement.hidden === false }
@@ -14,16 +15,33 @@ export default class UITable extends UITableBase {
     set selecting(selecting) {
         if(objectTester(this.selecting, selecting))
             return
-        this.#tableElement.querySelectorAll(`input`)?.forEach(element => { element.parentElement.textContent = formatNumberForDisplay(element.parentElement.value) })
+        this.#tableElement.querySelectorAll(`input`)?.forEach(element => { if(element.parentElement.value !== undefined ) element.parentElement.textContent = formatNumberForDisplay(element.parentElement.value) })
+        if(this.options) this.#tableElement.querySelectorAll(`div .select`)?.forEach(element => { 
+            if(element.parentElement.value !== undefined) element.parentElement.textContent = this.options.find(option => option.value === element.parentElement.value)?.name
+        })
         if(selecting) {
-            let startElement = [...this._valueElement.children].find(element => element.x===selecting.startX && element.y===selecting.startY)
-            if(isNaN(selecting.startX) && this.yAxisModifiable)
-                startElement = [...this._yAxisElement.children].find(element => element.y===selecting.startY)
-            if(isNaN(selecting.startY) && this.xAxisModifiable)
-                startElement = [...this._xAxisElement.children].find(element => element.x===selecting.startX)
-            if(startElement && this.#valueInputElement.parentElement !== startElement) {
-                this.#valueInputElement.value = startElement.value
-                startElement.replaceChildren(this.#valueInputElement)
+            if(isNaN(selecting.startX) && this.yAxisModifiable) {
+                let startElement = [...this._yAxisElement.children].find(element => element.y===selecting.startY)
+                if(startElement && this.#yAxisInputElement.parentElement !== startElement) {
+                    const val = startElement.value
+                    startElement.replaceChildren(this.#yAxisInputElement)
+                    this.#yAxisInputElement.value = val
+                }
+            }
+            else if(isNaN(selecting.startY) && this.xAxisModifiable) {
+                let startElement = [...this._xAxisElement.children].find(element => element.x===selecting.startX)
+                if(startElement && this.#xAxisInputElement.parentElement !== startElement) {
+                    const val = startElement.value
+                    startElement.replaceChildren(this.#xAxisInputElement)
+                    this.#xAxisInputElement.value = val
+                }
+            } else {
+                let startElement = [...this._valueElement.children].find(element => element.x===selecting.startX && element.y===selecting.startY)
+                if(startElement && this.#valueInputElement.parentElement !== startElement) {
+                    const val = startElement.value
+                    startElement.replaceChildren(this.#valueInputElement)
+                    this.#valueInputElement.value = val
+                }
             }
         }
         super.selecting = selecting
@@ -114,6 +132,30 @@ export default class UITable extends UITableBase {
     set max(max) {
         this.#valueInputElement.max = max
     }
+    get options() {
+        return this.#valueInputElement.options
+    }
+    set options(options) {
+        if(options == undefined) {
+            this.#valueInputElement.remove()
+            this.selecting = undefined
+            this.#valueInputElement = document.createElement(`input`)
+            this.#valueInputElement.type = `number`
+            ;[...this.#tableElement.querySelector(`div .value`).children].forEach(element => {
+                element.textContent = formatNumberForDisplay(element.value)
+            });
+        } else {
+            this.#valueInputElement.remove()
+            this.selecting = undefined
+            this.#valueInputElement = new UISelection()
+            this.#valueInputElement.options = options
+            ;[...this.#tableElement.querySelector(`div .value`).children].forEach(element => {
+                element.value = this.options.find(option => option.value === element.value)?.value ?? this.options[0]?.value
+                element.textContent = this.options.find(option => option.value === element.value)?.name
+                element.style.removeProperty(`--data-value`)
+            });
+        }
+    }
 
     //trail properties
     trailTime = 2000
@@ -165,6 +207,8 @@ export default class UITable extends UITableBase {
     _yAxisElement = document.createElement(`div`)
     _valueElement       = document.createElement(`div`)
     #valueInputElement  = document.createElement(`input`)
+    #xAxisInputElement  = document.createElement(`input`)
+    #yAxisInputElement  = document.createElement(`input`)
 
     constructor(prop) {
         super()
@@ -255,6 +299,8 @@ export default class UITable extends UITableBase {
         this._yAxisElement.class  = `yAxis`
         this._valueElement.class  = `value`
         this.#valueInputElement.type = `number`
+        this.#xAxisInputElement.type = `number`
+        this.#yAxisInputElement.type = `number`
         this.#xResolutionDragElement.class = `xdrag`
         this.#xResolutionDragElement.rowSpan = 2
         this.#yResolutionDragElement.class = `ydrag`
@@ -272,29 +318,6 @@ export default class UITable extends UITableBase {
         this.#constructTableEventListeners()
         this.#constructModifyEventListeners()
         this.#constructInterpolateEventListeners()
-    }
-    static #cellValueGetterSetter = {
-        get: function() { return this._value },
-        set: function(value) { 
-            const valueFloat = parseFloat(value)
-            if(!isNaN(valueFloat)) {
-                if(this._value === valueFloat)
-                    return
-                this._value = valueFloat
-                this.style.setProperty(`--data-value`, valueFloat)
-                const inputElement = this.children[0]
-                if(inputElement?.tagName === `INPUT`) inputElement.value = valueFloat
-                else {
-                    this.textContent = formatNumberForDisplay(valueFloat)
-                }
-            } else {
-                if(this._value === value)
-                    return
-                this._value = value
-                this.style.removeProperty(`--data-value`)
-                this.textContent = value
-            }
-        }
     }
 
     trail(x, y = 0, z) {
@@ -406,10 +429,40 @@ export default class UITable extends UITableBase {
     }
 
     _resolutionChanged(axisElements, axisResolution) {
+        const thisClass = this
+        let cellValueGetterSetter = {
+            get: function() { return this._value },
+            set: function(value) { 
+                const valueFloat = parseFloat(value)
+                if(!isNaN(valueFloat)) {
+                    if(this._value === valueFloat)
+                        return
+                    this._value = valueFloat
+                    const inputElement = this.children[0]
+                    if(inputElement?.tagName === `INPUT`) {
+                        this.style.setProperty(`--data-value`, valueFloat)
+                        inputElement.value = valueFloat
+                    } else if(inputElement instanceof UISelection) {
+                        this.style.removeProperty(`--data-value`)
+                        inputElement.value = valueFloat
+                    } else {
+                        this.style.setProperty(`--data-value`, valueFloat)
+                        this.textContent = formatNumberForDisplay(valueFloat)
+                    }
+                } else {
+                    if(this._value === value)
+                        return
+                    this._value = value
+                    this.style.removeProperty(`--data-value`)
+                    this.textContent = thisClass.options.find(option => option.value === element.parentElement.value)?.name
+                }
+            },
+            configurable: true
+        }
         while(axisResolution < axisElements.children.length) { axisElements.removeChild(axisElements.lastChild) }
         for(let i = axisElements.children.length; i < axisResolution; i++) { 
             const axisElement = axisElements.appendChild(document.createElement(`div`))
-            Object.defineProperty(axisElement, 'value', UITable.#cellValueGetterSetter)
+            Object.defineProperty(axisElement, 'value', cellValueGetterSetter)
             const axisMinus1 = axisElements.children[i-1]?.value
             const axisMinus2 = axisElements.children[i-2]?.value
             let axisMinus0 = 0
@@ -426,7 +479,8 @@ export default class UITable extends UITableBase {
         while(this.xResolution * this.yResolution < this._valueElement.children.length) { this._valueElement.removeChild(this._valueElement.lastChild) }
         for(let i = 0; i < this.xResolution * this.yResolution; i++) { 
             const valueElement = this._valueElement.children[i] ?? this._valueElement.appendChild(document.createElement(`div`))
-            Object.defineProperty(valueElement, 'value', UITable.#cellValueGetterSetter)
+            valueElement.classList.add(`cell`)
+            Object.defineProperty(valueElement, 'value', cellValueGetterSetter)
             valueElement.x = i % this.xResolution
             valueElement.y = Math.trunc(i/this.xResolution)
         }
@@ -477,20 +531,32 @@ export default class UITable extends UITableBase {
             this.yResolution = parseInt(event.target.value)
         })
         const valueInputChange = () => {
-            if(!this.#valueInputElement.parentElement)
-                return
-            let x = parseInt(this.#valueInputElement.parentElement?.x)
-            let y = parseInt(this.#valueInputElement.parentElement?.y)
-            const oldVal = parseFloat(this.#valueInputElement.parentElement?.value)
-            let value = parseFloat(this.#valueInputElement.value)
-            if(isNaN(value) || value === oldVal || (x==undefined && y==undefined))
-                return
-            
-            let element = this._valueElement
-            if(isNaN(y))
+            let oldVal, value, element
+            if(this.#valueInputElement.parentElement){
+                let x = parseInt(this.#valueInputElement.parentElement?.x)
+                let y = parseInt(this.#valueInputElement.parentElement?.y)
+                oldVal = parseFloat(this.#valueInputElement.parentElement?.value)
+                value = parseFloat(this.#valueInputElement.value)
+                element = this._valueElement
+                if(x==undefined && y==undefined) return
+            } else if(this.#xAxisInputElement.parentElement) {
+                let x = parseInt(this.#xAxisInputElement.parentElement?.x)
+                oldVal = parseFloat(this.#xAxisInputElement.parentElement?.value)
+                value = parseFloat(this.#xAxisInputElement.value)
                 element = this._xAxisElement
-            else if(isNaN(x))
+                if(x==undefined) return
+            } else if(this.#yAxisInputElement.parentElement) {
+                let y = parseInt(this.#yAxisInputElement.parentElement?.y)
+                oldVal = parseFloat(this.#yAxisInputElement.parentElement?.value)
+                value = parseFloat(this.#yAxisInputElement.value)
                 element = this._yAxisElement
+                if(y==undefined) return
+            } else {
+                return
+            }
+
+            if(isNaN(value) || value === oldVal)
+                return
 
             let operation = `equal`
             // if(value - oldVal === Math.floor(oldVal+1) - oldVal) {
@@ -511,9 +577,9 @@ export default class UITable extends UITableBase {
 
             this._boundAxis(element)
         }
-        this.#valueInputElement.addEventListener(`change`, valueInputChange)
+        this.#tableElement.addEventListener(`change`, valueInputChange)
 
-        this.#valueInputElement.addEventListener(`copy`, event => {
+        this.#tableElement.addEventListener(`copy`, event => {
             if(this.pasteEnabled === false)
                 return
             let copyData = ``
@@ -540,7 +606,7 @@ export default class UITable extends UITableBase {
             event.preventDefault()
         })
 
-        this.#valueInputElement.addEventListener(`paste`, event => {
+        this.#tableElement.addEventListener(`paste`, event => {
             if(this.pasteEnabled === false)
                 return
             var val = event.clipboardData.getData(`text/plain`)
@@ -678,16 +744,18 @@ export default class UITable extends UITableBase {
             }
         }
 
-        let addSelectNumber = false
+        let addSelectInput = false
         const up = () => {
             dragX = false
             dragY = false
-            if(selecting) {
-                const targetIsDataValue = selecting.startElement.x != undefined || selecting.startElement.y != undefined
-                if(addSelectNumber) {
-                    if(targetIsDataValue) {
-                        this.#valueInputElement.select()
-                    }
+            if(selecting && addSelectInput) {
+                if(selecting.startElement.y === undefined) {
+                    this.#xAxisInputElement.select?.()
+                } else if(selecting.startElement.x === undefined) {
+                    this.#yAxisInputElement.select?.()
+                } else if(selecting.startElement.x != undefined && selecting.startElement.y != undefined) {
+                    this.#valueInputElement.select?.()
+                    this.#valueInputElement.contextMenu?.show?.()
                 }
             }
             selecting = false
@@ -699,7 +767,7 @@ export default class UITable extends UITableBase {
         document.addEventListener(`touchend`, up)
 
         const down = event => {
-            addSelectNumber = false
+            addSelectInput = false
             const targetIsDataValue = event.target.x != undefined || event.target.y != undefined
             const parentIsDataValue = event.target.parentElement?.x != undefined || event.target.parentElement?.y != undefined
             if(targetIsDataValue || parentIsDataValue) {
@@ -717,8 +785,8 @@ export default class UITable extends UITableBase {
                         }
                     }
                 }
-                if(event.target.type !== `number`) {
-                    addSelectNumber = true
+                if(event.target.type !== `number` && !(event.target instanceof HTMLInputElement)) {
+                    addSelectInput = true
                 }
             }
             document.addEventListener(`touchmove`, touchMoveEvent)
@@ -851,7 +919,12 @@ export default class UITable extends UITableBase {
                 return
             this.#modifyElement.querySelector(`.selected`)?.dispatchEvent(new Event(`click`))
             blur()
-            this.#valueInputElement.select()
+            if(isNaN(this.selecting.startY))
+                this.#xAxisInputElement.select()
+            else if(isNaN(this.selecting.startX))
+                this.#yAxisInputElement.select()
+            else
+                this.#valueInputElement.select()
         })
         this.#modifyEqualElement.addEventListener(`click`, () => {
             modify(`equal`)

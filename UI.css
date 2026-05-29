@@ -138,6 +138,9 @@
     content: "■";
 }
 
+.ui table.numerictable .ui {
+    --border-width: 0.1em;
+}
 .ui table.numerictable {
     --border-color: var(--background-hover-color);
     --border-width: 0.1em;
@@ -239,7 +242,7 @@
     height: 1.4em; /* this is a hack. can't figure out a better way cause css sucks */
     position:absolute;
 }
-.ui table.numerictable tr td div.value div {
+.ui table.numerictable tr td div.value div.cell {
     background-color: hsla(calc(180 - (180 * (var(--data-value) - var(--valuemin)) / (var(--valuemax) - var(--valuemin)))), 60%, 50%, 100%);
 }
 .ui table.numerictable tr td div.value div.selected {
