@@ -453,8 +453,7 @@ export default class UITable extends UITableBase {
                     if(this._value === value)
                         return
                     this._value = value
-                    this.style.removeProperty(`--data-value`)
-                    this.textContent = thisClass.options.find(option => option.value === element.parentElement.value)?.name
+                    this.textContent = value
                 }
             },
             configurable: true
