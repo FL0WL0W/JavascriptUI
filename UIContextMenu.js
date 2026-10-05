@@ -94,6 +94,7 @@ export default class UIContextMenu extends HTMLDivElement {
             this.style.display = `none`
             document.removeEventListener(`click`, clickHandler)
             this.#visible = false
+            this.dispatchEvent(new Event(`close`))
         }
         document.addEventListener(`click`, clickHandler)
         window.setTimeout(() => { this.style.display = ``; this.#visible = true; }, 1)
@@ -104,6 +105,7 @@ export default class UIContextMenu extends HTMLDivElement {
             return
         this.style.display = `none`
         this.#visible = false
+        this.dispatchEvent(new Event(`close`))
     }
 
     constructor(prop) {
