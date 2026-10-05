@@ -114,18 +114,20 @@ export default class UIContextMenu extends HTMLDivElement {
         this.style.display = `none`
 
         this.addEventListener(`click`, event => {
-            if(event.target.classList.contains(`selectdisabled`))
+            if(event.target.closest(`.selectdisabled`))
                 return
-            if(event.target.classList.contains(`selectgroup`) && this.classList.contains(`collapsible`)) {
-                if(event.target.parentElement.classList.contains(`collapsed`)) event.target.parentElement.classList.remove(`collapsed`)
-                else event.target.parentElement.classList.add(`collapsed`)
+            const groupElement = event.target.closest(`.selectgroup`)
+            if(groupElement && this.classList.contains(`collapsible`)) {
+                if(groupElement.parentElement.classList.contains(`collapsed`)) groupElement.parentElement.classList.remove(`collapsed`)
+                else groupElement.parentElement.classList.add(`collapsed`)
                 this.#collapsingClick = true
                 return
             }
-            if(!event.target.classList.contains(`selectoption`))
+            const optionElement = event.target.closest(`.selectoption`)
+            if(!optionElement || !this.contains(optionElement) || !optionElement._optionData)
                 return
 
-            this.dispatchEvent(new CustomEvent(`optionselect`, { bubbles: true, detail: event.target._optionData }))
+            this.dispatchEvent(new CustomEvent(`optionselect`, { bubbles: true, detail: optionElement._optionData }))
         })
 
         Object.assign(this, prop)
