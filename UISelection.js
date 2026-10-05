@@ -113,6 +113,7 @@ export default class UISelection extends HTMLDivElement {
     }
 
     #options = []
+    lastValidValue
     get options() {
         return this.#options
     }
@@ -123,6 +124,8 @@ export default class UISelection extends HTMLDivElement {
             return
         this.#options = options
         this.#updateContextMenuOptions()
+        if(this.lastValidValue !== undefined)
+            this.value = this.lastValidValue
         this.#updateSelectElement()
     }
 
@@ -141,6 +144,8 @@ export default class UISelection extends HTMLDivElement {
         return UISelection.ParseValue(this.selectedElement.type, this.selectedElement.value)
     }
     set value(value) {
+        if(value !== undefined)
+            this.lastValidValue = value
         if(this.options.map(option => option.options?.length ?? 1).reduce((partionSum, a) => partionSum + a, 0) < 1)
             value = (this.options[0]?.options?.[0] ?? this.options[0])?.value
         if(objectTester(this.value, value))
