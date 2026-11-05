@@ -1,3 +1,17 @@
+const templateContentCache = new Map()
+
+function getTemplateContent(template) {
+    let cachedContent = templateContentCache.get(template)
+    if(cachedContent)
+        return cachedContent
+
+    const templateElement = document.createElement(`template`)
+    templateElement.innerHTML = template
+    cachedContent = templateElement.content
+    templateContentCache.set(template, cachedContent)
+    return cachedContent
+}
+
 export default class UITemplate extends HTMLSpanElement {
     constructor(prop) {
         super()
@@ -16,14 +30,14 @@ export default class UITemplate extends HTMLSpanElement {
             this.saveValue = propSaveValue
         if(propValue != undefined)
             this.value = propValue
-        let thisEntries = Object.entries(this)
+        const thisEntries = Object.entries(this)
+        const entryMap = new Map(thisEntries)
         const template = this.template ?? this.constructor.template
-        this.innerHTML = template
+        this.replaceChildren(getTemplateContent(template).cloneNode(true))
         this.querySelectorAll(`[data-element]`).forEach(element => {
-            let found = thisEntries.find(([elementName, e]) => { return element.dataset.element === elementName })
-            if(!found)
+            const matchingUI = entryMap.get(element.dataset.element)
+            if(matchingUI == undefined)
                 return
-            let [matchingUIName, matchingUI] = found
             element.replaceWith(matchingUI)
         })
     }
