@@ -127,7 +127,7 @@ export default class UIContextMenu extends HTMLDivElement {
             if(!optionElement || !this.contains(optionElement) || !optionElement._optionData)
                 return
 
-            this.dispatchEvent(new CustomEvent(`optionselect`, { bubbles: true, detail: optionElement._optionData }))
+            this.dispatchEvent(new CustomEvent(`optionselect`, { detail: optionElement._optionData }))
         })
 
         Object.assign(this, prop)

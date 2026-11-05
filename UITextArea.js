@@ -8,7 +8,7 @@ export default class UITextArea extends HTMLTextAreaElement {
             return
 
         super.value = this.#value = value
-        super.dispatchEvent(new Event(`change`, {bubbles: true}))
+        super.dispatchEvent(new Event(`change`))
     }
 
     get saveValue() {

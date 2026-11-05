@@ -21,7 +21,7 @@ export default class UITableBase extends HTMLDivElement {
             return
         for(let i = 0; i < this._valueElement.children.length; i++)
             this._valueElement.children[i].value = value[i]
-        this.dispatchEvent(new Event(`change`, {bubbles: true}))
+        this.dispatchEvent(new Event(`change`))
     }
     get saveValue() {
         return {
@@ -96,7 +96,7 @@ export default class UITableBase extends HTMLDivElement {
             this._xResolutionElement.value = xResolution
         this._resolutionChanged(this._xAxisElement, xResolution)
         this.value = newValue
-        this.dispatchEvent(new Event(`change`, {bubbles: true}))
+        this.dispatchEvent(new Event(`change`))
     }
     get xAxis() {
         return [...this._xAxisElement.children].map(x => x.value)
@@ -107,7 +107,7 @@ export default class UITableBase extends HTMLDivElement {
         this.xResolution = xAxis.length
         xAxis.forEach((xAxisValue, xAxisIndex) => { this._xAxisElement.children[xAxisIndex].value = xAxisValue })
         ///*TODO*/interpolation
-        this.dispatchEvent(new Event(`change`, {bubbles: true}))
+        this.dispatchEvent(new Event(`change`))
     }
     #xAxisModifiable = true
     get xAxisModifiable() { return this.#xAxisModifiable }
@@ -146,7 +146,7 @@ export default class UITableBase extends HTMLDivElement {
             this._yResolutionElement.value = yResolution
         this._resolutionChanged(this._yAxisElement, yResolution)
         this.value = newValue
-        this.dispatchEvent(new Event(`change`, {bubbles: true}))
+        this.dispatchEvent(new Event(`change`))
     }
     get yAxis() {
         return [...this._yAxisElement.children].map(x => x.value)
@@ -157,7 +157,7 @@ export default class UITableBase extends HTMLDivElement {
         this.yResolution = yAxis.length
         yAxis.forEach((yAxisValue, yAxisIndex) => { this._yAxisElement.children[yAxisIndex].value = yAxisValue })
         ///*TODO*/interpolation
-        this.dispatchEvent(new Event(`change`, {bubbles: true}))
+        this.dispatchEvent(new Event(`change`))
     }
     #yAxisModifiable = true
     get yAxisModifiable() { return this.#yAxisModifiable }

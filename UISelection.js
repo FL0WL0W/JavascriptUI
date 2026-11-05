@@ -156,7 +156,7 @@ export default class UISelection extends HTMLDivElement {
         selectedElement.value = UISelection.ParseValue(`string`, value)
         selectedElement.style.setProperty('--value', selectedElement.value)
         this.#updateSelectElement()
-        this.dispatchEvent(new Event(`change`, {bubbles: true}))
+        this.dispatchEvent(new Event(`change`))
     }
 
     get saveValue() {

@@ -27,7 +27,7 @@ export default class UINumber extends HTMLInputElement {
         if(prevValue === this.value || (isNaN(prevValue) && isNaN(this.value)))
             return
 
-        super.dispatchEvent(new Event(`change`, {bubbles: true}))
+        super.dispatchEvent(new Event(`change`))
     }
 
     get min() { return super.min }
