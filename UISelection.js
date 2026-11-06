@@ -1,6 +1,11 @@
 import { objectTester } from "./UIUtils"
 import UIContextMenu from "./UIContextMenu"
 
+function selectionValuesEqual(left, right) {
+    const normalize = value => typeof value === `object` ? JSON.parse(JSON.stringify(value)) : value
+    return objectTester(normalize(left), normalize(right))
+}
+
 export default class UISelection extends HTMLDivElement {
     static ParseValue(type, value) {
         switch(type) {
@@ -102,7 +107,7 @@ export default class UISelection extends HTMLDivElement {
 
     #updateSelectElement() {
         const selectedElement = this.selectedElement
-        this.contextMenu.markSelected(option => UISelection.ParseValue(`string`, option.value) === selectedElement.value)
+        this.contextMenu.markSelected(option => selectionValuesEqual(option.value, this.value))
         const selectedText = this.selectedOption?.selectedName ?? this.selectedOption?.name ?? this.selectName
         if(this.selectedElementSpan.textContent !== selectedText)
             this.selectedElementSpan.textContent = selectedText
@@ -130,10 +135,10 @@ export default class UISelection extends HTMLDivElement {
     }
 
     get selectedOption() {
-        const stringValue = this.selectedElement.value
-        let selectedOption = this.options.find(x => UISelection.ParseValue(`string`, x.value) === stringValue || x.options?.findIndex(x => UISelection.ParseValue(`string`, x.value) === stringValue) > -1)
+        const value = this.value
+        let selectedOption = this.options.find(x => selectionValuesEqual(x.value, value) || x.options?.some(x => selectionValuesEqual(x.value, value)))
         if(selectedOption?.group)
-            selectedOption = selectedOption.options.find(x => UISelection.ParseValue(`string`, x.value) === stringValue)
+            selectedOption = selectedOption.options.find(x => selectionValuesEqual(x.value, value))
         return selectedOption
     }
     set selectedOption(selectedOption) {
