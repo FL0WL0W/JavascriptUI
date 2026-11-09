@@ -114,6 +114,9 @@ export default class UISelection extends HTMLDivElement {
     }
 
     #value = undefined
+    get valueWithoutSelectionVerification() {
+        return this.#value
+    }
     get value() {
         return this.selectedOption?.value;
     }
@@ -143,7 +146,6 @@ export default class UISelection extends HTMLDivElement {
         this.contextMenu = new UIContextMenu()
         this.append(this.contextMenu)
         this.contextMenu.addEventListener(`optionselect`, event => {
-            console.log(event.detail.value)
             this.value = event.detail.value
         })
         this.#updateContextMenuOptions()
