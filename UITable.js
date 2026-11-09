@@ -678,7 +678,7 @@ export default class UITable extends UITableBase {
             }
             event.preventDefault()
             this._boundAxis(element)
-            this.dispatchEvent(new Event(`change`))
+            this.dispatchEvent(new Event(`change`, { bubbles: true }))
         })
 
         this.#tableElement.addEventListener(`dragstart`, event => {
@@ -902,7 +902,7 @@ export default class UITable extends UITableBase {
             })
 
             this._boundAxis(element)
-            this.dispatchEvent(new Event(`change`))
+            this.dispatchEvent(new Event(`change`, { bubbles: true }))
         }
         const blur = () => {
             this.#modifyAddElement.hidden      = false
@@ -984,7 +984,7 @@ export default class UITable extends UITableBase {
                     element.value = xAxis[xMin] + xMag * (x-xMin)
                 })
             }
-            this.dispatchEvent(new Event(`change`))
+            this.dispatchEvent(new Event(`change`, { bubbles: true }))
         }
         const interpolateY = () => {
             let selectedElements = this._valueElement.querySelectorAll(`.selected`)
@@ -1025,7 +1025,7 @@ export default class UITable extends UITableBase {
                     element.value = yAxis[yMin] + yMag * (y-yMin)
                 })
             }
-            this.dispatchEvent(new Event(`change`))
+            this.dispatchEvent(new Event(`change`, { bubbles: true }))
         }
         this.#interpolateXYElement.addEventListener(`click`, () => {
             const selectedElements = this._valueElement.querySelectorAll(`.selected`)

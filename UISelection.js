@@ -127,7 +127,7 @@ export default class UISelection extends HTMLDivElement {
         this.#value = value
 
         this.#updateSelectElement()
-        this.dispatchEvent(new Event(`change`))
+        this.dispatchEvent(new Event(`change`, { bubbles: true }))
     }
 
     get saveValue() {

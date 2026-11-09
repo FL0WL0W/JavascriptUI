@@ -13,29 +13,10 @@ function getTemplateContent(template) {
 }
 
 export default class UITemplate extends HTMLSpanElement {
-    #childChangeListeners = new Map()
-
     constructor(prop) {
         super()
         if(prop)
             this.Setup(prop)
-    }
-
-    #detachChildChangeListeners() {
-        this.#childChangeListeners.forEach((listener, element) => {
-            element.removeEventListener(`change`, listener)
-        })
-        this.#childChangeListeners.clear()
-    }
-
-    #attachChildChangeListener(element) {
-        if(!element?.addEventListener || this.#childChangeListeners.has(element))
-            return
-        const listener = () => {
-            this.dispatchEvent(new Event(`change`))
-        }
-        element.addEventListener(`change`, listener)
-        this.#childChangeListeners.set(element, listener)
     }
 
     Setup(prop) {
@@ -52,14 +33,12 @@ export default class UITemplate extends HTMLSpanElement {
         const thisEntries = Object.entries(this)
         const entryMap = new Map(thisEntries)
         const template = this.template ?? this.constructor.template
-        this.#detachChildChangeListeners()
         this.replaceChildren(getTemplateContent(template).cloneNode(true))
         this.querySelectorAll(`[data-element]`).forEach(element => {
             const matchingUI = entryMap.get(element.dataset.element)
             if(matchingUI == undefined)
                 return
             element.replaceWith(matchingUI)
-            this.#attachChildChangeListener(matchingUI)
         })
     }
     

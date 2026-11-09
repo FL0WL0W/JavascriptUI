@@ -21,7 +21,7 @@ export default class UITableBase extends HTMLDivElement {
             return
         for(let i = 0; i < this._valueElement.children.length; i++)
             this._valueElement.children[i].value = value[i]
-        this.dispatchEvent(new Event(`change`))
+        this.dispatchEvent(new Event(`change`, { bubbles: true }))
     }
     get saveValue() {
         return {
