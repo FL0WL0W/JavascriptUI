@@ -131,7 +131,7 @@ export default class UISelection extends HTMLDivElement {
     }
 
     get saveValue() {
-        return this.value
+        return this.#value
     }
     set saveValue(saveValue){
         this.value = saveValue
